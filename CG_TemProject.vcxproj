@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Clink!.cpp" />
     <ClCompile Include="GLCamera.cpp" />
     <ClCompile Include="GLLight.cpp" />
     <ClCompile Include="GLLine.cpp" />
