@@ -10,7 +10,7 @@ void GLCamera::Update()
 
 	Camera_Mat = glm::translate(Camera_Mat, pos);
 	Camera_Mat = glm::rotate(Camera_Mat, glm::radians(rotate_theta.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	Camera_Mat = glm::rotate(Camera_Mat, glm::radians(rotate_theta.y), glm::vec3(0.0f, 1.0f, 0.0f));
+	Camera_Mat = glm::rotate(Camera_Mat, glm::radians(rotate_theta.y), glm::vec3(0.0f, 1.0f, 0.0f)); 
 	Camera_Mat = glm::rotate(Camera_Mat, glm::radians(rotate_theta.z), glm::vec3(0.0f, 0.0f, 1.0f));
 	Camera_Mat = glm::translate(Camera_Mat, -pos);
 }
