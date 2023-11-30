@@ -44,8 +44,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="3d_vertex_v4_light.glsl" />
-    <None Include="light_fragment_v2.glsl" />
+    <None Include="vertex.glsl" />
+    <None Include="fragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="헤더 파일">

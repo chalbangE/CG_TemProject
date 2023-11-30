@@ -30,7 +30,7 @@ using namespace std;
 float winSizex = 800, winSizey = 800;
 GLuint vao;
 
-vector <GLObj> Pyramid;
+vector <GLObj> Object;
 GLLine lineObj;
 GLCamera Camera;
 GLLight Light;
@@ -71,15 +71,17 @@ GLvoid drawScene()
 	int PosLocation = glGetAttribLocation(shaderProgramID, "in_Position"); //	: 0
 	int ColorLocation = glGetAttribLocation(shaderProgramID, "in_Color"); //	: 1
 	int NormalLocation = glGetAttribLocation(shaderProgramID, "in_Normal");
+	int UvLocation = glGetAttribLocation(shaderProgramID, "in_Uv");
 	unsigned int WorldTransLocation = glGetUniformLocation(shaderProgramID, "World_trans");
 	unsigned int CameraLocation = glGetUniformLocation(shaderProgramID, "Camera_trans");
 	unsigned int ProjectionLocation = glGetUniformLocation(shaderProgramID, "Projection_trans");
-	unsigned int NormalTransLocation = glGetUniformLocation(shaderProgramID, "Normal_trans");
+	unsigned int TexSamplerLocation = glGetUniformLocation(shaderProgramID, "out_Tex");
+	unsigned int TexorColorLocation = glGetUniformLocation(shaderProgramID, "Tex_or_Color");
 	glEnableVertexAttribArray(PosLocation);
 	glEnableVertexAttribArray(ColorLocation);
 	glEnableVertexAttribArray(NormalLocation);
 	glEnableVertexAttribArray(WorldTransLocation);
-	glEnableVertexAttribArray(NormalTransLocation);
+	glEnableVertexAttribArray(UvLocation);
 
 	// 프래그먼트 쉐이더에게 전달
 	int LightPosLocation = glGetUniformLocation(shaderProgramID, "Light_Pos");
@@ -90,6 +92,8 @@ GLvoid drawScene()
 	glEnableVertexAttribArray(LightColorLocation);
 	glEnableVertexAttribArray(ViewPosLocation);
 	glEnableVertexAttribArray(DistanceLocation);
+	glEnableVertexAttribArray(TexorColorLocation);
+	glUniform1i(TexSamplerLocation, 0);
 
 	// 카메라 변환
 	Camera.Update();
@@ -112,6 +116,7 @@ GLvoid drawScene()
 	Light.Update();
 	Light.draw_prepare(PosLocation, "Pos");
 	Light.draw_prepare(ColorLocation, "Color");
+	Light.draw_prepare(TexorColorLocation, "Color_bool");
 	Light.draw_prepare(NormalLocation, "Normal");
 	Light.draw_prepare(WorldTransLocation, "World");
 	Light.draw_prepare(LightPosLocation, "LightPos");
@@ -121,21 +126,28 @@ GLvoid drawScene()
 	lineObj.Update();
 	lineObj.draw_prepare(PosLocation, "Pos");
 	lineObj.draw_prepare(ColorLocation, "Color");
+	glUniform1i(TexorColorLocation, false);
 	lineObj.draw_prepare(WorldTransLocation, "World");
 	lineObj.draw();
 
-	for (int i = 0; i < Pyramid.size(); ++i) {
-		Pyramid[i].Update();
-		Pyramid[i].Normal_Update();
-		Pyramid[i].draw_prepare(PosLocation, "Pos");
-		Pyramid[i].draw_prepare(ColorLocation, "Color");
-		Pyramid[i].draw_prepare(WorldTransLocation, "World");
-		Pyramid[i].draw_prepare(NormalTransLocation, "Normal_mat");
-		Pyramid[i].draw_prepare(NormalLocation, "Normal");
-		glUniform1f(DistanceLocation, distance(Light.pos, Pyramid[i].pos));
-		Pyramid[i].draw("solid");
+	// 알파값 포함 객체 그리기 시작 -------
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	for (int i = 0; i < Object.size(); ++i) {
+		Object[i].Update();
+		Object[i].draw_prepare(PosLocation, "Pos");
+		Object[i].draw_prepare(WorldTransLocation, "World");
+		Object[i].draw_prepare(NormalLocation, "Normal");
+		Object[i].draw_prepare(UvLocation, "UV");
+		Object[i].draw_prepare(false, "Texture");
+		Object[i].draw_prepare(TexorColorLocation, "Texture_bool");
+		glUniform1f(DistanceLocation, distance(Light.pos, Object[i].pos));
+		Object[i].draw("solid");
 	}
 
+	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
 	glDisableVertexAttribArray(PosLocation);
@@ -147,8 +159,10 @@ GLvoid drawScene()
 	glDisableVertexAttribArray(ViewPosLocation);
 	glDisableVertexAttribArray(ProjectionLocation);
 	glDisableVertexAttribArray(CameraLocation);
-	glDisableVertexAttribArray(NormalTransLocation);
 	glDisableVertexAttribArray(DistanceLocation);
+	glDisableVertexAttribArray(UvLocation);
+	glDisableVertexAttribArray(TexorColorLocation);
+	glDisableVertexAttribArray(TexSamplerLocation);
 
 	glutSwapBuffers();
 }
@@ -282,29 +296,31 @@ void Init()
 		glBindBuffer(GL_ARRAY_BUFFER, Light.v_color);
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
-	//  Pyramid
+	//  Object
 	{
-		std::ifstream inputFile("./OBJ/pyramid.obj");
-		Pyramid.emplace_back();
+		std::ifstream inputFile("./OBJ/cube_tex.obj");
+		Object.emplace_back();
 
 		if (inputFile.is_open())
-			Pyramid.back().objLoad(inputFile);
+			Object.back().objLoad(inputFile);
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Pyramid.back().pos = glm::vec3{ 0.f, 0.f, 0.f };
-		Pyramid.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
-		Pyramid.back().scale = glm::vec3{ 0.08f, 0.08f, 0.08f };
+		Object.back().pos = glm::vec3{ 0.f, 0.f, 0.f };
+		Object.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
+		Object.back().scale = glm::vec3{ 0.8f, 0.8f, 0.8f };
 
 		std::vector<glm::vec3> color;
 		glm::vec3 a{ 103 / 255.f, 153 / 255.f, 1.f };
-		for (int i = 0; i < Pyramid.back().face_cnt * 3; ++i) {
+		for (int i = 0; i < Object.back().face_cnt * 3; ++i) {
 			color.emplace_back(a);
 		}
 
-		glGenBuffers(1, &Pyramid.back().v_color);
-		glBindBuffer(GL_ARRAY_BUFFER, Pyramid.back().v_color);
+		glGenBuffers(1, &Object.back().v_color);
+		glBindBuffer(GL_ARRAY_BUFFER, Object.back().v_color);
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
+
+		Object.back().imgLoad("./IMG/모몽가_투명.png");
 	}
 
 	// X축 Y축
@@ -353,7 +369,7 @@ void make_shaderProgram()
 
 void make_vertexShaders()
 {
-	vertexSource = filetobuf("3d_vertex_v4_light.glsl");
+	vertexSource = filetobuf("vertex.glsl");
 	//--- 버텍스 세이더 객체 만들기
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	//--- 세이더 코드를 세이더 객체에 넣기
@@ -374,7 +390,7 @@ void make_vertexShaders()
 
 void make_fragmentShaders()
 {
-	fragmentSource = filetobuf("light_fragment_v2.glsl");
+	fragmentSource = filetobuf("fragment.glsl");
 	//--- 프래그먼트 세이더 객체 만들기
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	//--- 세이더 코드를 세이더 객체에 넣기

@@ -72,7 +72,7 @@ void GLObj::objLoad(std::ifstream& path) {
 
 			vertIndex++;
 		}
-		if (bind[0] == 'v' && bind[1] == 'n' && bind[2] == ' ') {
+		else if (bind[0] == 'v' && bind[1] == 'n' && bind[2] == ' ') {
 			std::stringstream ss_bind{};
 
 			for (int i = 0; i < bind.size(); ++i) {
@@ -88,6 +88,23 @@ void GLObj::objLoad(std::ifstream& path) {
 			ss_bind >> normal[normalIndex].x >> normal[normalIndex].y >> normal[normalIndex].z;
 
 			normalIndex++;
+		}
+		else if (bind[0] == 'v' && bind[1] == 't' && bind[2] == ' ') {
+			std::stringstream ss_bind{};
+
+			for (int i = 0; i < bind.size(); ++i) {
+				if (bind[i] == '/')
+					bind[i] = ' ';
+			}
+
+			ss_bind.str(bind);
+
+			std::string a;
+			ss_bind >> a;
+
+			ss_bind >> texture[textureIndex].x >> texture[textureIndex].y;
+
+			textureIndex++;
 		}
 		else if (bind[0] == 'f' && bind[1] == ' ') {
 			std::stringstream ss_bind{};
@@ -157,10 +174,10 @@ void GLObj::objLoad(std::ifstream& path) {
 					{ normal[static_cast<int>(vn_face[faceIndex][2] - 1)].x, normal[static_cast<int>(vn_face[faceIndex][2] - 1)].y, normal[static_cast<int>(vn_face[faceIndex][2] - 1)].z}
 				};
 
-				glm::vec3 t[3]{
-					{ texture[static_cast<int>(vt_face[faceIndex][0] - 1)].x, texture[static_cast<int>(vt_face[faceIndex][0] - 1)].y, texture[static_cast<int>(vt_face[faceIndex][0] - 1)].z},
-					{ texture[static_cast<int>(vt_face[faceIndex][1] - 1)].x, texture[static_cast<int>(vt_face[faceIndex][1] - 1)].y, texture[static_cast<int>(vt_face[faceIndex][1] - 1)].z },
-					{ texture[static_cast<int>(vt_face[faceIndex][2] - 1)].x, texture[static_cast<int>(vt_face[faceIndex][2] - 1)].y, texture[static_cast<int>(vt_face[faceIndex][2] - 1)].z}
+				glm::vec2 t[3]{
+					{ texture[static_cast<int>(vt_face[faceIndex][0] - 1)].x, texture[static_cast<int>(vt_face[faceIndex][0] - 1)].y},
+					{ texture[static_cast<int>(vt_face[faceIndex][1] - 1)].x, texture[static_cast<int>(vt_face[faceIndex][1] - 1)].y },
+					{ texture[static_cast<int>(vt_face[faceIndex][2] - 1)].x, texture[static_cast<int>(vt_face[faceIndex][2] - 1)].y}
 				};
 
 				objpos.push_back(a[0]);
@@ -245,6 +262,10 @@ void GLObj::objLoad(std::ifstream& path) {
 	glBindBuffer(GL_ARRAY_BUFFER, v_nor);
 	glBufferData(GL_ARRAY_BUFFER, objnor.size() * sizeof(glm::vec3), objnor.data(), GL_STATIC_DRAW);
 
+	glGenBuffers(1, &v_uv);
+	glBindBuffer(GL_ARRAY_BUFFER, v_uv);
+	glBufferData(GL_ARRAY_BUFFER, objtex.size() * sizeof(glm::vec2), objtex.data(), GL_STATIC_DRAW);
+
 	face_cnt = faceIndex;
 
 	delete[] v_face;
@@ -275,6 +296,9 @@ void GLObj::draw_prepare(int Location, std::string Location_str) {
 		glBindBuffer(GL_ARRAY_BUFFER, v_color);
 		glVertexAttribPointer(Location, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
+	else if ("Color_bool" == Location_str) {
+		glUniform1i(Location, false);
+	}
 	else if ("World" == Location_str) {
 		glUniformMatrix4fv(Location, 1, GL_FALSE, glm::value_ptr(World_mat));
 	}
@@ -282,8 +306,15 @@ void GLObj::draw_prepare(int Location, std::string Location_str) {
 		glBindBuffer(GL_ARRAY_BUFFER, v_nor);
 		glVertexAttribPointer(Location, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
-	else if ("Normal_mat" == Location_str) {
-		glUniformMatrix4fv(Location, 1, GL_FALSE, glm::value_ptr(Normal_mat));
+	else if ("UV" == Location_str) {
+		glBindBuffer(GL_ARRAY_BUFFER, v_uv);
+		glVertexAttribPointer(Location, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	}
+	else if ("Texture_bool" == Location_str) {
+		glUniform1i(Location, true);
+	}
+	else if ("Texture" == Location_str) {
+		glBindTexture(GL_TEXTURE_2D, img);
 	}
 }
 
@@ -308,90 +339,19 @@ void GLObj::Update()
 	World_mat = glm::translate(World_mat, -midpos);
 }
 
-void GLObj::Normal_Update()
+void GLObj::imgLoad(std::string map)
 {
-	Normal_mat = glm::mat4(1.0);
+	int img_W, img_H, numberOfChannel; // 가로, 세로, 채널 수
 
-	Normal_mat = glm::rotate(Normal_mat, glm::radians(revolve_theta.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	Normal_mat = glm::rotate(Normal_mat, glm::radians(revolve_theta.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	Normal_mat = glm::rotate(Normal_mat, glm::radians(revolve_theta.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	Normal_mat = glm::translate(Normal_mat, pos);
-
-	Normal_mat = glm::rotate(Normal_mat, glm::radians(rotate_theta.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	Normal_mat = glm::rotate(Normal_mat, glm::radians(rotate_theta.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	Normal_mat = glm::rotate(Normal_mat, glm::radians(rotate_theta.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	Normal_mat = glm::translate(Normal_mat, -midpos);
-}
-
-void GLObj::Update20()
-{
-	World_mat = glm::mat4(1.0);
-
-	World_mat = glm::translate(World_mat, pos - Object_mid);
-	World_mat = glm::rotate(World_mat, glm::radians(revolve_theta.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(revolve_theta.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(revolve_theta.z), glm::vec3(0.0f, 0.0f, 1.0f));
-	World_mat = glm::translate(World_mat, -(pos - Object_mid));
-
-	World_mat = glm::translate(World_mat, pos);
-
-	World_mat = glm::rotate(World_mat, glm::radians(rotate_theta.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(rotate_theta.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(rotate_theta.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	World_mat = glm::scale(World_mat, scale);
-
-	World_mat = glm::translate(World_mat, -midpos);
-}
-
-void GLObj::Update22()
-{
-	World_mat = glm::mat4(1.0);
-
-	World_mat = glm::scale(World_mat, Oscale);
-
-	World_mat = glm::translate(World_mat, Ani_mid);
-	World_mat = glm::rotate(World_mat, glm::radians(revolve_theta.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(revolve_theta.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(revolve_theta.z), glm::vec3(0.0f, 0.0f, 1.0f));
-	World_mat = glm::translate(World_mat, -Ani_mid);
-
-	World_mat = glm::translate(World_mat, pos);
-
-	World_mat = glm::translate(World_mat, -Object_mid);
-	World_mat = glm::rotate(World_mat, glm::radians(rotate_theta.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(rotate_theta.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(rotate_theta.z), glm::vec3(0.0f, 0.0f, 1.0f));
-	World_mat = glm::translate(World_mat, Object_mid);
-
-	World_mat = glm::scale(World_mat, scale);
-
-	World_mat = glm::translate(World_mat, -midpos);
-}
-
-void GLObj::Update24()
-{
-	World_mat = glm::mat4(1.0);
-
-	World_mat = glm::scale(World_mat, Oscale);
-
-	World_mat = glm::translate(World_mat, Ani_mid);
-	World_mat = glm::rotate(World_mat, glm::radians(revolve_theta.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(revolve_theta.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(revolve_theta.z), glm::vec3(0.0f, 0.0f, 1.0f));
-	World_mat = glm::translate(World_mat, -Ani_mid);
-
-	World_mat = glm::translate(World_mat, pos);
-
-	World_mat = glm::translate(World_mat, -Object_mid);
-	World_mat = glm::rotate(World_mat, glm::radians(rotate_theta.x), glm::vec3(1.0f, 0.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(rotate_theta.y), glm::vec3(0.0f, 1.0f, 0.0f));
-	World_mat = glm::rotate(World_mat, glm::radians(rotate_theta.z), glm::vec3(0.0f, 0.0f, 1.0f));
-	World_mat = glm::translate(World_mat, Object_mid);
-
-	World_mat = glm::scale(World_mat, scale);
-
-	World_mat = glm::translate(World_mat, -midpos);
+	glGenTextures(1, &img);
+	glBindTexture(GL_TEXTURE_2D, img);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(map.c_str(), &img_W, &img_H, &numberOfChannel, 0);
+	// std::cout << name << " : widthImage - " << widthImage << " , heightImage - " << heightImage << std::endl;
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img_W, img_H, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	stbi_image_free(data);
 }
