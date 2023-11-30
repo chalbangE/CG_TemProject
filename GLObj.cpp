@@ -277,10 +277,8 @@ void GLObj::objLoad(std::ifstream& path) {
 }
 
 void GLObj::draw(std::string draw_Mod) {
-	if ("solid" == draw_Mod)
+	if ("solid" == draw_Mod) 
 		glDrawArrays(GL_TRIANGLES, 0, face_cnt * 3);
-	if ("polygon" == draw_Mod)
-		glDrawArrays(GL_POLYGON, 0, face_cnt * 3);
 	else if ("line" == draw_Mod) {
 		for (int i = 0; i < face_cnt * 3; i += 3)
 			glDrawArrays(GL_LINE_LOOP, i, 3);
