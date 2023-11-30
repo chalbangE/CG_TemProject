@@ -80,7 +80,6 @@ GLvoid drawScene()
 	glEnableVertexAttribArray(PosLocation);
 	glEnableVertexAttribArray(ColorLocation);
 	glEnableVertexAttribArray(NormalLocation);
-	glEnableVertexAttribArray(WorldTransLocation);
 	glEnableVertexAttribArray(UvLocation);
 
 	// 프래그먼트 쉐이더에게 전달
@@ -88,11 +87,6 @@ GLvoid drawScene()
 	unsigned int LightColorLocation = glGetUniformLocation(shaderProgramID, "Light_Color");
 	unsigned int ViewPosLocation = glGetUniformLocation(shaderProgramID, "View_Pos");
 	unsigned int DistanceLocation = glGetUniformLocation(shaderProgramID, "Distance");
-	glEnableVertexAttribArray(LightPosLocation);
-	glEnableVertexAttribArray(LightColorLocation);
-	glEnableVertexAttribArray(ViewPosLocation);
-	glEnableVertexAttribArray(DistanceLocation);
-	glEnableVertexAttribArray(TexorColorLocation);
 	glUniform1i(TexSamplerLocation, 0);
 
 	// 카메라 변환
@@ -118,6 +112,7 @@ GLvoid drawScene()
 	Light.draw_prepare(ColorLocation, "Color");
 	Light.draw_prepare(TexorColorLocation, "Color_bool");
 	Light.draw_prepare(NormalLocation, "Normal");
+	Light.draw_prepare(UvLocation, "UV");
 	Light.draw_prepare(WorldTransLocation, "World");
 	Light.draw_prepare(LightPosLocation, "LightPos");
 	Light.draw_prepare(LightColorLocation, "LightColor");
@@ -126,6 +121,7 @@ GLvoid drawScene()
 	lineObj.Update();
 	lineObj.draw_prepare(PosLocation, "Pos");
 	lineObj.draw_prepare(ColorLocation, "Color");
+	lineObj.draw_prepare(TexorColorLocation, "Color_bool");
 	glUniform1i(TexorColorLocation, false);
 	lineObj.draw_prepare(WorldTransLocation, "World");
 	lineObj.draw();
@@ -154,14 +150,7 @@ GLvoid drawScene()
 	glDisableVertexAttribArray(ColorLocation);
 	glDisableVertexAttribArray(NormalLocation);
 	glDisableVertexAttribArray(WorldTransLocation);
-	glDisableVertexAttribArray(LightPosLocation);
-	glDisableVertexAttribArray(LightColorLocation);
-	glDisableVertexAttribArray(ViewPosLocation);
-	glDisableVertexAttribArray(ProjectionLocation);
-	glDisableVertexAttribArray(CameraLocation);
-	glDisableVertexAttribArray(DistanceLocation);
 	glDisableVertexAttribArray(UvLocation);
-	glDisableVertexAttribArray(TexorColorLocation);
 	glDisableVertexAttribArray(TexSamplerLocation);
 
 	glutSwapBuffers();
