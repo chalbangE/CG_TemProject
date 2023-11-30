@@ -23,6 +23,7 @@ void Init();
 void TimerFunction(int value);
 void Keyboard(unsigned char key, int x, int y);
 void Special_Keyboard(int key, int x, int y);
+void MouseWheel(int wheel, int diretion, int x, int y);
 
 using namespace std;
 
@@ -51,9 +52,9 @@ int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 	make_shaderProgram();
 	InitBuffer();
 	Init();
-	//Clear();
 	glutMouseFunc(Mouse);
 	glutMotionFunc(Motion);
+	glutMouseWheelFunc(MouseWheel);
 	glutKeyboardFunc(Keyboard); // 키보드 입력 콜백함수
 	glutSpecialFunc(Special_Keyboard); // 키보드 입력 콜백함수
 	glutTimerFunc(10, TimerFunction, 1);
@@ -227,9 +228,9 @@ GLvoid Motion(int x, int y)
 		glm::vec3 m = { (x - (winSizex / 2)) / (winSizex / 2), -(y - (winSizey / 2)) / (winSizey / 2), 0.0f };
 
 		if (m.x < click_mouse.x)
-			Camera.revolve_theta.z += 1.f;
+			Camera.revolve_theta.y += 1.f;
 		else if (m.x > click_mouse.x)
-			Camera.revolve_theta.z += -1.f;
+			Camera.revolve_theta.y += -1.f;
 
 		if (m.y < click_mouse.y)
 			Camera.revolve_theta.x += 1.f;
@@ -240,11 +241,23 @@ GLvoid Motion(int x, int y)
 	}
 }
 
+void MouseWheel(int wheel, int diretion, int x, int y)
+{
+	// 줌인
+	if (diretion > 0) {
+		Camera.pos.z -= 0.1f;
+	}
+	// 줌아웃
+	else if (diretion < 0) {
+		Camera.pos.z += 0.1f;
+	}
+}
+
 void Init()
 {
 	glBindVertexArray(vao);
 	// 카메라
-	Camera.pos = glm::vec3{ 1.f, 1.f, 3.f };
+	Camera.pos = glm::vec3{ 0.f, 0.f, 3.f };
 
 	// Light
 	{
