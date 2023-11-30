@@ -9,6 +9,9 @@ void GLLight::draw_prepare(int Location, std::string Location_str) {
 		glBindBuffer(GL_ARRAY_BUFFER, v_color);
 		glVertexAttribPointer(Location, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	}
+	else if ("Color_bool" == Location_str) {
+		glUniform1i(Location, false);
+	}
 	else if ("Normal" == Location_str) {
 		glBindBuffer(GL_ARRAY_BUFFER, v_nor);
 		glVertexAttribPointer(Location, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -22,5 +25,15 @@ void GLLight::draw_prepare(int Location, std::string Location_str) {
 	}
 	else if ("LightColor" == Location_str) {
 		glUniform3f(Location, L_color.x, L_color.y, L_color.z);
+	}
+	else if ("UV" == Location_str) {
+		glBindBuffer(GL_ARRAY_BUFFER, v_uv);
+		glVertexAttribPointer(Location, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	}
+	else if ("Texture_bool" == Location_str) {
+		glUniform1i(Location, true);
+	}
+	else if ("Texture" == Location_str) {
+		glBindTexture(GL_TEXTURE_2D, img);
 	}
 }
