@@ -20,6 +20,7 @@ GLvoid Reshape(int w, int h);
 char* filetobuf(const char* file);
 
 void Init();
+void Mapping();
 void TimerFunction(int value);
 void Keyboard(unsigned char key, int x, int y);
 void Special_Keyboard(int key, int x, int y);
@@ -34,6 +35,10 @@ vector <GLObj> Object;
 GLLine lineObj;
 GLCamera Camera;
 GLLight Light;
+int PosLocation, ColorLocation, NormalLocation, UvLocation;
+unsigned int WorldTransLocation, CameraLocation, ProjectionLocation, TexSamplerLocation, TexorColorLocation;
+int LightPosLocation;
+unsigned int LightColorLocation, ViewPosLocation, DistanceLocation;
 
 bool Lbt = false;
 glm::vec3 click_mouse{};
@@ -50,6 +55,7 @@ int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 	glewExperimental = GL_TRUE;
 	glewInit();
 	make_shaderProgram();
+	Mapping();
 	InitBuffer();
 	Init();
 	glutMouseFunc(Mouse);
@@ -68,25 +74,12 @@ GLvoid drawScene()
 	glUseProgram(shaderProgramID);
 
 	// 버텍스 쉐이더에게 전달
-	int PosLocation = glGetAttribLocation(shaderProgramID, "in_Position"); //	: 0
-	int ColorLocation = glGetAttribLocation(shaderProgramID, "in_Color"); //	: 1
-	int NormalLocation = glGetAttribLocation(shaderProgramID, "in_Normal");
-	int UvLocation = glGetAttribLocation(shaderProgramID, "in_Uv");
-	unsigned int WorldTransLocation = glGetUniformLocation(shaderProgramID, "World_trans");
-	unsigned int CameraLocation = glGetUniformLocation(shaderProgramID, "Camera_trans");
-	unsigned int ProjectionLocation = glGetUniformLocation(shaderProgramID, "Projection_trans");
-	unsigned int TexSamplerLocation = glGetUniformLocation(shaderProgramID, "out_Tex");
-	unsigned int TexorColorLocation = glGetUniformLocation(shaderProgramID, "Tex_or_Color");
 	glEnableVertexAttribArray(PosLocation);
 	glEnableVertexAttribArray(ColorLocation);
 	glEnableVertexAttribArray(NormalLocation);
 	glEnableVertexAttribArray(UvLocation);
 
 	// 프래그먼트 쉐이더에게 전달
-	int LightPosLocation = glGetUniformLocation(shaderProgramID, "Light_Pos");
-	unsigned int LightColorLocation = glGetUniformLocation(shaderProgramID, "Light_Color");
-	unsigned int ViewPosLocation = glGetUniformLocation(shaderProgramID, "View_Pos");
-	unsigned int DistanceLocation = glGetUniformLocation(shaderProgramID, "Distance");
 	glUniform1i(TexSamplerLocation, 0);
 
 	// 카메라 변환
@@ -326,6 +319,23 @@ void Init()
 
 		lineObj = GLLine({ 0.0f, 0.0f, 0.0f });
 	}
+}
+
+void Mapping() {
+	PosLocation = glGetAttribLocation(shaderProgramID, "in_Position"); //	: 0
+	ColorLocation = glGetAttribLocation(shaderProgramID, "in_Color"); //	: 1
+	NormalLocation = glGetAttribLocation(shaderProgramID, "in_Normal");
+	UvLocation = glGetAttribLocation(shaderProgramID, "in_Uv");
+	WorldTransLocation = glGetUniformLocation(shaderProgramID, "World_trans");
+	CameraLocation = glGetUniformLocation(shaderProgramID, "Camera_trans");
+	ProjectionLocation = glGetUniformLocation(shaderProgramID, "Projection_trans");
+	TexSamplerLocation = glGetUniformLocation(shaderProgramID, "out_Tex");
+	TexorColorLocation = glGetUniformLocation(shaderProgramID, "Tex_or_Color");
+
+	LightPosLocation = glGetUniformLocation(shaderProgramID, "Light_Pos");
+	LightColorLocation = glGetUniformLocation(shaderProgramID, "Light_Color");
+	ViewPosLocation = glGetUniformLocation(shaderProgramID, "View_Pos");
+	DistanceLocation = glGetUniformLocation(shaderProgramID, "Distance");
 }
 
 //--- 다시그리기 콜백 함수
