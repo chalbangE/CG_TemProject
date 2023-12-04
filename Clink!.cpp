@@ -28,7 +28,7 @@ void MouseWheel(int wheel, int diretion, int x, int y);
 
 using namespace std;
 
-float winSizex = 800, winSizey = 800;
+float winSizex = 0, winSizey = 0;
 GLuint vao;
 
 vector <GLObj> Object;
@@ -100,6 +100,7 @@ GLvoid drawScene()
 	glEnable(GL_DEPTH_TEST);
 
 	// ±¤¿ø
+	Light.scale.x *= winSizey / winSizex;
 	Light.Update();
 	Light.draw_prepare(PosLocation, "Pos");
 	Light.draw_prepare(ColorLocation, "Color");
@@ -110,6 +111,7 @@ GLvoid drawScene()
 	Light.draw_prepare(LightPosLocation, "LightPos");
 	Light.draw_prepare(LightColorLocation, "LightColor");
 	Light.draw("solid");
+	Light.scale.x /= winSizey / winSizex;
 
 	lineObj.Update();
 	lineObj.draw_prepare(PosLocation, "Pos");
@@ -125,6 +127,7 @@ GLvoid drawScene()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (int i = 0; i < Object.size(); ++i) {
+		Object[i].scale.x *= winSizey / winSizex;
 		Object[i].Update();
 		Object[i].draw_prepare(PosLocation, "Pos");
 		Object[i].draw_prepare(WorldTransLocation, "World");
@@ -134,6 +137,7 @@ GLvoid drawScene()
 		Object[i].draw_prepare(TexorColorLocation, "Texture_bool");
 		glUniform1f(DistanceLocation, distance(Light.pos, Object[i].pos));
 		Object[i].draw("solid");
+		Object[i].scale.x /= winSizey / winSizex;
 	}
 
 	glDisable(GL_BLEND);
@@ -193,6 +197,10 @@ void Special_Keyboard(int key, int x, int y)
 	case GLUT_KEY_DOWN: {
 		if (Light.L_color.x > 0.3f)
 			Light.L_color -= glm::vec3{ 0.1f, 0.1f, 0.1f };
+		break;
+	}
+	case GLUT_KEY_F11: {
+		glutFullScreenToggle();
 		break;
 	}
 	default:
