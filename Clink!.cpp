@@ -343,6 +343,8 @@ void Mapping() {
 //--- 다시그리기 콜백 함수
 GLvoid Reshape(int w, int h)
 {
+	winSizex = w;
+	winSizey = h;
 	glViewport(0, 0, w, h);
 }
 
