@@ -160,6 +160,8 @@ void TimerFunction(int value)
 		break;
 	}
 
+	Object.back().pos.z -= 0.01;
+
 	glutPostRedisplay(); // 화면 재 출력
 	glutTimerFunc(10, TimerFunction, 1);
 }
@@ -280,7 +282,7 @@ void Init()
 	}
 	//  Object
 	{
-		std::ifstream inputFile("./OBJ/cube_tex.obj");
+		std::ifstream inputFile("./OBJ/sphere.obj");
 		Object.emplace_back();
 
 		if (inputFile.is_open())
@@ -288,9 +290,9 @@ void Init()
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Object.back().pos = glm::vec3{ 0.f, 0.f, 0.f };
-		Object.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
-		Object.back().scale = glm::vec3{ 0.8f, 0.8f, 0.8f };
+		Object.back().pos = Camera.pos;
+		Object.back().midpos = Camera.pos;
+		Object.back().scale = glm::vec3{ 0.1f, 0.1f, 0.1f };
 
 		std::vector<glm::vec3> color;
 		glm::vec3 a{ 103 / 255.f, 153 / 255.f, 1.f };
