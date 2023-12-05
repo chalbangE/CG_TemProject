@@ -25,7 +25,6 @@ void TimerFunction(int value);
 void Keyboard(unsigned char key, int x, int y);
 void Special_Keyboard(int key, int x, int y);
 void MouseWheel(int wheel, int diretion, int x, int y);
-bool CollisionInspection(GLObj a, GLObj b);
 
 using namespace std;
 
@@ -186,19 +185,6 @@ GLvoid drawScene()
 	glutSwapBuffers();
 }
 
-bool CollisionInspection(GLObj a, GLObj b) {
-	glm::vec3 a_min = a.scale * a.min;
-	glm::vec3 a_max = a.scale * a.max;
-	glm::vec3 b_min = b.scale * b.min;
-	glm::vec3 b_max = b.scale * b.max;
-	if ((a_min.x < b_max.x) && (a_max.x > b_min.x) &&
-		(a_min.y < b_max.y) && (a_max.y > b_min.y) &&
-		(a_min.z < b_max.z) && (a_max.z > b_min.z))
-		return true;
-	else
-		return false;
-}
-
 void TimerFunction(int value)
 {
 	switch (value)
@@ -207,29 +193,22 @@ void TimerFunction(int value)
 		for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
 
 			for (int i = 0; i < Ball.size(); ++i) {
+				if (bg_cnt == 0) {
+					if (Ball[i].pos.x - Ball[i].size.x <= -1.f || Ball[i].pos.x + Ball[i].size.x >= 1.f) {
+						Ball[i].pos -= Ball[i].velocity;
+						Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
+					}
+					if (Ball[i].pos.y - Ball[i].size.y <= -1.f * winSizex / winSizey || Ball[i].pos.y + Ball[i].size.y >= 1.f * winSizex / winSizey) {
+						Ball[i].pos -= Ball[i].velocity;
+						Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
+					}
+				}
+
 				Ball[i].pos += Ball[i].velocity;
 
-				if (CollisionInspection(Background[bg_cnt], Ball[i]))
-					Ball[i].velocity.y = 0;
-				else
+				if (Ball[i].velocity.y != 0.f) {
 					Ball[i].velocity.y -= 0.0005f;
-
-				//if (bg_cnt == 0) {
-				//	if (Ball[i].pos.x - Ball[i].size.x <= -1.f || Ball[i].pos.x + Ball[i].size.x >= 1.f) {
-				//		Ball[i].pos -= Ball[i].velocity;
-				//		Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
-				//	}
-				//	if (Ball[i].pos.y - Ball[i].size.y <= -1.f || Ball[i].pos.y + Ball[i].size.y >= 1.f) {
-				//		Ball[i].pos -= Ball[i].velocity;
-				//		Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
-				//	}
-				//}
-
-				//Ball[i].pos += Ball[i].velocity;
-
-				//if (Ball[i].velocity.y != 0.f) {
-				//	Ball[i].velocity.y -= 0.0005f;
-				//}
+				}
 			}
 
 		}
