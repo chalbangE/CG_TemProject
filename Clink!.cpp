@@ -28,6 +28,12 @@ void MouseWheel(int wheel, int diretion, int x, int y);
 
 using namespace std;
 
+bool CheckCollision(const GLObj& a, const GLObj& b) {
+	return (std::abs(a.pos.x - b.pos.x) < (a.size.x + b.size.x) &&
+		std::abs(a.pos.y - b.pos.y) < (a.size.y + b.size.y) &&
+		std::abs(a.pos.z - b.pos.z) < (a.size.z + b.size.z));
+}
+
 float winSizex = 0, winSizey = 0;
 GLuint vao;
 
@@ -106,8 +112,8 @@ GLvoid drawScene()
 	Light.draw_prepare(ColorLocation, "Color");
 	Light.draw_prepare(TexorColorLocation, "Color_bool");
 	Light.draw_prepare(NormalLocation, "Normal");
-	Light.draw_prepare(UvLocation, "UV");
 	Light.draw_prepare(WorldTransLocation, "World");
+	Light.draw_prepare(UvLocation, "UV");
 	Light.draw_prepare(LightPosLocation, "LightPos");
 	Light.draw_prepare(LightColorLocation, "LightColor");
 	Light.draw("solid");
@@ -184,13 +190,23 @@ void TimerFunction(int value)
 	switch (value)
 	{
 	case 1: {
+		for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
+			for (int i = 0; i < Ball.size(); ++i) {
+				Ball[i].pos += Ball[i].velocity;
+
+				Ball[i].velocity.y -= 0.0005f;
+
+				if (CheckCollision(Background[bg_cnt], Ball[i])) {
+					Ball[i].velocity *= -1;
+				}
+				
+			}
+		}
 		break;
 	}
 	default:
 		break;
 	}
-
-	Ball.back().pos.z -= 0.01;
 
 	glutPostRedisplay(); // 화면 재 출력
 	glutTimerFunc(10, TimerFunction, 1);
@@ -300,7 +316,7 @@ void Init()
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Light.pos = glm::vec3{ 0.f, 0.7f, 1.f };
+		Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 0.3f };
 		Light.scale = glm::vec3{ 0.05f, 0.05f, 0.05f };
 
 		std::vector<glm::vec3> color;
@@ -325,8 +341,8 @@ void Init()
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Ball.back().pos = Camera.pos;
-		Ball.back().scale = glm::vec3{ 0.1f, 0.1f, 0.1f };
+		Ball.back().pos = glm::vec3{ 0.f, 0.f, -1.f };
+		Ball.back().scale = glm::vec3{ 0.07f, 0.07f, 0.07f };
 
 		Ball.back().imgLoad("./IMG/모몽가_투명.png");
 	}
@@ -341,7 +357,9 @@ void Init()
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Crystal.back().scale = glm::vec3{ 0.1f, 0.1f, 0.1f };
+		Crystal.back().scale = glm::vec3{ 0.01f, 0.01f, 0.01f };
+		// 얘는 중앙에 맞춰서 나오게 할람 일케해야댐 걍 얘만 이럼 왜인지는 몰?루겟음 걍 저번 실습에서 대충 만든거 긁어와서 그런듯
+		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f }; 
 
 		Crystal.back().imgLoad("./IMG/유리.png");
 	}
@@ -360,7 +378,8 @@ void Init()
 		Background.back().pos += glm::vec3{ 0.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
 
 		std::vector<glm::vec3> color;
-		glm::vec3 a{ 178 / 255.f, 235 / 255.f, 244 / 255.f };
+		glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
+		//                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
 		for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
 			color.emplace_back(a);
 		}

@@ -42,7 +42,7 @@ void main ()
 	vec3 result = (ambient + diffuse + specular) * out_Color;
 
 	if (Tex_or_Color)
-		Frag_Color = (vec4((ambient + diffuse + specular) / Distance, 1.0) * texture(out_Tex, out_Uv));
+		Frag_Color = (vec4((ambient + diffuse + specular) / (Distance * 0.5), 1.0) * texture(out_Tex, out_Uv));
 	else
-		Frag_Color = vec4(result / Distance, 1.0);
+		Frag_Color = vec4(result / (Distance * 0.5), 1.0);
 }
