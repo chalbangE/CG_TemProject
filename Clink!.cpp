@@ -92,7 +92,7 @@ GLvoid drawScene()
 	glUniformMatrix4fv(ProjectionLocation, 1, GL_FALSE, &Projection_Mat[0][0]);
 	glUniformMatrix4fv(CameraLocation, 1, GL_FALSE, glm::value_ptr(Camera.Camera_Mat));
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -100,7 +100,7 @@ GLvoid drawScene()
 	glEnable(GL_DEPTH_TEST);
 
 	// ±¤¿ø
-	Light.scale.x *= winSizey / winSizex;
+	Light.scale.y *= winSizex / winSizey;
 	Light.Update();
 	Light.draw_prepare(PosLocation, "Pos");
 	Light.draw_prepare(ColorLocation, "Color");
@@ -111,7 +111,7 @@ GLvoid drawScene()
 	Light.draw_prepare(LightPosLocation, "LightPos");
 	Light.draw_prepare(LightColorLocation, "LightColor");
 	Light.draw("solid");
-	Light.scale.x /= winSizey / winSizex;
+	Light.scale.y /= winSizex / winSizey;
 
 	lineObj.Update();
 	lineObj.draw_prepare(PosLocation, "Pos");
@@ -127,7 +127,7 @@ GLvoid drawScene()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (int i = 0; i < Object.size(); ++i) {
-		Object[i].scale.x *= winSizey / winSizex;
+		Object[i].scale.y *= winSizex / winSizey;
 		Object[i].Update();
 		Object[i].draw_prepare(PosLocation, "Pos");
 		Object[i].draw_prepare(WorldTransLocation, "World");
@@ -137,11 +137,11 @@ GLvoid drawScene()
 		Object[i].draw_prepare(TexorColorLocation, "Texture_bool");
 		glUniform1f(DistanceLocation, distance(Light.pos, Object[i].pos));
 		Object[i].draw("solid");
-		Object[i].scale.x /= winSizey / winSizex;
+		Object[i].scale.y /= winSizex / winSizey;
 	}
 	
 	for (int i = 0; i < Crystal.size(); ++i) {
-		Crystal[i].scale.x *= winSizey / winSizex;
+		Crystal[i].scale.y *= winSizex / winSizey;
 		Crystal[i].Update();
 		Crystal[i].draw_prepare(PosLocation, "Pos");
 		Crystal[i].draw_prepare(WorldTransLocation, "World");
@@ -151,7 +151,7 @@ GLvoid drawScene()
 		Crystal[i].draw_prepare(TexorColorLocation, "Texture_bool");
 		glUniform1f(DistanceLocation, distance(Light.pos, Crystal[i].pos));
 		Crystal[i].draw("solid");
-		Crystal[i].scale.x /= winSizey / winSizex;
+		Crystal[i].scale.y /= winSizex / winSizey;
 	}
 
 	glDisable(GL_BLEND);
@@ -160,9 +160,7 @@ GLvoid drawScene()
 	glDisableVertexAttribArray(PosLocation);
 	glDisableVertexAttribArray(ColorLocation);
 	glDisableVertexAttribArray(NormalLocation);
-	glDisableVertexAttribArray(WorldTransLocation);
 	glDisableVertexAttribArray(UvLocation);
-	glDisableVertexAttribArray(TexSamplerLocation);
 
 	glutSwapBuffers();
 }
