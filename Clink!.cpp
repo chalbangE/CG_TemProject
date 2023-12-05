@@ -31,7 +31,7 @@ using namespace std;
 float winSizex = 0, winSizey = 0;
 GLuint vao;
 
-vector <GLObj> Object;
+vector <GLObj> Object, Crystal;
 GLLine lineObj;
 GLCamera Camera;
 GLLight Light;
@@ -138,6 +138,20 @@ GLvoid drawScene()
 		glUniform1f(DistanceLocation, distance(Light.pos, Object[i].pos));
 		Object[i].draw("solid");
 		Object[i].scale.x /= winSizey / winSizex;
+	}
+	
+	for (int i = 0; i < Crystal.size(); ++i) {
+		Crystal[i].scale.x *= winSizey / winSizex;
+		Crystal[i].Update();
+		Crystal[i].draw_prepare(PosLocation, "Pos");
+		Crystal[i].draw_prepare(WorldTransLocation, "World");
+		Crystal[i].draw_prepare(NormalLocation, "Normal");
+		Crystal[i].draw_prepare(UvLocation, "UV");
+		Crystal[i].draw_prepare(false, "Texture");
+		Crystal[i].draw_prepare(TexorColorLocation, "Texture_bool");
+		glUniform1f(DistanceLocation, distance(Light.pos, Crystal[i].pos));
+		Crystal[i].draw("solid");
+		Crystal[i].scale.x /= winSizey / winSizex;
 	}
 
 	glDisable(GL_BLEND);
@@ -299,20 +313,24 @@ void Init()
 			std::cerr << "Failed to obj file" << std::endl;
 
 		Object.back().pos = Camera.pos;
-		Object.back().midpos = Camera.pos;
 		Object.back().scale = glm::vec3{ 0.1f, 0.1f, 0.1f };
 
-		std::vector<glm::vec3> color;
-		glm::vec3 a{ 103 / 255.f, 153 / 255.f, 1.f };
-		for (int i = 0; i < Object.back().face_cnt * 3; ++i) {
-			color.emplace_back(a);
-		}
-
-		glGenBuffers(1, &Object.back().v_color);
-		glBindBuffer(GL_ARRAY_BUFFER, Object.back().v_color);
-		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
-
 		Object.back().imgLoad("./IMG/모몽가_투명.png");
+	}
+
+	//  Object
+	{
+		std::ifstream inputFile("./OBJ/pyramid.obj");
+		Crystal.emplace_back();
+
+		if (inputFile.is_open())
+			Crystal.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		Crystal.back().scale = glm::vec3{ 0.1f, 0.1f, 0.1f };
+
+		Crystal.back().imgLoad("./IMG/유리.png");
 	}
 
 	// X축 Y축
