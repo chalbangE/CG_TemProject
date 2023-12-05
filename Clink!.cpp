@@ -127,8 +127,6 @@ GLvoid drawScene()
 	lineObj.draw_prepare(WorldTransLocation, "World");
 	lineObj.draw();
 
-	// 알파값 포함 객체 그리기 시작 -------
-
 	for (int i = 0; i < Background.size(); ++i) {
 		Background[i].scale.y *= winSizex / winSizey;
 		Background[i].Update();
@@ -142,6 +140,8 @@ GLvoid drawScene()
 		Background[i].draw("solid");
 		Background[i].scale.y /= winSizex / winSizey;
 	}
+
+	// 알파값 포함 객체 그리기 시작 -------
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -191,16 +191,22 @@ void TimerFunction(int value)
 	{
 	case 1: {
 		for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
+
 			for (int i = 0; i < Ball.size(); ++i) {
+				if (bg_cnt == 0) {
+					if (Ball[i].pos.x - Ball[i].size.x <= -1.f || Ball[i].pos.x + Ball[i].size.x >= 1.f)
+						Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
+					if (Ball[i].pos.y - Ball[i].size.y <= -1.f || Ball[i].pos.y + Ball[i].size.y >= 1.f)
+						Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
+				}
+
 				Ball[i].pos += Ball[i].velocity;
 
-				Ball[i].velocity.y -= 0.0005f;
-
-				if (CheckCollision(Background[bg_cnt], Ball[i])) {
-					Ball[i].velocity *= -1;
+				if (Ball[i].velocity.y != 0.f) {
+					Ball[i].velocity.y -= 0.0005f;
 				}
-				
 			}
+
 		}
 		break;
 	}
@@ -276,9 +282,9 @@ GLvoid Motion(int x, int y)
 		glm::vec3 m = { (x - (winSizex / 2)) / (winSizex / 2), -(y - (winSizey / 2)) / (winSizey / 2), 0.0f };
 
 		if (m.x < click_mouse.x)
-			Camera.revolve_theta.y += 1.f;
+			Ball[0].rotate_theta.y += 1.f;
 		else if (m.x > click_mouse.x)
-			Camera.revolve_theta.y += -1.f;
+			Ball[0].rotate_theta.y += -1.f;
 
 		if (m.y < click_mouse.y)
 			Camera.revolve_theta.x += 1.f;
@@ -343,8 +349,10 @@ void Init()
 
 		Ball.back().pos = glm::vec3{ 0.f, 0.f, -1.f };
 		Ball.back().scale = glm::vec3{ 0.07f, 0.07f, 0.07f };
+		Ball.back().size *= Ball.back().scale;
+		Ball.back().velocity = glm::vec3{ 0.f, -0.001f, 0.f };
 
-		Ball.back().imgLoad("./IMG/모몽가_투명.png");
+		Ball.back().imgLoad("./IMG/모몽가.png");
 	}
 
 	//  Crystal
@@ -366,27 +374,54 @@ void Init()
 
 	//  Background
 	{
-		std::ifstream inputFile("./OBJ/skycube.txt");
-		Background.emplace_back();
+		{
+			std::ifstream inputFile("./OBJ/skycube.txt");
+			Background.emplace_back();
 
-		if (inputFile.is_open())
-			Background.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
+			if (inputFile.is_open())
+				Background.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
 
-		Background.back().scale = glm::vec3{ 4.f, 4.f, 15.f };
-		Background.back().pos += glm::vec3{ 0.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
+			Background.back().scale = glm::vec3{ 4.f, 4.f, 15.f };
+			Background.back().pos += glm::vec3{ 0.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
 
-		std::vector<glm::vec3> color;
-		glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
-		//                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
-		for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
-			color.emplace_back(a);
+			std::vector<glm::vec3> color;
+			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
+			//                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
+			for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
+				color.emplace_back(a);
+			}
+
+			glGenBuffers(1, &Background.back().v_color);
+			glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
+			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 		}
+		{
+			/*std::ifstream inputFile("./OBJ/cube_tex.obj");
+			Background.emplace_back();
 
-		glGenBuffers(1, &Background.back().v_color);
-		glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
-		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
+			if (inputFile.is_open())
+				Background.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			// Background.back().scale = glm::vec3{ 4.f, 4.f, 15.f };
+			Background.back().scale = glm::vec3{ 1.f, 1.f, 1.f };
+			Background.back().pos = glm::vec3{ 0.f, -1.f, 0.f };
+			Background.back().size *= Background.back().scale;
+
+			std::vector<glm::vec3> color;
+			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
+			//                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
+			for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
+				color.emplace_back(a);
+			}
+
+			glGenBuffers(1, &Background.back().v_color);
+			glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
+			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);*/
+		}
 	}
 
 	// X축 Y축
