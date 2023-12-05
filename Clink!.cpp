@@ -194,10 +194,14 @@ void TimerFunction(int value)
 
 			for (int i = 0; i < Ball.size(); ++i) {
 				if (bg_cnt == 0) {
-					if (Ball[i].pos.x - Ball[i].size.x <= -1.f || Ball[i].pos.x + Ball[i].size.x >= 1.f)
+					if (Ball[i].pos.x - Ball[i].size.x <= -1.f || Ball[i].pos.x + Ball[i].size.x >= 1.f) {
+						Ball[i].pos -= Ball[i].velocity;
 						Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
-					if (Ball[i].pos.y - Ball[i].size.y <= -1.f * winSizex / winSizey || Ball[i].pos.y + Ball[i].size.y >= 1.f * winSizex / winSizey)
+					}
+					if (Ball[i].pos.y - Ball[i].size.y <= -1.f * winSizex / winSizey || Ball[i].pos.y + Ball[i].size.y >= 1.f * winSizex / winSizey) {
+						Ball[i].pos -= Ball[i].velocity;
 						Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
+					}
 				}
 
 				Ball[i].pos += Ball[i].velocity;
@@ -214,6 +218,7 @@ void TimerFunction(int value)
 		break;
 	}
 
+	Background.back().pos = glm::vec3{ 0.f, -1.f * (winSizex / winSizey) , 0.f };
 	glutPostRedisplay(); // 화면 재 출력
 	glutTimerFunc(10, TimerFunction, 1);
 }
@@ -282,9 +287,9 @@ GLvoid Motion(int x, int y)
 		glm::vec3 m = { (x - (winSizex / 2)) / (winSizex / 2), -(y - (winSizey / 2)) / (winSizey / 2), 0.0f };
 
 		if (m.x < click_mouse.x)
-			Ball[0].rotate_theta.y += 1.f;
+			Camera.revolve_theta.y += 1.f;
 		else if (m.x > click_mouse.x)
-			Ball[0].rotate_theta.y += -1.f;
+			Camera.revolve_theta.y += -1.f;
 
 		if (m.y < click_mouse.y)
 			Camera.revolve_theta.x += 1.f;
@@ -347,7 +352,7 @@ void Init()
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Ball.back().pos = glm::vec3{ 0.f, 0.f, -1.f };
+		Ball.back().pos = glm::vec3{ 0.f, 0.f, 0.f };
 		Ball.back().scale = glm::vec3{ 0.07f, 0.07f, 0.07f };
 		Ball.back().size *= Ball.back().scale;
 		Ball.back().velocity = glm::vec3{ 0.f, -0.001f, 0.f };
@@ -398,7 +403,7 @@ void Init()
 			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 		}
 		{
-			/*std::ifstream inputFile("./OBJ/cube_tex.obj");
+			std::ifstream inputFile("./OBJ/cube_tex.obj");
 			Background.emplace_back();
 
 			if (inputFile.is_open())
@@ -408,7 +413,7 @@ void Init()
 
 			// Background.back().scale = glm::vec3{ 4.f, 4.f, 15.f };
 			Background.back().scale = glm::vec3{ 1.f, 1.f, 1.f };
-			Background.back().pos = glm::vec3{ 0.f, -1.f, 0.f };
+			Background.back().pos = glm::vec3{ 0.f, -1.f * (winSizex / winSizey) , 0.f };
 			Background.back().size *= Background.back().scale;
 
 			std::vector<glm::vec3> color;
@@ -420,7 +425,7 @@ void Init()
 
 			glGenBuffers(1, &Background.back().v_color);
 			glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
-			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);*/
+			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 		}
 	}
 
