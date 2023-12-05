@@ -196,7 +196,7 @@ void TimerFunction(int value)
 				if (bg_cnt == 0) {
 					if (Ball[i].pos.x - Ball[i].size.x <= -1.f || Ball[i].pos.x + Ball[i].size.x >= 1.f)
 						Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
-					if (Ball[i].pos.y - Ball[i].size.y <= -1.f || Ball[i].pos.y + Ball[i].size.y >= 1.f)
+					if (Ball[i].pos.y - Ball[i].size.y <= -1.f * winSizex / winSizey || Ball[i].pos.y + Ball[i].size.y >= 1.f * winSizex / winSizey)
 						Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
 				}
 
