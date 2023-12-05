@@ -106,7 +106,7 @@ GLvoid drawScene()
 	glEnable(GL_DEPTH_TEST);
 
 	// 광원
-	Light.scale.y *= winSizex / winSizey;
+	//Light.scale.y *= winSizex / winSizey;
 	Light.Update();
 	Light.draw_prepare(PosLocation, "Pos");
 	Light.draw_prepare(ColorLocation, "Color");
@@ -117,7 +117,7 @@ GLvoid drawScene()
 	Light.draw_prepare(LightPosLocation, "LightPos");
 	Light.draw_prepare(LightColorLocation, "LightColor");
 	Light.draw("solid");
-	Light.scale.y /= winSizex / winSizey;
+	//Light.scale.y /= winSizex / winSizey;
 
 	lineObj.Update();
 	lineObj.draw_prepare(PosLocation, "Pos");
@@ -128,7 +128,7 @@ GLvoid drawScene()
 	lineObj.draw();
 
 	for (int i = 0; i < Background.size(); ++i) {
-		Background[i].scale.y *= winSizex / winSizey;
+		//Background[i].scale.y *= winSizex / winSizey;
 		Background[i].Update();
 		Background[i].draw_prepare(PosLocation, "Pos");
 		Background[i].draw_prepare(ColorLocation, "Color");
@@ -138,7 +138,7 @@ GLvoid drawScene()
 		Background[i].draw_prepare(UvLocation, "UV");
 		glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
 		Background[i].draw("solid");
-		Background[i].scale.y /= winSizex / winSizey;
+		//Background[i].scale.y /= winSizex / winSizey;
 	}
 
 	// 알파값 포함 객체 그리기 시작 -------
@@ -147,7 +147,7 @@ GLvoid drawScene()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (int i = 0; i < Ball.size(); ++i) {
-		Ball[i].scale.y *= winSizex / winSizey;
+		//Ball[i].scale.y *= winSizex / winSizey;
 		Ball[i].Update();
 		Ball[i].draw_prepare(PosLocation, "Pos");
 		Ball[i].draw_prepare(WorldTransLocation, "World");
@@ -157,11 +157,11 @@ GLvoid drawScene()
 		Ball[i].draw_prepare(TexorColorLocation, "Texture_bool");
 		glUniform1f(DistanceLocation, distance(Light.pos, Ball[i].pos));
 		Ball[i].draw("solid");
-		Ball[i].scale.y /= winSizex / winSizey;
+		//Ball[i].scale.y /= winSizex / winSizey;
 	}
 	
 	for (int i = 0; i < Crystal.size(); ++i) {
-		Crystal[i].scale.y *= winSizex / winSizey;
+		//Crystal[i].scale.y *= winSizex / winSizey;
 		Crystal[i].Update();
 		Crystal[i].draw_prepare(PosLocation, "Pos");
 		Crystal[i].draw_prepare(WorldTransLocation, "World");
@@ -171,7 +171,7 @@ GLvoid drawScene()
 		Crystal[i].draw_prepare(TexorColorLocation, "Texture_bool");
 		glUniform1f(DistanceLocation, distance(Light.pos, Crystal[i].pos));
 		Crystal[i].draw("solid");
-		Crystal[i].scale.y /= winSizex / winSizey;
+		//Crystal[i].scale.y /= winSizex / winSizey;
 	}
 
 	glDisable(GL_BLEND);
@@ -389,7 +389,76 @@ void Init()
 				std::cerr << "Failed to obj file" << std::endl;
 
 			Background.back().scale = glm::vec3{ 4.f, 4.f, 15.f };
-			Background.back().pos += glm::vec3{ 0.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
+			Background.back().pos += glm::vec3{ -2.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
+
+			std::vector<glm::vec3> color;
+			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
+			//                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
+			for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
+				color.emplace_back(a);
+			}
+
+			glGenBuffers(1, &Background.back().v_color);
+			glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
+			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
+		}
+		{
+			std::ifstream inputFile("./OBJ/skycube.txt");
+			Background.emplace_back();
+
+			if (inputFile.is_open())
+				Background.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			Background.back().scale = glm::vec3{ 4.f, 4.f, 15.f };
+			Background.back().pos += glm::vec3{ 2.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
+
+			std::vector<glm::vec3> color;
+			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
+			//                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
+			for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
+				color.emplace_back(a);
+			}
+
+			glGenBuffers(1, &Background.back().v_color);
+			glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
+			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
+		}
+		{
+			std::ifstream inputFile("./OBJ/skycube.txt");
+			Background.emplace_back();
+
+			if (inputFile.is_open())
+				Background.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			Background.back().scale = glm::vec3{ 4.f, 4.f, 15.f };
+			Background.back().pos += glm::vec3{ 0.f, -2.f, -0.25 * Background.back().scale.z } + Camera.pos;
+
+			std::vector<glm::vec3> color;
+			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
+			//                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
+			for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
+				color.emplace_back(a);
+			}
+
+			glGenBuffers(1, &Background.back().v_color);
+			glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
+			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
+		}
+		{
+			std::ifstream inputFile("./OBJ/skycube.txt");
+			Background.emplace_back();
+
+			if (inputFile.is_open())
+				Background.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			Background.back().scale = glm::vec3{ 4.f, 4.f, 15.f };
+			Background.back().pos += glm::vec3{ 0.f, 2.f, -0.25 * Background.back().scale.z } + Camera.pos;
 
 			std::vector<glm::vec3> color;
 			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
@@ -465,8 +534,43 @@ void Mapping() {
 //--- 다시그리기 콜백 함수
 GLvoid Reshape(int w, int h)
 {
+	if (winSizex && winSizey) {
+		Light.scale.y /= winSizex / winSizey;
+		Light.pos.y /= winSizex / winSizey;
+	}
+	Light.scale.y *= (float)w / (float)h;
+	Light.pos.y *= (float)w / (float)h;
+
+	for (int i = 0; i < Ball.size(); i++) {
+		if (winSizex && winSizey) {
+			Ball[i].scale.y /= winSizex / winSizey;
+			Ball[i].pos.y /= winSizex / winSizey;
+		}
+		Ball[i].scale.y *= (float)w / (float)h;
+		Ball[i].pos.y *= (float)w / (float)h;
+	}
+
+	for (int i = 0; i < Crystal.size(); i++) {
+		if (winSizex && winSizey) {
+			Crystal[i].scale.y /= winSizex / winSizey;
+			Crystal[i].pos.y /= winSizex / winSizey;
+		}
+		Crystal[i].scale.y *= (float)w / (float)h;
+		Crystal[i].pos.y *= (float)w / (float)h;
+	}
+
+	for (int i = 0; i < Background.size(); i++) {
+		if (winSizex && winSizey) {
+			Background[i].scale.y /= winSizex / winSizey;
+			Background[i].pos.y /= winSizex / winSizey;
+		}
+		Background[i].scale.y *= (float)w / (float)h;
+		Background[i].pos.y *= (float)w / (float)h;
+	}
+
 	winSizex = w;
 	winSizey = h;
+	
 	glViewport(0, 0, w, h);
 }
 
