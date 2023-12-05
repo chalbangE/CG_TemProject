@@ -342,7 +342,6 @@ void Init()
 
 		Ball.back().pos = glm::vec3{ 0.f, 0.f, 0.f };
 		Ball.back().scale = glm::vec3{ 0.07f, 0.07f, 0.07f };
-		Ball.back().size *= Ball.back().scale;
 		Ball.back().velocity = glm::vec3{ 0.f, -0.001f, 0.f };
 
 		Ball.back().imgLoad("./IMG/¸ð¸ù°¡.png");
@@ -468,10 +467,8 @@ void Init()
 			else
 				std::cerr << "Failed to obj file" << std::endl;
 
-			// Background.back().scale = glm::vec3{ 4.f, 4.f, 15.f };
 			Background.back().scale = glm::vec3{ 1.f, 1.f, 1.f };
 			Background.back().pos = glm::vec3{ 0.f, -1.f * (winSizex / winSizey) , 0.f };
-			Background.back().size *= Background.back().scale;
 
 			std::vector<glm::vec3> color;
 			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
