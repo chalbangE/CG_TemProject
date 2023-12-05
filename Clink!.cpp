@@ -28,12 +28,6 @@ void MouseWheel(int wheel, int diretion, int x, int y);
 
 using namespace std;
 
-bool CheckCollision(const GLObj& a, const GLObj& b) {
-	return (std::abs(a.pos.x - b.pos.x) < (a.size.x + b.size.x) &&
-		std::abs(a.pos.y - b.pos.y) < (a.size.y + b.size.y) &&
-		std::abs(a.pos.z - b.pos.z) < (a.size.z + b.size.z));
-}
-
 float winSizex = 0, winSizey = 0;
 GLuint vao;
 
@@ -48,6 +42,13 @@ unsigned int LightColorLocation, ViewPosLocation, DistanceLocation;
 
 bool Lbt = false;
 glm::vec3 click_mouse{};
+
+
+bool CheckCollision(const GLObj& a, const GLObj& b) {
+	return (std::abs(a.pos.x - b.pos.x) < (a.size.x + b.size.x) &&
+		std::abs(a.pos.y - b.pos.y) < (a.size.y + b.size.y) &&
+		std::abs(a.pos.z - b.pos.z) < (a.size.z + b.size.z));
+}
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 {
@@ -106,7 +107,6 @@ GLvoid drawScene()
 	glEnable(GL_DEPTH_TEST);
 
 	// 광원
-	//Light.scale.y *= winSizex / winSizey;
 	Light.Update();
 	Light.draw_prepare(PosLocation, "Pos");
 	Light.draw_prepare(ColorLocation, "Color");
@@ -117,7 +117,6 @@ GLvoid drawScene()
 	Light.draw_prepare(LightPosLocation, "LightPos");
 	Light.draw_prepare(LightColorLocation, "LightColor");
 	Light.draw("solid");
-	//Light.scale.y /= winSizex / winSizey;
 
 	lineObj.Update();
 	lineObj.draw_prepare(PosLocation, "Pos");
@@ -128,7 +127,6 @@ GLvoid drawScene()
 	lineObj.draw();
 
 	for (int i = 0; i < Background.size(); ++i) {
-		//Background[i].scale.y *= winSizex / winSizey;
 		Background[i].Update();
 		Background[i].draw_prepare(PosLocation, "Pos");
 		Background[i].draw_prepare(ColorLocation, "Color");
@@ -138,7 +136,6 @@ GLvoid drawScene()
 		Background[i].draw_prepare(UvLocation, "UV");
 		glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
 		Background[i].draw("solid");
-		//Background[i].scale.y /= winSizex / winSizey;
 	}
 
 	// 알파값 포함 객체 그리기 시작 -------
@@ -147,7 +144,6 @@ GLvoid drawScene()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (int i = 0; i < Ball.size(); ++i) {
-		//Ball[i].scale.y *= winSizex / winSizey;
 		Ball[i].Update();
 		Ball[i].draw_prepare(PosLocation, "Pos");
 		Ball[i].draw_prepare(WorldTransLocation, "World");
@@ -157,11 +153,9 @@ GLvoid drawScene()
 		Ball[i].draw_prepare(TexorColorLocation, "Texture_bool");
 		glUniform1f(DistanceLocation, distance(Light.pos, Ball[i].pos));
 		Ball[i].draw("solid");
-		//Ball[i].scale.y /= winSizex / winSizey;
 	}
 	
 	for (int i = 0; i < Crystal.size(); ++i) {
-		//Crystal[i].scale.y *= winSizex / winSizey;
 		Crystal[i].Update();
 		Crystal[i].draw_prepare(PosLocation, "Pos");
 		Crystal[i].draw_prepare(WorldTransLocation, "World");
@@ -171,7 +165,6 @@ GLvoid drawScene()
 		Crystal[i].draw_prepare(TexorColorLocation, "Texture_bool");
 		glUniform1f(DistanceLocation, distance(Light.pos, Crystal[i].pos));
 		Crystal[i].draw("solid");
-		//Crystal[i].scale.y /= winSizex / winSizey;
 	}
 
 	glDisable(GL_BLEND);
@@ -193,15 +186,10 @@ void TimerFunction(int value)
 		for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
 
 			for (int i = 0; i < Ball.size(); ++i) {
-				if (bg_cnt == 0) {
-					if (Ball[i].pos.x - Ball[i].size.x <= -1.f || Ball[i].pos.x + Ball[i].size.x >= 1.f) {
-						Ball[i].pos -= Ball[i].velocity;
-						Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
-					}
-					if (Ball[i].pos.y - Ball[i].size.y <= -1.f * winSizex / winSizey || Ball[i].pos.y + Ball[i].size.y >= 1.f * winSizex / winSizey) {
-						Ball[i].pos -= Ball[i].velocity;
-						Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
-					}
+				if (CheckCollision(Ball[i], Background[bg_cnt])) {
+					//Background[bg_cnt].pos 
+					//Ball[i].pos -= Ball[i].velocity;
+					Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
 				}
 
 				Ball[i].pos += Ball[i].velocity;
@@ -380,7 +368,7 @@ void Init()
 	//  Background
 	{
 		{
-			std::ifstream inputFile("./OBJ/skycube.txt");
+			std::ifstream inputFile("./OBJ/cube_tex.obj");
 			Background.emplace_back();
 
 			if (inputFile.is_open())
@@ -403,7 +391,7 @@ void Init()
 			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 		}
 		{
-			std::ifstream inputFile("./OBJ/skycube.txt");
+			std::ifstream inputFile("./OBJ/cube_tex.obj");
 			Background.emplace_back();
 
 			if (inputFile.is_open())
@@ -426,7 +414,7 @@ void Init()
 			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 		}
 		{
-			std::ifstream inputFile("./OBJ/skycube.txt");
+			std::ifstream inputFile("./OBJ/cube_tex.obj");
 			Background.emplace_back();
 
 			if (inputFile.is_open())
@@ -449,7 +437,7 @@ void Init()
 			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 		}
 		{
-			std::ifstream inputFile("./OBJ/skycube.txt");
+			std::ifstream inputFile("./OBJ/cube_tex.obj");
 			Background.emplace_back();
 
 			if (inputFile.is_open())
@@ -540,6 +528,7 @@ GLvoid Reshape(int w, int h)
 	}
 	Light.scale.y *= (float)w / (float)h;
 	Light.pos.y *= (float)w / (float)h;
+	Light.size = glm::vec3{ abs((Light.max - Light.min) / 2.f) * Light.scale };
 
 	for (int i = 0; i < Ball.size(); i++) {
 		if (winSizex && winSizey) {
@@ -548,6 +537,7 @@ GLvoid Reshape(int w, int h)
 		}
 		Ball[i].scale.y *= (float)w / (float)h;
 		Ball[i].pos.y *= (float)w / (float)h;
+		Ball[i].size = glm::vec3{ abs((Ball[i].max - Ball[i].min) / 2.f) * Ball[i].scale };
 	}
 
 	for (int i = 0; i < Crystal.size(); i++) {
@@ -557,6 +547,7 @@ GLvoid Reshape(int w, int h)
 		}
 		Crystal[i].scale.y *= (float)w / (float)h;
 		Crystal[i].pos.y *= (float)w / (float)h;
+		Crystal[i].size = glm::vec3{ abs((Crystal[i].max - Crystal[i].min) / 2.f) * Crystal[i].scale };
 	}
 
 	for (int i = 0; i < Background.size(); i++) {
@@ -566,6 +557,7 @@ GLvoid Reshape(int w, int h)
 		}
 		Background[i].scale.y *= (float)w / (float)h;
 		Background[i].pos.y *= (float)w / (float)h;
+		Background[i].size = glm::vec3{ abs((Background[i].max - Background[i].min) / 2.f) * Background[i].scale };
 	}
 
 	winSizex = w;
