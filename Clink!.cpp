@@ -31,7 +31,7 @@ using namespace std;
 float winSizex = 0, winSizey = 0;
 GLuint vao;
 
-vector <GLObj> Object, Crystal;
+vector <GLObj> Ball, Crystal, Background;
 GLLine lineObj;
 GLCamera Camera;
 GLLight Light;
@@ -123,21 +123,35 @@ GLvoid drawScene()
 
 	// 알파값 포함 객체 그리기 시작 -------
 
+	for (int i = 0; i < Background.size(); ++i) {
+		Background[i].scale.y *= winSizex / winSizey;
+		Background[i].Update();
+		Background[i].draw_prepare(PosLocation, "Pos");
+		Background[i].draw_prepare(ColorLocation, "Color");
+		Background[i].draw_prepare(TexorColorLocation, "Color_bool");
+		Background[i].draw_prepare(WorldTransLocation, "World");
+		Background[i].draw_prepare(NormalLocation, "Normal");
+		Background[i].draw_prepare(UvLocation, "UV");
+		glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
+		Background[i].draw("solid");
+		Background[i].scale.y /= winSizex / winSizey;
+	}
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	for (int i = 0; i < Object.size(); ++i) {
-		Object[i].scale.y *= winSizex / winSizey;
-		Object[i].Update();
-		Object[i].draw_prepare(PosLocation, "Pos");
-		Object[i].draw_prepare(WorldTransLocation, "World");
-		Object[i].draw_prepare(NormalLocation, "Normal");
-		Object[i].draw_prepare(UvLocation, "UV");
-		Object[i].draw_prepare(false, "Texture");
-		Object[i].draw_prepare(TexorColorLocation, "Texture_bool");
-		glUniform1f(DistanceLocation, distance(Light.pos, Object[i].pos));
-		Object[i].draw("solid");
-		Object[i].scale.y /= winSizex / winSizey;
+	for (int i = 0; i < Ball.size(); ++i) {
+		Ball[i].scale.y *= winSizex / winSizey;
+		Ball[i].Update();
+		Ball[i].draw_prepare(PosLocation, "Pos");
+		Ball[i].draw_prepare(WorldTransLocation, "World");
+		Ball[i].draw_prepare(NormalLocation, "Normal");
+		Ball[i].draw_prepare(UvLocation, "UV");
+		Ball[i].draw_prepare(false, "Texture");
+		Ball[i].draw_prepare(TexorColorLocation, "Texture_bool");
+		glUniform1f(DistanceLocation, distance(Light.pos, Ball[i].pos));
+		Ball[i].draw("solid");
+		Ball[i].scale.y /= winSizex / winSizey;
 	}
 	
 	for (int i = 0; i < Crystal.size(); ++i) {
@@ -176,7 +190,7 @@ void TimerFunction(int value)
 		break;
 	}
 
-	Object.back().pos.z -= 0.01;
+	Ball.back().pos.z -= 0.01;
 
 	glutPostRedisplay(); // 화면 재 출력
 	glutTimerFunc(10, TimerFunction, 1);
@@ -300,23 +314,24 @@ void Init()
 		glBindBuffer(GL_ARRAY_BUFFER, Light.v_color);
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
-	//  Object
+
+	//  Ball
 	{
 		std::ifstream inputFile("./OBJ/sphere.obj");
-		Object.emplace_back();
+		Ball.emplace_back();
 
 		if (inputFile.is_open())
-			Object.back().objLoad(inputFile);
+			Ball.back().objLoad(inputFile);
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Object.back().pos = Camera.pos;
-		Object.back().scale = glm::vec3{ 0.1f, 0.1f, 0.1f };
+		Ball.back().pos = Camera.pos;
+		Ball.back().scale = glm::vec3{ 0.1f, 0.1f, 0.1f };
 
-		Object.back().imgLoad("./IMG/모몽가_투명.png");
+		Ball.back().imgLoad("./IMG/모몽가_투명.png");
 	}
 
-	//  Object
+	//  Crystal
 	{
 		std::ifstream inputFile("./OBJ/pyramid.obj");
 		Crystal.emplace_back();
@@ -329,6 +344,30 @@ void Init()
 		Crystal.back().scale = glm::vec3{ 0.1f, 0.1f, 0.1f };
 
 		Crystal.back().imgLoad("./IMG/유리.png");
+	}
+
+	//  Background
+	{
+		std::ifstream inputFile("./OBJ/skycube.txt");
+		Background.emplace_back();
+
+		if (inputFile.is_open())
+			Background.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		Background.back().scale = glm::vec3{ 4.f, 4.f, 15.f };
+		Background.back().pos += glm::vec3{ 0.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
+
+		std::vector<glm::vec3> color;
+		glm::vec3 a{ 178 / 255.f, 235 / 255.f, 244 / 255.f };
+		for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
+			color.emplace_back(a);
+		}
+
+		glGenBuffers(1, &Background.back().v_color);
+		glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
+		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
 
 	// X축 Y축
