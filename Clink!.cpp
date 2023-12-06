@@ -57,6 +57,24 @@ bool CheckCollision(const GLObj& a, const GLObj& b) {
 float CalVectorMagnitude(glm::vec3 v) {
 	return glm::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
+glm::vec3 CheckCollisionDir(const GLObj& target, const GLObj& object) {
+	GLObj temp;
+
+	temp = object;
+	temp.pos.x += object.velocity.x;
+	if (CheckCollision(target, temp))
+		return glm::vec3(-1.f, 1.f, 1.f);
+
+	temp = object;
+	temp.pos.y += object.velocity.y;
+	if (CheckCollision(target, temp))
+		return glm::vec3(1.f, -1.f, 1.f);
+
+	temp = object;
+	temp.pos.z += object.velocity.z;
+	if (CheckCollision(target, temp))
+		return glm::vec3(1.f, 1.f, -1.f);
+}
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 {
@@ -203,9 +221,7 @@ void TimerFunction(int value)
 			for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
 				if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Background[bg_cnt]) && !CheckCollision(temp, Background[bg_cnt])) {
 					Ball[i].pos -= Ball[i].velocity;
-					Ball[i].velocity.x = Ball[i].velocity.x / 4.f;
-					Ball[i].velocity.y = -Ball[i].velocity.y / 4.f;
-					Ball[i].velocity.z = Ball[i].velocity.z / 4.f;
+					Ball[i].velocity *= CheckCollisionDir(Background[bg_cnt], Ball[i]) / 4.f;
 
 					if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 						Ball[i].velocity = glm::vec3(0.f);
