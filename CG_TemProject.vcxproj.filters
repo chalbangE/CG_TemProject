@@ -22,6 +22,7 @@
     <ClCompile Include="Clink!.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GLRay.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLObj.h">
@@ -42,6 +43,7 @@
     <ClInclude Include="stdafx.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="GLRay.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="vertex.glsl" />

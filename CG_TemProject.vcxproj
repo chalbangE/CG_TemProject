@@ -24,6 +24,7 @@
     <ClCompile Include="GLLight.cpp" />
     <ClCompile Include="GLLine.cpp" />
     <ClCompile Include="GLObj.cpp" />
+    <ClCompile Include="GLRay.cpp" />
     <ClCompile Include="GLShapes.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
@@ -32,6 +33,7 @@
     <ClInclude Include="GLLight.h" />
     <ClInclude Include="GLLine.h" />
     <ClInclude Include="GLObj.h" />
+    <ClInclude Include="GLRay.h" />
     <ClInclude Include="GLShapes.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
