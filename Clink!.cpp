@@ -191,45 +191,25 @@ void TimerFunction(int value)
 	switch (value)
 	{
 	case 1: {
-		vector <GLObj> temp;
-		for (int i = 0; i < Ball.size(); i++) {
-			temp.emplace_back(Ball[i]);
-		}
-
+		GLObj temp;
 
 		for (int i = 0; i < Ball.size(); ++i) {
-			temp[i].pos = Ball[i].pos;
+			temp.pos = Ball[i].pos;
 			Ball[i].pos += Ball[i].velocity;
-			if (Ball[i].velocity.y != 0.f) {
+
+			if (Ball[i].velocity.y != 0.f)
 				Ball[i].velocity.y -= g;
-			}
+
 			for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
+				if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Background[bg_cnt]) && !CheckCollision(temp, Background[bg_cnt])) {
+					Ball[i].velocity.x = Ball[i].velocity.x / 4.f;
+					Ball[i].velocity.y = -Ball[i].velocity.y / 4.f;
+					Ball[i].velocity.z = Ball[i].velocity.z / 4.f;
 
-				//if (CheckCollision(Ball[i], Background[bg_cnt]) && Ball[i].velocity.y < 0) {
-				//	cout << Ball[i].pos.y << endl;
-				//	Ball[i].velocity.x = Ball[i].velocity.x / 4.f;
-				//	Ball[i].velocity.y = -Ball[i].velocity.y / 4.f;
-				//	Ball[i].velocity.z = Ball[i].velocity.z / 4.f;
-				//	if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
-				//		Ball[i].velocity = glm::vec3(0.f);
-				//}
-
-				cout << CheckCollision(Ball[i], Background[bg_cnt]) << ", " << CheckCollision(temp[i], Background[bg_cnt]) << Ball[i].pos.y << ' ' << temp[i].pos.y << endl;
-				if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Background[bg_cnt])) {
-					if (CheckCollision(temp[i], Background[bg_cnt]) == false) {
-						Ball[i].velocity.x = Ball[i].velocity.x / 4.f;
-						Ball[i].velocity.y = -Ball[i].velocity.y / 4.f;
-						Ball[i].velocity.z = Ball[i].velocity.z / 4.f;
-						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
-							Ball[i].velocity = glm::vec3(0.f);
-						break;
-					}
+					if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
+						Ball[i].velocity = glm::vec3(0.f);
+					break;
 				}
-
-				//cout << temp.pos.y << ", " << Ball[i].pos.y << endl;
-
-				//Ball[i].rotate_theta += Ball[i].velocity;
-
 			}
 
 		}
