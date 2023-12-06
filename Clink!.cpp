@@ -47,7 +47,7 @@ unsigned int LightColorLocation, ViewPosLocation, DistanceLocation;
 glm::mat4 Projection_Mat = glm::mat4(1.0f);
 bool Lbt = false;
 glm::vec3 click_mouse{};
-const float g = 0.00003f;
+const float g = 0.0006f;
 
 bool CheckCollision(const GLObj& a, const GLObj& b) {
 	return (std::abs(a.pos.x - b.pos.x) < (a.size.x + b.size.x) &&
@@ -321,7 +321,7 @@ void ShootBall(GLRay ray)
 	Ball.emplace_back(*Ball.begin());
 	Ball.back().pos = ray.origin;
 	Ball.back().pos.z -= 0.2f;
-	Ball.back().velocity = ray.direction / 85.f;
+	Ball.back().velocity = ray.direction / 15.f;
 }
 
 void Init()

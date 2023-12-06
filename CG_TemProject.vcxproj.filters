@@ -22,7 +22,9 @@
     <ClCompile Include="Clink!.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="GLRay.cpp" />
+    <ClCompile Include="GLRay.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLObj.h">
