@@ -191,13 +191,16 @@ void TimerFunction(int value)
 	switch (value)
 	{
 	case 1: {
+		GLObj temp;
 		for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
 
 			for (int i = 0; i < Ball.size(); ++i) {
-				if (CheckCollision(Ball[i], Background[bg_cnt])) {
-					//Background[bg_cnt].pos 
-					//Ball[i].pos -= Ball[i].velocity;
-					Ball[i].velocity = glm::vec3{ 0.f, 0.f, 0.f };
+				if (CheckCollision(Ball[i], Background[bg_cnt]) && Ball[i].velocity.y < 0) {
+					Ball[i].velocity.x = Ball[i].velocity.x / 3.f;
+					Ball[i].velocity.y = -Ball[i].velocity.y / 3.f;
+					Ball[i].velocity.z = Ball[i].velocity.z / 3.f;
+					if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
+						Ball[i].velocity = glm::vec3(0.f);
 				}
 
 				Ball[i].pos += Ball[i].velocity;
@@ -360,7 +363,7 @@ void Init()
 			std::cerr << "Failed to obj file" << std::endl;
 
 		Ball.back().pos = glm::vec3{ 0.f, 0.f, 0.f };
-		Ball.back().scale = glm::vec3{ 0.07f, 0.07f, 0.07f };
+		Ball.back().scale = glm::vec3{ 0.03f, 0.03f, 0.03f };
 		Ball.back().velocity = glm::vec3{ 0.f, -0.001f, 0.f };
 
 		Ball.back().imgLoad("./IMG/¸ð¸ù°¡.png");
@@ -376,7 +379,7 @@ void Init()
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Crystal.back().scale = glm::vec3{ 0.01f, 0.01f, 0.01f };
+		Crystal.back().scale = glm::vec3(0.05f, 0.1f, 0.05f);
 		// ¾ê´Â Áß¾Ó¿¡ ¸ÂÃç¼­ ³ª¿À°Ô ÇÒ¶÷ ÀÏÄÉÇØ¾ß´ï °Á ¾ê¸¸ ÀÌ·³ ¿ÖÀÎÁö´Â ¸ô?·ç°ÙÀ½ °Á Àú¹ø ½Ç½À¿¡¼­ ´ëÃæ ¸¸µç°Å ±Ü¾î¿Í¼­ ±×·±µí
 		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f }; 
 
