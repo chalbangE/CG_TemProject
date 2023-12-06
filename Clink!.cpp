@@ -75,6 +75,16 @@ glm::vec3 CheckCollisionDir(const GLObj& target, const GLObj& object) {
 	if (CheckCollision(target, temp))
 		return glm::vec3(1.f, 1.f, -1.f);
 }
+glm::vec3 PerpendicularInXZPlane(glm::vec3 v) {
+	glm::vec3 normal(0, 1, 0);
+
+	glm::vec3 perpendicular;
+	perpendicular.x = v.y * normal.z - v.z * normal.y;
+	perpendicular.y = 0;
+	perpendicular.z = v.x * normal.y - v.y * normal.x;
+
+	return perpendicular;
+}
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 {
@@ -210,36 +220,39 @@ void TimerFunction(int value)
 	{
 	case 1: {
 		for (int i = 0; i < Crystal.size(); i++) {
-			Crystal[i].pos += Crystal[i].velocity;
-			if (CalVectorMagnitude(Crystal[i].velocity) != 0.f)
+			if (CalVectorMagnitude(Crystal[i].velocity) != 0.f) {
+				Crystal[i].pos += Crystal[i].velocity;
+				Crystal[i].rotate_theta += PerpendicularInXZPlane(Crystal[i].velocity) * -200.f;
 				Crystal[i].velocity.y -= g;
+			}
 		}
 
 		GLObj temp;
 
 		for (int i = 0; i < Ball.size(); ++i) {
 			temp.pos = Ball[i].pos;
-			Ball[i].pos += Ball[i].velocity;
 
-			if (CalVectorMagnitude(Ball[i].velocity) != 0.f)
+			if (CalVectorMagnitude(Ball[i].velocity) != 0.f) {
+				Ball[i].pos += Ball[i].velocity;
 				Ball[i].velocity.y -= g;
 
-			// 충돌검사
-			for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
-				if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Background[bg_cnt]) && !CheckCollision(temp, Background[bg_cnt])) {
-					Ball[i].pos -= Ball[i].velocity;
-					Ball[i].velocity *= CheckCollisionDir(Background[bg_cnt], Ball[i]) / 4.f;
+				// 충돌검사
+				for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
+					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Background[bg_cnt]) && !CheckCollision(temp, Background[bg_cnt])) {
+						Ball[i].pos -= Ball[i].velocity;
+						Ball[i].velocity *= CheckCollisionDir(Background[bg_cnt], Ball[i]) / 4.f;
 
-					if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
-						Ball[i].velocity = glm::vec3(0.f);
-					break;
+						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
+							Ball[i].velocity = glm::vec3(0.f);
+						break;
+					}
 				}
+				//for (int c_cnt = 0; c_cnt < Crystal.size(); ++c_cnt) {
+				//	if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Crystal[c_cnt]) && !CheckCollision(temp, Crystal[c_cnt])) {
+				//		break;
+				//	}
+				//}
 			}
-			//for (int c_cnt = 0; c_cnt < Crystal.size(); ++c_cnt) {
-			//	if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Crystal[c_cnt]) && !CheckCollision(temp, Crystal[c_cnt])) {
-			//		break;
-			//	}
-			//}
 		}
 		break;
 	}
@@ -263,6 +276,7 @@ void Keyboard(unsigned char key, int x, int y)
 		for (int i = 0; i < Crystal.size(); i++) {
 			Crystal[i].pos = glm::vec3{ 0.f, -0.5f * winSizex / winSizey, 0.f };
 			Crystal[i].velocity = glm::vec3{ (float)(rand() % 10 - 5) / 1000.f, (float)(rand() % 5) / 1000.f, (float)(rand() % 10 - 5) / 1000.f };
+			Crystal[i].rotate_theta  = glm::vec3(0.f);
 		}
 	}
 	default:
