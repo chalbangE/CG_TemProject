@@ -54,6 +54,9 @@ bool CheckCollision(const GLObj& a, const GLObj& b) {
 		std::abs(a.pos.y - b.pos.y) < (a.size.y + b.size.y) &&
 		std::abs(a.pos.z - b.pos.z) < (a.size.z + b.size.z));
 }
+float CalVectorMagnitude(glm::vec3 v) {
+	return glm::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 {
