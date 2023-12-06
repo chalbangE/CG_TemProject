@@ -47,7 +47,7 @@ unsigned int LightColorLocation, ViewPosLocation, DistanceLocation;
 glm::mat4 Projection_Mat = glm::mat4(1.0f);
 bool Lbt = false;
 glm::vec3 click_mouse{};
-
+const float g = 0.00003f;
 
 bool CheckCollision(const GLObj& a, const GLObj& b) {
 	return (std::abs(a.pos.x - b.pos.x) < (a.size.x + b.size.x) &&
@@ -196,9 +196,9 @@ void TimerFunction(int value)
 
 			for (int i = 0; i < Ball.size(); ++i) {
 				if (CheckCollision(Ball[i], Background[bg_cnt]) && Ball[i].velocity.y < 0) {
-					Ball[i].velocity.x = Ball[i].velocity.x / 3.f;
-					Ball[i].velocity.y = -Ball[i].velocity.y / 3.f;
-					Ball[i].velocity.z = Ball[i].velocity.z / 3.f;
+					Ball[i].velocity.x = Ball[i].velocity.x / 4.f;
+					Ball[i].velocity.y = -Ball[i].velocity.y / 4.f;
+					Ball[i].velocity.z = Ball[i].velocity.z / 4.f;
 					if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 						Ball[i].velocity = glm::vec3(0.f);
 				}
@@ -206,7 +206,7 @@ void TimerFunction(int value)
 				Ball[i].pos += Ball[i].velocity;
 
 				if (Ball[i].velocity.y != 0.f) {
-					Ball[i].velocity.y -= 0.00003f;
+					Ball[i].velocity.y -= g;
 				}
 			}
 
