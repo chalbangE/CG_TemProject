@@ -9,6 +9,6 @@ void GLRay::ScreenToWorld(int x, int y, const glm::mat4& View_mat, const glm::ma
 	direction = glm::unProject(winCoord, View_mat, Projection_mat, glm::vec4(0, 0, Viewport_Width, Viewport_Height));
 
 	// 방향 벡터 계산
-	origin.y -= 0.1f;
+	origin += glm::vec3{ 0.f, -0.1f, -0.1f };
 	direction = glm::normalize(direction - origin);
 }
