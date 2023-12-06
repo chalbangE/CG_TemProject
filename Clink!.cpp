@@ -412,7 +412,7 @@ void Init()
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Crystal.back().scale = glm::vec3(0.1f, 0.2f, 0.1f);
+		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
 		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
 		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
 
