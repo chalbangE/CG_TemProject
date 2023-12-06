@@ -27,6 +27,8 @@ void Keyboard(unsigned char key, int x, int y);
 void Special_Keyboard(int key, int x, int y);
 void MouseWheel(int wheel, int diretion, int x, int y);
 
+void ShootBall(GLRay ray);
+
 using namespace std;
 
 float winSizex = 0, winSizey = 0;
@@ -36,12 +38,13 @@ vector <GLObj> Ball, Crystal, Background;
 GLLine lineObj;
 GLCamera Camera;
 GLLight Light;
-GLRay Mouse;
+GLRay Msray; // 마우스 광선
 int PosLocation, ColorLocation, NormalLocation, UvLocation;
 unsigned int WorldTransLocation, CameraLocation, ProjectionLocation, TexSamplerLocation, TexorColorLocation;
 int LightPosLocation;
 unsigned int LightColorLocation, ViewPosLocation, DistanceLocation;
 
+glm::mat4 Projection_Mat = glm::mat4(1.0f);
 bool Lbt = false;
 glm::vec3 click_mouse{};
 
@@ -96,7 +99,7 @@ GLvoid drawScene()
 	Camera.draw_prepare(ViewPosLocation, "View_Pos");
 
 	// 투영 변환
-	glm::mat4 Projection_Mat = glm::mat4(1.0f);
+	Projection_Mat = glm::mat4(1.0f);
 	Projection_Mat = glm::perspective(glm::radians(45.f), 1.f, 0.1f, 50.f);
 	glUniformMatrix4fv(ProjectionLocation, 1, GL_FALSE, &Projection_Mat[0][0]);
 	glUniformMatrix4fv(CameraLocation, 1, GL_FALSE, glm::value_ptr(Camera.Camera_Mat));
@@ -197,7 +200,7 @@ void TimerFunction(int value)
 				Ball[i].pos += Ball[i].velocity;
 
 				if (Ball[i].velocity.y != 0.f) {
-					Ball[i].velocity.y -= 0.0005f;
+					Ball[i].velocity.y -= 0.00003f;
 				}
 			}
 
@@ -261,6 +264,9 @@ GLvoid Mouse(int button, int state, int x, int y)
 		if (button == GLUT_LEFT_BUTTON) {
 			Lbt = true;
 			click_mouse = m;
+
+			Msray.ScreenToWorld(x, y, Camera.Camera_Mat, Projection_Mat, winSizex, winSizey);
+			ShootBall(Msray);
 		}
 	}
 	else if (state == GLUT_DOWN) {
@@ -276,15 +282,15 @@ GLvoid Motion(int x, int y)
 	if (Lbt) {
 		glm::vec3 m = { (x - (winSizex / 2)) / (winSizex / 2), -(y - (winSizey / 2)) / (winSizey / 2), 0.0f };
 
-		if (m.x < click_mouse.x)
-			Camera.revolve_theta.y += 1.f;
-		else if (m.x > click_mouse.x)
-			Camera.revolve_theta.y += -1.f;
+		//if (m.x < click_mouse.x)
+		//	Camera.revolve_theta.y += 1.f;
+		//else if (m.x > click_mouse.x)
+		//	Camera.revolve_theta.y += -1.f;
 
-		if (m.y < click_mouse.y)
-			Camera.revolve_theta.x += 1.f;
-		else if (m.y > click_mouse.y)
-			Camera.revolve_theta.x += -1.f;
+		//if (m.y < click_mouse.y)
+		//	Camera.revolve_theta.x += 1.f;
+		//else if (m.y > click_mouse.y)
+		//	Camera.revolve_theta.x += -1.f;
 
 		click_mouse = m;
 	}
@@ -300,6 +306,14 @@ void MouseWheel(int wheel, int diretion, int x, int y)
 	else if (diretion < 0) {
 		Camera.pos.z += 0.1f;
 	}
+}
+
+void ShootBall(GLRay ray)
+{
+	Ball.emplace_back(*Ball.begin());
+	Ball.back().pos = ray.origin;
+	Ball.back().pos.z -= 0.2f;
+	Ball.back().velocity = ray.direction / 85.f;
 }
 
 void Init()
