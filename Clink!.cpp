@@ -197,11 +197,12 @@ void TimerFunction(int value)
 			temp.pos = Ball[i].pos;
 			Ball[i].pos += Ball[i].velocity;
 
-			if (Ball[i].velocity.y != 0.f)
+			if (CalVectorMagnitude(Ball[i].velocity) != 0.f)
 				Ball[i].velocity.y -= g;
 
 			for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
 				if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Background[bg_cnt]) && !CheckCollision(temp, Background[bg_cnt])) {
+					Ball[i].pos -= Ball[i].velocity;
 					Ball[i].velocity.x = Ball[i].velocity.x / 4.f;
 					Ball[i].velocity.y = -Ball[i].velocity.y / 4.f;
 					Ball[i].velocity.z = Ball[i].velocity.z / 4.f;
@@ -211,7 +212,6 @@ void TimerFunction(int value)
 					break;
 				}
 			}
-
 		}
 		break;
 	}
