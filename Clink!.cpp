@@ -209,6 +209,12 @@ void TimerFunction(int value)
 	switch (value)
 	{
 	case 1: {
+		for (int i = 0; i < Crystal.size(); i++) {
+			Crystal[i].pos += Crystal[i].velocity;
+			if (CalVectorMagnitude(Crystal[i].velocity) != 0.f)
+				Crystal[i].velocity.y -= g;
+		}
+
 		GLObj temp;
 
 		for (int i = 0; i < Ball.size(); ++i) {
@@ -253,15 +259,11 @@ void Keyboard(unsigned char key, int x, int y)
 	case 'Q': {
 		exit(829);
 	}
-	case 'w': {
-		Crystal.back().pos.y += 0.01f;
-		cout << Crystal.back().pos.y << endl;
-		break;
-	}
-	case 's': {
-		Crystal.back().pos.y -= 0.01f;
-		cout << Crystal.back().pos.y << endl;
-		break;
+	case 'c': {
+		for (int i = 0; i < Crystal.size(); i++) {
+			Crystal[i].pos = glm::vec3{ 0.f, -0.5f * winSizex / winSizey, 0.f };
+			Crystal[i].velocity = glm::vec3{ (float)(rand() % 10 - 5) / 1000.f, (float)(rand() % 5) / 1000.f, (float)(rand() % 10 - 5) / 1000.f };
+		}
 	}
 	default:
 		break;
@@ -404,7 +406,112 @@ void Init()
 
 	//  Crystal
 	{
-		std::ifstream inputFile("./OBJ/pyramid.obj");
+		std::ifstream inputFile("./OBJ/crystal1.obj");
+		Crystal.emplace_back();
+
+		if (inputFile.is_open())
+			Crystal.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
+
+		Crystal.back().imgLoad("./IMG/蜡府.png");
+	}
+	{
+		std::ifstream inputFile("./OBJ/crystal2.obj");
+		Crystal.emplace_back();
+
+		if (inputFile.is_open())
+			Crystal.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
+
+		Crystal.back().imgLoad("./IMG/蜡府.png");
+	}
+	{
+		std::ifstream inputFile("./OBJ/crystal3.obj");
+		Crystal.emplace_back();
+
+		if (inputFile.is_open())
+			Crystal.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
+
+		Crystal.back().imgLoad("./IMG/蜡府.png");
+	}
+	{
+		std::ifstream inputFile("./OBJ/crystal4.obj");
+		Crystal.emplace_back();
+
+		if (inputFile.is_open())
+			Crystal.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
+
+		Crystal.back().imgLoad("./IMG/蜡府.png");
+	}
+	{
+		std::ifstream inputFile("./OBJ/crystal5.obj");
+		Crystal.emplace_back();
+
+		if (inputFile.is_open())
+			Crystal.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
+
+		Crystal.back().imgLoad("./IMG/蜡府.png");
+	}
+	{
+		std::ifstream inputFile("./OBJ/crystal6.obj");
+		Crystal.emplace_back();
+
+		if (inputFile.is_open())
+			Crystal.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
+
+		Crystal.back().imgLoad("./IMG/蜡府.png");
+	}
+	{
+		std::ifstream inputFile("./OBJ/crystal7.obj");
+		Crystal.emplace_back();
+
+		if (inputFile.is_open())
+			Crystal.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
+
+		Crystal.back().imgLoad("./IMG/蜡府.png");
+	}
+	{
+		std::ifstream inputFile("./OBJ/crystal8.obj");
 		Crystal.emplace_back();
 
 		if (inputFile.is_open())
