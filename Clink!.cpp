@@ -218,6 +218,7 @@ void TimerFunction(int value)
 			if (CalVectorMagnitude(Ball[i].velocity) != 0.f)
 				Ball[i].velocity.y -= g;
 
+			// 충돌검사
 			for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
 				if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Background[bg_cnt]) && !CheckCollision(temp, Background[bg_cnt])) {
 					Ball[i].pos -= Ball[i].velocity;
@@ -228,6 +229,11 @@ void TimerFunction(int value)
 					break;
 				}
 			}
+			//for (int c_cnt = 0; c_cnt < Crystal.size(); ++c_cnt) {
+			//	if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Crystal[c_cnt]) && !CheckCollision(temp, Crystal[c_cnt])) {
+			//		break;
+			//	}
+			//}
 		}
 		break;
 	}
@@ -235,7 +241,6 @@ void TimerFunction(int value)
 		break;
 	}
 
-	Background.back().pos = glm::vec3{ 0.f, -1.f * (winSizex / winSizey) , 0.f };
 	glutPostRedisplay(); // 화면 재 출력
 	glutTimerFunc(10, TimerFunction, 1);
 }
@@ -247,6 +252,16 @@ void Keyboard(unsigned char key, int x, int y)
 	case 'q':
 	case 'Q': {
 		exit(829);
+	}
+	case 'w': {
+		Crystal.back().pos.y += 0.01f;
+		cout << Crystal.back().pos.y << endl;
+		break;
+	}
+	case 's': {
+		Crystal.back().pos.y -= 0.01f;
+		cout << Crystal.back().pos.y << endl;
+		break;
 	}
 	default:
 		break;
@@ -397,9 +412,9 @@ void Init()
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Crystal.back().scale = glm::vec3(0.05f, 0.1f, 0.05f);
-		// 얘는 중앙에 맞춰서 나오게 할람 일케해야댐 걍 얘만 이럼 왜인지는 몰?루겟음 걍 저번 실습에서 대충 만든거 긁어와서 그런듯
-		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f }; 
+		Crystal.back().scale = glm::vec3(0.1f, 0.2f, 0.1f);
+		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
 
 		Crystal.back().imgLoad("./IMG/유리.png");
 	}
@@ -499,7 +514,7 @@ void Init()
 			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 		}
 		{
-			std::ifstream inputFile("./OBJ/cube_tex.obj");
+			std::ifstream inputFile("./OBJ/cube_floor.obj");
 			Background.emplace_back();
 
 			if (inputFile.is_open())
@@ -508,7 +523,7 @@ void Init()
 				std::cerr << "Failed to obj file" << std::endl;
 
 			Background.back().scale = glm::vec3{ 1.f, 1.f, 1.f };
-			Background.back().pos = glm::vec3{ 0.f, -1.f * (winSizex / winSizey) , 0.f };
+			Background.back().pos = glm::vec3{ 0.f, -1.f, 0.f };
 
 			std::vector<glm::vec3> color;
 			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
