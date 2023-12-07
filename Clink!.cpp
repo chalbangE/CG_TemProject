@@ -792,6 +792,7 @@ void LoadMap()
 					>> Crystal.back().scale.x >> Crystal.back().scale.y >> Crystal.back().scale.z;
 				Crystal.back().scale.y *= winSizex / winSizey;
 				Crystal.back().pos.y *= winSizex / winSizey;
+				WindowConversion(Crystal.back(), winSizex, winSizey);
 			}
 			else if (bind[0] == 'b') {
 				Background.emplace_back(obj_list[fcube_i]);
@@ -799,6 +800,7 @@ void LoadMap()
 					>> Background.back().scale.x  >> Background.back().scale.y  >> Background.back().scale.z;
 				Background.back().scale.y *= winSizex / winSizey;
 				Background.back().pos.y *= winSizex / winSizey;
+				WindowConversion(Background.back(), winSizex, winSizey);
 			}
 		}
 	}
