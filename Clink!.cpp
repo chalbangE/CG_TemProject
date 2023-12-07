@@ -29,6 +29,8 @@ void MouseWheel(int wheel, int diretion, int x, int y);
 
 void ShootBall(GLRay ray);
 void LoadCrashedCrystal(const int& index);
+void SaveMap();
+void LoadMap();
 
 using namespace std;
 
@@ -162,13 +164,13 @@ GLvoid drawScene()
 	Light.draw_prepare(LightColorLocation, "LightColor");
 	Light.draw("solid");
 
-	lineObj.Update();
-	lineObj.draw_prepare(PosLocation, "Pos");
-	lineObj.draw_prepare(ColorLocation, "Color");
-	lineObj.draw_prepare(TexorColorLocation, "Color_bool");
-	glUniform1i(TexorColorLocation, false);
-	lineObj.draw_prepare(WorldTransLocation, "World");
-	lineObj.draw();
+	//lineObj.Update();
+	//lineObj.draw_prepare(PosLocation, "Pos");
+	//lineObj.draw_prepare(ColorLocation, "Color");
+	//lineObj.draw_prepare(TexorColorLocation, "Color_bool");
+	//glUniform1i(TexorColorLocation, false);
+	//lineObj.draw_prepare(WorldTransLocation, "World");
+	//lineObj.draw();
 
 	for (int i = 0; i < Background.size(); ++i) {
 		Background[i].Update();
@@ -200,7 +202,7 @@ GLvoid drawScene()
 	}
 	
 	for (int i = 0; i < Crystal.size(); ++i) {
-		Crystal[i].Crystal_Update();
+		Crystal[i].Update();
 		Crystal[i].draw_prepare(PosLocation, "Pos");
 		Crystal[i].draw_prepare(WorldTransLocation, "World");
 		Crystal[i].draw_prepare(NormalLocation, "Normal");
@@ -309,7 +311,13 @@ void Keyboard(unsigned char key, int x, int y)
 	{
 	case 'q':
 	case 'Q': {
+		SaveMap();
 		exit(829);
+	}
+	case 's':
+	case 'S': {
+		LoadMap();
+		break;
 	}
 	case 'c': {
 		Crystal.emplace_back(obj_list[crystal_i]);
@@ -730,6 +738,64 @@ void LoadCrashedCrystal(const int& index) {
 	Crystal.erase(Crystal.begin() + index);
 }
 
+void SaveMap()
+{
+	// Crystal, Background;
+
+	std::ofstream SaveFlie("./MapList.txt"/*, ios::app*/);
+
+	if (SaveFlie.is_open()) {
+		SaveFlie << "m" << endl;
+
+		for (int i = 0; i < Crystal.size(); ++i) {
+			Crystal.back().scale.y /= winSizex / winSizey;
+			Crystal.back().pos.y /= winSizex / winSizey;
+			SaveFlie << "c " << Crystal[i].pos.x << " " << Crystal[i].pos.y << " " << Crystal[i].pos.z << " "
+				<< Crystal[i].scale.x << " " << Crystal[i].scale.y << " " << Crystal[i].scale.z << endl;
+		}
+		for (int i = 4; i < Background.size(); ++i) {
+			Background.back().scale.y /= winSizex / winSizey;
+			Background.back().pos.y /= winSizex / winSizey;
+			SaveFlie << "b " << Background[i].pos.x << " " << Background[i].pos.y << " " << Background[i].pos.z << " "
+				<< Background[i].scale.x << " " << Background[i].scale.y << " " << Background[i].scale.z << endl;
+		}
+	}
+}
+
+void LoadMap()
+{
+	// Crystal, Background;
+
+	std::ifstream SaveFlie("./MapList.txt"/*, ios::app*/);
+
+	if (SaveFlie.is_open()) {
+		std::string bind;
+
+		while (getline(SaveFlie, bind)) {
+			std::stringstream ss_bind{};
+			std::string a;
+			ss_bind.str(bind);
+			ss_bind >> a;
+			cout << a << endl;
+
+			if (bind[0] == 'c') {
+				Crystal.emplace_back(obj_list[crystal_i]);
+				ss_bind >> Crystal.back().pos.x >> Crystal.back().pos.y >> Crystal.back().pos.z
+					>> Crystal.back().scale.x >> Crystal.back().scale.y >> Crystal.back().scale.z;
+				Crystal.back().scale.y *= winSizex / winSizey;
+				Crystal.back().pos.y *= winSizex / winSizey;
+			}
+			else if (bind[0] == 'b') {
+				Background.emplace_back(obj_list[fcube_i]);
+				ss_bind >> Background.back().pos.x  >> Background.back().pos.y  >> Background.back().pos.z
+					>> Background.back().scale.x  >> Background.back().scale.y  >> Background.back().scale.z;
+				Background.back().scale.y *= winSizex / winSizey;
+				Background.back().pos.y *= winSizex / winSizey;
+			}
+		}
+	}
+}
+
 void Init()
 {
 	glBindVertexArray(vao);
@@ -788,11 +854,11 @@ void Init()
 
 		obj_list[crystal_i].scale = glm::vec3(0.13f, 0.27f, 0.13f);
 		obj_list[crystal_i].pos = glm::vec3{ 0.f, -0.5f, 0.f };
-		obj_list[crystal_i].midpos *= obj_list[crystal_i].scale;
+		obj_list[crystal_i].midpos = glm::vec3{ 0.f, 0.f, 0.f };
 
 		obj_list[crystal_i].imgLoad("./IMG/À¯¸®.png");
 	}
-	Crystal.emplace_back(obj_list[crystal_i]);
+	//Crystal.emplace_back(obj_list[crystal_i]);
 
 	//  Background
 	{
@@ -851,7 +917,7 @@ void Init()
 		glBindBuffer(GL_ARRAY_BUFFER, obj_list[fcube_i].v_color);
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
-	Background.emplace_back(obj_list[fcube_i]);
+	//Background.emplace_back(obj_list[fcube_i]);
 
 	// UI
 	{
