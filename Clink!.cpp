@@ -223,6 +223,18 @@ GLvoid drawScene()
 		CrashedCrystal[i].draw("solid");
 	}
 
+	for (int i = 0; i < UI.size(); ++i) {
+		UI[i].Update();
+		UI[i].draw_prepare(PosLocation, "Pos");
+		UI[i].draw_prepare(WorldTransLocation, "World");
+		UI[i].draw_prepare(NormalLocation, "Normal");
+		UI[i].draw_prepare(UvLocation, "UV");
+		UI[i].draw_prepare(false, "Texture");
+		UI[i].draw_prepare(TexorColorLocation, "Texture_bool");
+		glUniform1f(DistanceLocation, distance(Light.pos, UI[i].pos));
+		UI[i].draw("solid");
+	}
+
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
@@ -841,6 +853,22 @@ void Init()
 	}
 	Background.emplace_back(obj_list[fcube_i]);
 
+	// UI
+	{
+		std::ifstream inputFile("./OBJ/Clink.obj");
+		UI.emplace_back();
+
+		if (inputFile.is_open())
+			UI.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		UI.back().scale = glm::vec3{ 3.f, 3.f, 3.f };
+		UI.back().pos = glm::vec3{ 0.f, 0.2f, 0.f };
+
+		UI.back().imgLoad("./IMG/유리.png");
+	}
+
 	// X축 Y축
 	{
 		glm::vec3 line[6]{
@@ -904,7 +932,6 @@ GLvoid Reshape(int w, int h)
 		Ball[i].pos.y *= (float)w / (float)h;
 		Ball[i].size = glm::vec3{ abs((Ball[i].max - Ball[i].min) / 2.f) * Ball[i].scale };
 	}
-	
 
 	for (int i = 0; i < UI.size(); i++) {
 		if (winSizex && winSizey) {
