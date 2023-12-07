@@ -93,7 +93,15 @@ glm::vec3 PerpendicularInXZPlane(glm::vec3 v) {
 
 	return perpendicular;
 }
-
+void WindowConversion(GLObj& obj, int w, int h) {
+	if (winSizex && winSizey) {
+		obj.scale.y /= winSizex / winSizey;
+		obj.pos.y /= winSizex / winSizey;
+	}
+	obj.scale.y *= (float)w / (float)h;
+	obj.pos.y *= (float)w / (float)h;
+	obj.size = glm::vec3{ abs((obj.max - obj.min) / 2.f) * obj.scale };
+}
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 {
 	//--- 윈도우 생성하기
@@ -905,64 +913,27 @@ void Mapping() {
 //--- 다시그리기 콜백 함수
 GLvoid Reshape(int w, int h)
 {
+	WindowConversion(Light, w, h);
 	for (int i = 0; i < 3; i++) {
-		if (winSizex && winSizey) {
-			obj_list[i].scale.y /= winSizex / winSizey;
-			obj_list[i].pos.y /= winSizex / winSizey;
-		}
-		obj_list[i].scale.y *= (float)w / (float)h;
-		obj_list[i].pos.y *= (float)w / (float)h;
-		obj_list[i].size = glm::vec3{ abs((obj_list[i].max - obj_list[i].min) / 2.f) * obj_list[i].scale };
+		WindowConversion(obj_list[i], w, h);
 	}
-	
-	if (winSizex && winSizey) {
-		Light.scale.y /= winSizex / winSizey;
-		Light.pos.y /= winSizex / winSizey;
-	}
-	Light.scale.y *= (float)w / (float)h;
-	Light.pos.y *= (float)w / (float)h;
-	Light.size = glm::vec3{ abs((Light.max - Light.min) / 2.f) * Light.scale };
-
 	for (int i = 0; i < Ball.size(); i++) {
-		if (winSizex && winSizey) {
-			Ball[i].scale.y /= winSizex / winSizey;
-			Ball[i].pos.y /= winSizex / winSizey;
-		}
-		Ball[i].scale.y *= (float)w / (float)h;
-		Ball[i].pos.y *= (float)w / (float)h;
-		Ball[i].size = glm::vec3{ abs((Ball[i].max - Ball[i].min) / 2.f) * Ball[i].scale };
+		WindowConversion(Ball[i], w, h);
 	}
-
 	for (int i = 0; i < UI.size(); i++) {
-		if (winSizex && winSizey) {
-			UI[i].scale.y /= winSizex / winSizey;
-			UI[i].pos.y /= winSizex / winSizey;
-		}
-		UI[i].scale.y *= (float)w / (float)h;
-		UI[i].pos.y *= (float)w / (float)h;
-		UI[i].size = glm::vec3{ abs((UI[i].max - UI[i].min) / 2.f) * UI[i].scale };
+		WindowConversion(UI[i], w, h);
 	}
-
 	for (int i = 0; i < Crystal.size(); i++) {
-		if (winSizex && winSizey) {
-			Crystal[i].scale.y /= winSizex / winSizey;
-			Crystal[i].pos.y /= winSizex / winSizey;
-			Crystal[i].midpos.y /= winSizex / winSizey;
-		}
-		Crystal[i].scale.y *= (float)w / (float)h;
-		Crystal[i].pos.y *= (float)w / (float)h;
-		Crystal[i].midpos.y *= (float)w / (float)h;
-		Crystal[i].size = glm::vec3{ abs((Crystal[i].max - Crystal[i].min) / 2.f) * Crystal[i].scale };
+		WindowConversion(Crystal[i], w, h);
 	}
-
+	for (int i = 0; i < CrashedCrystal.size(); i++) {
+		WindowConversion(CrashedCrystal[i], w, h);
+		if (winSizex && winSizey)
+			CrashedCrystal[i].midpos.y /= winSizex / winSizey;
+		CrashedCrystal[i].midpos.y *= (float)w / (float)h;
+	}
 	for (int i = 0; i < Background.size(); i++) {
-		if (winSizex && winSizey) {
-			Background[i].scale.y /= winSizex / winSizey;
-			Background[i].pos.y /= winSizex / winSizey;
-		}
-		Background[i].scale.y *= (float)w / (float)h;
-		Background[i].pos.y *= (float)w / (float)h;
-		Background[i].size = glm::vec3{ abs((Background[i].max - Background[i].min) / 2.f) * Background[i].scale };
+		WindowConversion(Background[i], w, h);
 	}
 
 	winSizex = w;
