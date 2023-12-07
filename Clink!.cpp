@@ -401,138 +401,318 @@ void LoadCrashedCrystal(const int& index) {
 	std::uniform_real_distribution<float> rand_dir(-0.005f, 0.005f);
 	std::uniform_int_distribution<int> rand_bool(0, 1);
 
-	{
-		std::ifstream inputFile("./OBJ/crystal1.obj");
-		CrashedCrystal.emplace_back();
+	if (0) {
+		{
+			std::ifstream inputFile("./OBJ/crystal1.obj");
+			CrashedCrystal.emplace_back();
 
-		if (inputFile.is_open())
-			CrashedCrystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
 
-		CrashedCrystal.back().scale = Crystal[index].scale;
-		CrashedCrystal.back().pos = Crystal[index].pos;
-		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
-
-		CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal2.obj");
-		CrashedCrystal.emplace_back();
-
-		if (inputFile.is_open())
-			CrashedCrystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
-
-		CrashedCrystal.back().scale = Crystal[index].scale;
-		CrashedCrystal.back().pos = Crystal[index].pos;
-		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
-
-		CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal3.obj");
-		CrashedCrystal.emplace_back();
-
-		if (inputFile.is_open())
-			CrashedCrystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
-
-		CrashedCrystal.back().scale = Crystal[index].scale;
-		CrashedCrystal.back().pos = Crystal[index].pos;
-		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
-
-		CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal4.obj");
-		CrashedCrystal.emplace_back();
-
-		if (inputFile.is_open())
-			CrashedCrystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
-
-		CrashedCrystal.back().scale = Crystal[index].scale;
-		CrashedCrystal.back().pos = Crystal[index].pos;
-		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		if (rand_bool(gen))
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
 			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
-		CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal5.obj");
-		CrashedCrystal.emplace_back();
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal2.obj");
+			CrashedCrystal.emplace_back();
 
-		if (inputFile.is_open())
-			CrashedCrystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
 
-		CrashedCrystal.back().scale = Crystal[index].scale;
-		CrashedCrystal.back().pos = Crystal[index].pos;
-		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		if (rand_bool(gen))
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
 			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
-		CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal6.obj");
-		CrashedCrystal.emplace_back();
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal3.obj");
+			CrashedCrystal.emplace_back();
 
-		if (inputFile.is_open())
-			CrashedCrystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
 
-		CrashedCrystal.back().scale = Crystal[index].scale;
-		CrashedCrystal.back().pos = Crystal[index].pos;
-		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		if (rand_bool(gen))
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
 			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
-		CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal4.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			if (rand_bool(gen))
+				CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal5.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			if (rand_bool(gen))
+				CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal6.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			if (rand_bool(gen))
+				CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal7.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			if (rand_bool(gen))
+				CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal8.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			if (rand_bool(gen))
+				CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
 	}
-	{
-		std::ifstream inputFile("./OBJ/crystal7.obj");
-		CrashedCrystal.emplace_back();
+	else {
+		{
+			std::ifstream inputFile("./OBJ/c1.obj");
+			CrashedCrystal.emplace_back();
 
-		if (inputFile.is_open())
-			CrashedCrystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
 
-		CrashedCrystal.back().scale = Crystal[index].scale;
-		CrashedCrystal.back().pos = Crystal[index].pos;
-		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		if (rand_bool(gen))
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
 			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
-		CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal8.obj");
-		CrashedCrystal.emplace_back();
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/c2.obj");
+			CrashedCrystal.emplace_back();
 
-		if (inputFile.is_open())
-			CrashedCrystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
 
-		CrashedCrystal.back().scale = Crystal[index].scale;
-		CrashedCrystal.back().pos = Crystal[index].pos;
-		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		if (rand_bool(gen))
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
 			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
-		CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/c3.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/c4.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/c5.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/c6.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/c7.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/c8.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/c9.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/c10.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/c11.obj");
+			CrashedCrystal.emplace_back();
+
+			if (inputFile.is_open())
+				CrashedCrystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			CrashedCrystal.back().scale = Crystal[index].scale;
+			CrashedCrystal.back().pos = Crystal[index].pos;
+			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
+
+			CrashedCrystal.back().imgLoad("./IMG/蜡府.png");
+		}
 	}
 
 	Crystal.erase(Crystal.begin() + index);
