@@ -191,8 +191,8 @@ GLvoid drawScene()
 		Ball[i].draw("solid");
 	}
 	
-	for (int i = 0; i < Crystal.size(); ++i) {
-		Crystal[i].Update();
+	for (int i = 9; i < Crystal.size(); ++i) {
+		Crystal[i].Crystal_Update();
 		Crystal[i].draw_prepare(PosLocation, "Pos");
 		Crystal[i].draw_prepare(WorldTransLocation, "World");
 		Crystal[i].draw_prepare(NormalLocation, "Normal");
@@ -420,125 +420,135 @@ void Init()
 
 	//  Crystal
 	{
-		std::ifstream inputFile("./OBJ/crystal1.obj");
-		Crystal.emplace_back();
+		{
+			std::ifstream inputFile("./OBJ/crystal1.obj");
+			Crystal.emplace_back();
 
-		if (inputFile.is_open())
-			Crystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
+			if (inputFile.is_open())
+				Crystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
 
-		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
-		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
-		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
+			Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+			Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+			Crystal.back().midpos *= Crystal.back().scale;
 
-		Crystal.back().imgLoad("./IMG/유리.png");
+			Crystal.back().imgLoad("./IMG/유리.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal2.obj");
+			Crystal.emplace_back();
+
+			if (inputFile.is_open())
+				Crystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+			Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+			Crystal.back().midpos *= Crystal.back().scale;
+			 
+
+			Crystal.back().imgLoad("./IMG/유리.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal3.obj");
+			Crystal.emplace_back();
+
+			if (inputFile.is_open())
+				Crystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+			Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+			Crystal.back().midpos *= Crystal.back().scale;
+			 
+
+			Crystal.back().imgLoad("./IMG/유리.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal4.obj");
+			Crystal.emplace_back();
+
+			if (inputFile.is_open())
+				Crystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+			Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+			Crystal.back().midpos *= Crystal.back().scale;
+			 
+
+			Crystal.back().imgLoad("./IMG/유리.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal5.obj");
+			Crystal.emplace_back();
+
+			if (inputFile.is_open())
+				Crystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+			Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+			Crystal.back().midpos *= Crystal.back().scale;
+			 
+
+			Crystal.back().imgLoad("./IMG/유리.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal6.obj");
+			Crystal.emplace_back();
+
+			if (inputFile.is_open())
+				Crystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+			Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+			Crystal.back().midpos *= Crystal.back().scale;
+			 
+
+			Crystal.back().imgLoad("./IMG/유리.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal7.obj");
+			Crystal.emplace_back();
+
+			if (inputFile.is_open())
+				Crystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+			Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+			Crystal.back().midpos *= Crystal.back().scale;
+			 
+
+			Crystal.back().imgLoad("./IMG/유리.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/crystal8.obj");
+			Crystal.emplace_back();
+
+			if (inputFile.is_open())
+				Crystal.back().objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
+			Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+			Crystal.back().midpos *= Crystal.back().scale;
+			 
+
+			Crystal.back().imgLoad("./IMG/유리.png");
+		}
 	}
-	{
-		std::ifstream inputFile("./OBJ/crystal2.obj");
-		Crystal.emplace_back();
 
-		if (inputFile.is_open())
-			Crystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
-
-		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
-		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
-		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
-
-		Crystal.back().imgLoad("./IMG/유리.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal3.obj");
-		Crystal.emplace_back();
-
-		if (inputFile.is_open())
-			Crystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
-
-		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
-		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
-		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
-
-		Crystal.back().imgLoad("./IMG/유리.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal4.obj");
-		Crystal.emplace_back();
-
-		if (inputFile.is_open())
-			Crystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
-
-		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
-		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
-		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
-
-		Crystal.back().imgLoad("./IMG/유리.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal5.obj");
-		Crystal.emplace_back();
-
-		if (inputFile.is_open())
-			Crystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
-
-		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
-		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
-		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
-
-		Crystal.back().imgLoad("./IMG/유리.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal6.obj");
-		Crystal.emplace_back();
-
-		if (inputFile.is_open())
-			Crystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
-
-		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
-		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
-		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
-
-		Crystal.back().imgLoad("./IMG/유리.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal7.obj");
-		Crystal.emplace_back();
-
-		if (inputFile.is_open())
-			Crystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
-
-		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
-		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
-		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
-
-		Crystal.back().imgLoad("./IMG/유리.png");
-	}
-	{
-		std::ifstream inputFile("./OBJ/crystal8.obj");
-		Crystal.emplace_back();
-
-		if (inputFile.is_open())
-			Crystal.back().objLoad(inputFile);
-		else
-			std::cerr << "Failed to obj file" << std::endl;
-
-		Crystal.back().scale = glm::vec3(0.13f, 0.27f, 0.13f);
-		Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
-		Crystal.back().midpos = glm::vec3{ 0.f, 0.f, 0.f };
-
-		Crystal.back().imgLoad("./IMG/유리.png");
-	}
 
 	//  Background
 	{
@@ -635,27 +645,27 @@ void Init()
 			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 		}
 		{
-			std::ifstream inputFile("./OBJ/cube_floor.obj");
-			Background.emplace_back();
+			//std::ifstream inputFile("./OBJ/cube_floor.obj");
+			//Background.emplace_back();
 
-			if (inputFile.is_open())
-				Background.back().objLoad(inputFile);
-			else
-				std::cerr << "Failed to obj file" << std::endl;
+			//if (inputFile.is_open())
+			//	Background.back().objLoad(inputFile);
+			//else
+			//	std::cerr << "Failed to obj file" << std::endl;
 
-			Background.back().scale = glm::vec3{ 1.f, 1.f, 1.f };
-			Background.back().pos = glm::vec3{ 0.f, -1.f, 0.f };
+			//Background.back().scale = glm::vec3{ 1.f, 1.f, 1.f };
+			//Background.back().pos = glm::vec3{ 0.f, -1.f, 0.f };
 
-			std::vector<glm::vec3> color;
-			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
-			//                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
-			for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
-				color.emplace_back(a);
-			}
+			//std::vector<glm::vec3> color;
+			//glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
+			////                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
+			//for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
+			//	color.emplace_back(a);
+			//}
 
-			glGenBuffers(1, &Background.back().v_color);
-			glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
-			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
+			//glGenBuffers(1, &Background.back().v_color);
+			//glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
+			//glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 		}
 	}
 
@@ -717,9 +727,11 @@ GLvoid Reshape(int w, int h)
 		if (winSizex && winSizey) {
 			Crystal[i].scale.y /= winSizex / winSizey;
 			Crystal[i].pos.y /= winSizex / winSizey;
+			Crystal[i].midpos.y /= winSizex / winSizey;
 		}
 		Crystal[i].scale.y *= (float)w / (float)h;
 		Crystal[i].pos.y *= (float)w / (float)h;
+		Crystal[i].midpos.y *= (float)w / (float)h;
 		Crystal[i].size = glm::vec3{ abs((Crystal[i].max - Crystal[i].min) / 2.f) * Crystal[i].scale };
 	}
 
