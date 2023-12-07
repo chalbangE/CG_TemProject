@@ -270,7 +270,13 @@ void TimerFunction(int value)
 				}
 				for (int c_cnt = 0; c_cnt < Crystal.size(); ++c_cnt) {
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Crystal[c_cnt]) && !CheckCollision(temp, Crystal[c_cnt])) {
+						Ball[i].pos -= Ball[i].velocity;
+						Ball[i].velocity *= CheckCollisionDir(Crystal[c_cnt], Ball[i]) / 4.f;
+
+						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
+							Ball[i].velocity = glm::vec3(0.f);
 						LoadCrashedCrystal(c_cnt);
+						break;
 					}
 				}
 			}
@@ -295,6 +301,7 @@ void Keyboard(unsigned char key, int x, int y)
 	}
 	case 'c': {
 		Crystal.emplace_back(obj_list[crystal_i]);
+		CrashedCrystal.clear();	
 		break;
 	}
 	default:
@@ -391,6 +398,9 @@ void ShootBall(GLRay ray)
 
 // 크리스탈 부서진 obj로 교체하고 기존거 삭제하는 함수
 void LoadCrashedCrystal(const int& index) {
+	std::uniform_real_distribution<float> rand_dir(-0.005f, 0.005f);
+	std::uniform_int_distribution<int> rand_bool(0, 1);
+
 	{
 		std::ifstream inputFile("./OBJ/crystal1.obj");
 		CrashedCrystal.emplace_back();
@@ -403,7 +413,7 @@ void LoadCrashedCrystal(const int& index) {
 		CrashedCrystal.back().scale = Crystal[index].scale;
 		CrashedCrystal.back().pos = Crystal[index].pos;
 		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ (float)(rand() % 10 - 5) / 1000.f, (float)(rand() % 5) / 1000.f, (float)(rand() % 10 - 5) / 1000.f };
+		CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
 		CrashedCrystal.back().imgLoad("./IMG/유리.png");
 	}
@@ -419,7 +429,7 @@ void LoadCrashedCrystal(const int& index) {
 		CrashedCrystal.back().scale = Crystal[index].scale;
 		CrashedCrystal.back().pos = Crystal[index].pos;
 		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ (float)(rand() % 10 - 5) / 1000.f, (float)(rand() % 5) / 1000.f, (float)(rand() % 10 - 5) / 1000.f };
+		CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
 		CrashedCrystal.back().imgLoad("./IMG/유리.png");
 	}
@@ -435,7 +445,7 @@ void LoadCrashedCrystal(const int& index) {
 		CrashedCrystal.back().scale = Crystal[index].scale;
 		CrashedCrystal.back().pos = Crystal[index].pos;
 		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ (float)(rand() % 10 - 5) / 1000.f, (float)(rand() % 5) / 1000.f, (float)(rand() % 10 - 5) / 1000.f };
+		CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
 		CrashedCrystal.back().imgLoad("./IMG/유리.png");
 	}
@@ -451,7 +461,8 @@ void LoadCrashedCrystal(const int& index) {
 		CrashedCrystal.back().scale = Crystal[index].scale;
 		CrashedCrystal.back().pos = Crystal[index].pos;
 		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ (float)(rand() % 10 - 5) / 1000.f, (float)(rand() % 5) / 1000.f, (float)(rand() % 10 - 5) / 1000.f };
+		if (rand_bool(gen))
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
 		CrashedCrystal.back().imgLoad("./IMG/유리.png");
 	}
@@ -467,7 +478,8 @@ void LoadCrashedCrystal(const int& index) {
 		CrashedCrystal.back().scale = Crystal[index].scale;
 		CrashedCrystal.back().pos = Crystal[index].pos;
 		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ (float)(rand() % 10 - 5) / 1000.f, (float)(rand() % 5) / 1000.f, (float)(rand() % 10 - 5) / 1000.f };
+		if (rand_bool(gen))
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
 		CrashedCrystal.back().imgLoad("./IMG/유리.png");
 	}
@@ -483,7 +495,8 @@ void LoadCrashedCrystal(const int& index) {
 		CrashedCrystal.back().scale = Crystal[index].scale;
 		CrashedCrystal.back().pos = Crystal[index].pos;
 		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ (float)(rand() % 10 - 5) / 1000.f, (float)(rand() % 5) / 1000.f, (float)(rand() % 10 - 5) / 1000.f };
+		if (rand_bool(gen))
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
 		CrashedCrystal.back().imgLoad("./IMG/유리.png");
 	}
@@ -499,7 +512,8 @@ void LoadCrashedCrystal(const int& index) {
 		CrashedCrystal.back().scale = Crystal[index].scale;
 		CrashedCrystal.back().pos = Crystal[index].pos;
 		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ (float)(rand() % 10 - 5) / 1000.f, (float)(rand() % 5) / 1000.f, (float)(rand() % 10 - 5) / 1000.f };
+		if (rand_bool(gen))
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
 		CrashedCrystal.back().imgLoad("./IMG/유리.png");
 	}
@@ -515,7 +529,8 @@ void LoadCrashedCrystal(const int& index) {
 		CrashedCrystal.back().scale = Crystal[index].scale;
 		CrashedCrystal.back().pos = Crystal[index].pos;
 		CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-		CrashedCrystal.back().velocity = glm::vec3{ (float)(rand() % 10 - 5) / 1000.f, (float)(rand() % 5) / 1000.f, (float)(rand() % 10 - 5) / 1000.f };
+		if (rand_bool(gen))
+			CrashedCrystal.back().velocity = glm::vec3{ rand_dir(gen), 0.f, rand_dir(gen) };
 
 		CrashedCrystal.back().imgLoad("./IMG/유리.png");
 	}
