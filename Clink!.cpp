@@ -34,7 +34,7 @@ using namespace std;
 float winSizex = 0, winSizey = 0;
 GLuint vao;
 
-vector <GLObj> Ball, Crystal, Background;
+vector <GLObj> Ball, Crystal, Background, UI;
 GLLine lineObj;
 GLCamera Camera;
 GLLight Light;
@@ -204,6 +204,18 @@ GLvoid drawScene()
 		Crystal[i].draw_prepare(TexorColorLocation, "Texture_bool");
 		glUniform1f(DistanceLocation, distance(Light.pos, Crystal[i].pos));
 		Crystal[i].draw("solid");
+	}
+
+	for (int i = 0; i < UI.size(); ++i) {
+		UI[i].Update();
+		UI[i].draw_prepare(PosLocation, "Pos");
+		UI[i].draw_prepare(WorldTransLocation, "World");
+		UI[i].draw_prepare(NormalLocation, "Normal");
+		UI[i].draw_prepare(UvLocation, "UV");
+		UI[i].draw_prepare(false, "Texture");
+		UI[i].draw_prepare(TexorColorLocation, "Texture_bool");
+		glUniform1f(DistanceLocation, distance(Light.pos, UI[i].pos));
+		UI[i].draw("solid");
 	}
 
 	glDisable(GL_BLEND);
@@ -647,29 +659,21 @@ void Init()
 			glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
 			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 		}
-		{
-			//std::ifstream inputFile("./OBJ/cube_floor.obj");
-			//Background.emplace_back();
+	}
 
-			//if (inputFile.is_open())
-			//	Background.back().objLoad(inputFile);
-			//else
-			//	std::cerr << "Failed to obj file" << std::endl;
+	{
+		std::ifstream inputFile("./OBJ/Clink.obj");
+		UI.emplace_back();
 
-			//Background.back().scale = glm::vec3{ 1.f, 1.f, 1.f };
-			//Background.back().pos = glm::vec3{ 0.f, -1.f, 0.f };
+		if (inputFile.is_open())
+			UI.back().objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
 
-			//std::vector<glm::vec3> color;
-			//glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
-			////                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
-			//for (int i = 0; i < Background.back().face_cnt * 3; ++i) {
-			//	color.emplace_back(a);
-			//}
+		UI.back().scale = glm::vec3{ 3.f, 3.f, 3.f };
+		UI.back().pos = glm::vec3{ 0.f, 0.f, 0.f };
 
-			//glGenBuffers(1, &Background.back().v_color);
-			//glBindBuffer(GL_ARRAY_BUFFER, Background.back().v_color);
-			//glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
-		}
+		UI.back().imgLoad("./IMG/유리.png");
 	}
 
 	// X축 Y축
@@ -724,6 +728,17 @@ GLvoid Reshape(int w, int h)
 		Ball[i].scale.y *= (float)w / (float)h;
 		Ball[i].pos.y *= (float)w / (float)h;
 		Ball[i].size = glm::vec3{ abs((Ball[i].max - Ball[i].min) / 2.f) * Ball[i].scale };
+	}
+	
+
+	for (int i = 0; i < UI.size(); i++) {
+		if (winSizex && winSizey) {
+			UI[i].scale.y /= winSizex / winSizey;
+			UI[i].pos.y /= winSizex / winSizey;
+		}
+		UI[i].scale.y *= (float)w / (float)h;
+		UI[i].pos.y *= (float)w / (float)h;
+		UI[i].size = glm::vec3{ abs((UI[i].max - UI[i].min) / 2.f) * UI[i].scale };
 	}
 
 	for (int i = 0; i < Crystal.size(); i++) {
