@@ -59,21 +59,24 @@ float CalVectorMagnitude(glm::vec3 v) {
 }
 glm::vec3 CheckCollisionDir(const GLObj& target, const GLObj& object) {
 	GLObj temp;
+	glm::vec3 result = glm::vec3(1.f);
 
 	temp = object;
 	temp.pos.x += object.velocity.x;
 	if (CheckCollision(target, temp))
-		return glm::vec3(-1.f, 1.f, 1.f);
+		result.x = -1.f;
 
 	temp = object;
 	temp.pos.y += object.velocity.y;
 	if (CheckCollision(target, temp))
-		return glm::vec3(1.f, -1.f, 1.f);
+		result.y = -1.f;
 
 	temp = object;
 	temp.pos.z += object.velocity.z;
 	if (CheckCollision(target, temp))
-		return glm::vec3(1.f, 1.f, -1.f);
+		result.z = -1.f;
+
+	return result;
 }
 glm::vec3 PerpendicularInXZPlane(glm::vec3 v) {
 	glm::vec3 normal(0, 1, 0);
@@ -191,7 +194,7 @@ GLvoid drawScene()
 		Ball[i].draw("solid");
 	}
 	
-	for (int i = 9; i < Crystal.size(); ++i) {
+	for (int i = 0; i < Crystal.size(); ++i) {
 		Crystal[i].Crystal_Update();
 		Crystal[i].draw_prepare(PosLocation, "Pos");
 		Crystal[i].draw_prepare(WorldTransLocation, "World");
