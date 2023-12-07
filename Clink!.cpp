@@ -5,6 +5,8 @@
 #include "GLLIne.h"
 #include "GLCamera.h"
 #include "GLRay.h"
+#include "fmod.hpp"
+#include "fmod_errors.h" 
 
 using namespace std;
 
@@ -49,6 +51,12 @@ vector <GLObj> Ball, Crystal, Background, CrashedCrystal, UI;
 GLObj obj_list[4];
 bool Lbt = false;
 glm::vec3 click_mouse{};
+
+static FMOD::System* ssystem;
+static FMOD::Sound* Crach_Sound[3], * BallShoot_Sound;
+static FMOD::Channel* channel = 0;
+static FMOD_RESULT result;
+static void* extradriverdata = 0;
 
 bool CheckCollision(const GLObj& a, const GLObj& b) {
 	return (std::abs(a.pos.x - b.pos.x) < (a.size.x + b.size.x) &&
@@ -133,6 +141,7 @@ glm::vec3 CalFragmentVelocity(GLObj& ball, GLObj& fragment) {
 void LoadCrashedCrystal(GLObj& ball, const int& index) {
 	std::uniform_real_distribution<float> rand_dir(-0.005f, 0.005f);
 	std::uniform_int_distribution<int> rand_bool(0, 1);
+	std::uniform_int_distribution<int> rand_sound(0, 2);
 
 	if (0) {
 		{
@@ -448,6 +457,9 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 		}
 	}
 
+	ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel);
+	channel->setVolume(0.35);
+
 	Crystal.erase(Crystal.begin() + index);
 }
 void ShootBall(GLRay ray)
@@ -456,6 +468,8 @@ void ShootBall(GLRay ray)
 	Ball.back().pos = ray.origin;
 	Ball.back().pos.z -= 0.2f;
 	Ball.back().velocity = ray.direction / 15.f;
+	ssystem->playSound(BallShoot_Sound, 0, false, &channel);
+	channel->setVolume(0.35);
 }
 void SaveMap()
 {
@@ -515,6 +529,7 @@ void LoadMap()
 		}
 	}
 }
+
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 {
@@ -1005,6 +1020,18 @@ void Init()
 		glBufferData(GL_ARRAY_BUFFER, sizeof(line), line, GL_STATIC_DRAW);
 
 		lineObj = GLLine({ 0.0f, 0.0f, 0.0f });
+	}
+
+	// 사운드 로드
+	{
+		result = FMOD::System_Create(&ssystem); //--- 사운드 시스템 생성
+		if (result != FMOD_OK)
+			exit(0);
+		ssystem->init(32, FMOD_INIT_NORMAL, extradriverdata); //--- 사운드 시스템 초기화
+		ssystem->createSound("WAV/GlassCrash1.wav", FMOD_LOOP_OFF, 0, &Crach_Sound[0]); //--- 유리 깨지는 소리 1
+		ssystem->createSound("WAV/GlassCrash2.wav", FMOD_LOOP_OFF, 0, &Crach_Sound[1]); //--- 유리 깨지는 소리 2
+		ssystem->createSound("WAV/GlassCrash3.wav", FMOD_LOOP_OFF, 0, &Crach_Sound[2]); //--- 유리 깨지는 소리 3
+		ssystem->createSound("WAV/BallShoot.wav", FMOD_LOOP_OFF, 0, &BallShoot_Sound); //--- 공 쏘는 소리
 	}
 }
 void Mapping() {

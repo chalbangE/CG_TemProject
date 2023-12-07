@@ -17,6 +17,7 @@
 #include <sstream>
 
 #include "stb_image.h"
+#pragma comment (lib, "fmod_vc.lib")
 
 static std::random_device rd;
 static std::mt19937 gen(rd());
