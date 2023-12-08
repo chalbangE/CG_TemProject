@@ -44,11 +44,11 @@ GLLight Light;
 GLRay Msray; // 마우스 광선
 
 enum ObjectList {
-	ball_i, crystal_i, cube_i, fcube_i
+	ball_i, crystal_i, cube_i, fcube_i, obstacle_i
 };
 
-vector <GLObj> Ball, Crystal, Background, CrashedCrystal, UI;
-GLObj obj_list[4];
+vector <GLObj> Ball, Crystal, Background, CrashedCrystal, UI, Obstacle;
+GLObj obj_list[5];
 bool Lbt = false;
 glm::vec3 click_mouse{};
 int ball_num = 1; // 한번에 쏘는 공 개수
@@ -797,6 +797,18 @@ GLvoid drawScene()
 		UI[i].draw("solid");
 	}
 
+	for (int i = 0; i < Obstacle.size(); ++i) {
+		Obstacle[i].Update();
+		Obstacle[i].draw_prepare(PosLocation, "Pos");
+		Obstacle[i].draw_prepare(WorldTransLocation, "World");
+		Obstacle[i].draw_prepare(NormalLocation, "Normal");
+		Obstacle[i].draw_prepare(UvLocation, "UV");
+		Obstacle[i].draw_prepare(false, "Texture");
+		Obstacle[i].draw_prepare(TexorColorLocation, "Texture_bool");
+		glUniform1f(DistanceLocation, distance(Light.pos, Obstacle[i].pos));
+		Obstacle[i].draw("solid");
+	}
+
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
@@ -991,6 +1003,12 @@ GLvoid Reshape(int w, int h)
 			CrashedCrystal[i].midpos.y /= winSizex / winSizey;
 		CrashedCrystal[i].midpos.y *= (float)w / (float)h;
 	}
+	for (int i = 0; i < Obstacle.size(); i++) {
+		WindowConversion(Obstacle[i], w, h);
+		if (winSizex && winSizey)
+			Obstacle[i].midpos.y /= winSizex / winSizey;
+		Obstacle[i].midpos.y *= (float)w / (float)h;
+	}
 	for (int i = 0; i < Background.size(); i++) {
 		WindowConversion(Background[i], w, h);
 	}
@@ -1047,6 +1065,19 @@ void Init()
 
 		obj_list[ball_i].imgLoad("./IMG/iron.png");
 	}
+
+	{
+		std::ifstream inputFile("./OBJ/cube_tex.obj");
+
+		if (inputFile.is_open())
+			obj_list[obstacle_i].objLoad(inputFile);
+		else
+			std::cerr << "Failed to obj file" << std::endl;
+
+		obj_list[obstacle_i].imgLoad("./IMG/장애물.png");
+	}
+	Obstacle.emplace_back(obj_list[obstacle_i]);
+	Obstacle.back().scale = glm::vec3(1.f, 1.f, 0.1f);
 
 	//  Crystal 안깨진거
 	{
