@@ -1165,7 +1165,7 @@ void Init()
 		ssystem->createSound("WAV/GlassCrash2.wav", FMOD_LOOP_OFF, 0, &Crach_Sound[1]); //--- 유리 깨지는 소리 2
 		ssystem->createSound("WAV/GlassCrash3.wav", FMOD_LOOP_OFF, 0, &Crach_Sound[2]); //--- 유리 깨지는 소리 3
 		ssystem->createSound("WAV/BallShoot.wav", FMOD_LOOP_OFF, 0, &BallShoot_Sound); //--- 공 쏘는 소리
-		ssystem->createSound("WAV/Bgm.mp3", FMOD_LOOP_OFF, 0, &Bgm_Sound); //--- 공 쏘는 소리
+		ssystem->createSound("WAV/Bgm.mp3", FMOD_LOOP_NORMAL, 0, &Bgm_Sound); //--- BGM
 	}
 	ssystem->playSound(Bgm_Sound, 0, false, &channel);
 	channel->setVolume(0.08);
