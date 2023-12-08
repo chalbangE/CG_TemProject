@@ -747,7 +747,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 	// 깨질 각도 생성
 	angle.emplace_back(rand_angle_cnt(gen));
 	while (angle.back() < glm::radians(360.f)) {
-		cout << glm::degrees(angle.back()) << endl;
+		//cout << glm::degrees(angle.back()) << endl;
 		angle.emplace_back(angle.back() + rand_angle_cnt(gen));
 	};
 	angle.pop_back();
@@ -766,7 +766,6 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 		if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
 		if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
 		if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
-
 		if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
 		if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
 		if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
@@ -780,7 +779,6 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 		if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
 		if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
 		if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
-
 		if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
 		if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
 		if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
@@ -794,7 +792,6 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 		if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
 		if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
 		if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
-
 		if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
 		if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
 		if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
