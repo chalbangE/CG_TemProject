@@ -51,6 +51,7 @@ vector <GLObj> Ball, Crystal, Background, CrashedCrystal, UI;
 GLObj obj_list[4];
 bool Lbt = false;
 glm::vec3 click_mouse{};
+int ball_num = 1; // 한번에 쏘는 공 개수
 
 static FMOD::System* ssystem;
 static FMOD::Sound* Crach_Sound[3], * BallShoot_Sound;
@@ -473,10 +474,120 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 }
 void ShootBall(GLRay ray)
 {
-	Ball.emplace_back(obj_list[ball_i]);
-	Ball.back().pos = ray.origin;
-	Ball.back().pos.z -= 0.2f;
-	Ball.back().velocity = ray.direction / 15.f;
+	switch (ball_num)
+	{
+	case 1: {
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		break;
+	}
+	case 2: {
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x -= 0.002f;
+
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x += 0.002f;
+		break;
+	}
+	case 3: {
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.y += 0.003f;
+
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x -= 0.002f;
+		Ball.back().velocity.y -= 0.002f;
+
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x += 0.002f;
+		Ball.back().velocity.y -= 0.002f;
+		break;
+	}
+	case 4: {
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x -= 0.002f;
+		Ball.back().velocity.y -= 0.003f;
+
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x += 0.002f;
+		Ball.back().velocity.y -= 0.003f;
+
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x -= 0.002f;
+		Ball.back().velocity.y += 0.003f;
+
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x += 0.002f;
+		Ball.back().velocity.y += 0.003f;
+		break;
+	}
+	case 5: {
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.emplace_back(obj_list[ball_i]);
+
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x -= 0.002f;
+		Ball.back().velocity.y -= 0.003f;
+
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x += 0.002f;
+		Ball.back().velocity.y -= 0.003f;
+
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x -= 0.002f;
+		Ball.back().velocity.y += 0.003f;
+
+		Ball.emplace_back(obj_list[ball_i]);
+		Ball.back().pos = ray.origin;
+		Ball.back().pos.z -= 0.2f;
+		Ball.back().velocity = ray.direction / 15.f;
+		Ball.back().velocity.x += 0.002f;
+		Ball.back().velocity.y += 0.003f;
+		break;
+	}
+	default:
+		break;
+	}
+
 	ssystem->playSound(BallShoot_Sound, 0, false, &channel);
 	channel->setVolume(0.35);
 }
@@ -760,6 +871,13 @@ void Keyboard(unsigned char key, int x, int y)
 	case 'c': {
 		Crystal.emplace_back(obj_list[crystal_i]);
 		CrashedCrystal.clear();
+		break;
+	}
+	case '+':
+	case '=': {
+		ball_num++;
+		if (ball_num == 6)
+			ball_num = 1;
 		break;
 	}
 	case 's':
