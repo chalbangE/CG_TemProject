@@ -47,7 +47,7 @@ enum ObjectList {
 	ball_i, crystal_i, cube_i, fcube_i, obstacle_i
 };
 
-vector <GLObj> Ball, Crystal, Background, CrashedCrystal, UI, Obstacle;
+vector <GLObj> Ball, Crystal, Background, CrashedCrystal, UI, Obstacle, CrashedObstacle;
 GLObj obj_list[5];
 bool Lbt = false;
 glm::vec3 click_mouse{};
@@ -654,7 +654,21 @@ void LoadMap()
 		}
 	}
 }
+void AdjustAngle() {
+	std::uniform_real_distribution<float> rand_angle_cnt(glm::radians(15.f), glm::radians(60.f));
+	std::vector <float> angle;
 
+	angle.emplace_back(rand_angle_cnt(gen));
+
+	while (angle.back() < glm::radians(360.f)) {
+		cout << glm::degrees(angle.back()) << endl;
+		angle.emplace_back(angle.back() + rand_angle_cnt(gen));
+	};
+	angle.pop_back();
+}
+void CrashObstacle(GLObj& ball, GLObj& obstacle) {
+
+}
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 {
@@ -824,6 +838,7 @@ void TimerFunction(int value)
 	switch (value)
 	{
 	case 1: {
+		// 깨진 크리스탈 움직이기
 		for (int i = 0; i < CrashedCrystal.size(); i++) {
 			if (CalVectorMagnitude(CrashedCrystal[i].velocity) != 0.f) {
 				CrashedCrystal[i].pos += CrashedCrystal[i].velocity;
@@ -843,6 +858,7 @@ void TimerFunction(int value)
 				Ball[i].velocity.y -= g;
 
 				// 충돌검사
+				// 배경
 				for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Background[bg_cnt], fcube_i) && !CheckCollision(temp, Background[bg_cnt], fcube_i)) {
 						Ball[i].pos -= Ball[i].velocity;
@@ -853,6 +869,7 @@ void TimerFunction(int value)
 						break;
 					}
 				}
+				// 크리스탈
 				for (int c_cnt = 0; c_cnt < Crystal.size(); ++c_cnt) {
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Crystal[c_cnt], crystal_i) && !CheckCollision(temp, Crystal[c_cnt], crystal_i)) {
 						Ball[i].pos -= Ball[i].velocity;
@@ -862,6 +879,17 @@ void TimerFunction(int value)
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
 						LoadCrashedCrystal(Ball[i], c_cnt);
+						break;
+					}
+				}
+				// 장애물
+				for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
+					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Obstacle[o_cnt], cube_i) && !CheckCollision(temp, Obstacle[o_cnt], cube_i)) {
+						Ball[i].pos -= Ball[i].velocity;
+						Ball[i].velocity *= CheckCollisionDir(Obstacle[o_cnt], Ball[i], cube_i) / 4.f;
+
+						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
+							Ball[i].velocity = glm::vec3(0.f);
 						break;
 					}
 				}
