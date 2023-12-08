@@ -137,12 +137,17 @@ void DeleteObject(std::vector <GLObj> obj, const int& index) {
 }
 glm::vec3 CalFragmentVelocity(GLObj& ball, GLObj& fragment) {
 	glm::vec3 velocity;
+	std::uniform_real_distribution<float> rand_magnitude(0.5f, 0.8f);
+	std::uniform_int_distribution<int> rand_bool(0, 1);
 
 	velocity = CalVector(ball.pos, fragment.pos + fragment.midpos); // 공에서 조각으로의 벡터 구하기
+	//cout << fragment.pos.y + fragment.midpos.y << endl;
 	velocity = NormalizeVector(velocity); // 벡터 정규화
-	velocity *= CalVectorMagnitude(ball.velocity) * 0.7f; // 벡터에 속력 곱하기
+	velocity *= CalVectorMagnitude(ball.velocity) * rand_magnitude(gen); // 벡터에 속력 곱하기
 
-	if (velocity.y < -0.01)
+	if (fragment.pos.y + fragment.midpos.y < ball.pos.y - 0.25f)
+		velocity = glm::vec3(0.f);
+	else if (fragment.pos.y + fragment.midpos.y < ball.pos.y - 0.15f && rand_bool(gen))
 		velocity = glm::vec3(0.f);
 
 	return velocity;
@@ -729,6 +734,7 @@ void TimerFunction(int value)
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Crystal[c_cnt], crystal_i) && !CheckCollision(temp, Crystal[c_cnt], crystal_i)) {
 						Ball[i].pos -= Ball[i].velocity;
 						Ball[i].velocity *= CheckCollisionDir(Crystal[c_cnt], Ball[i], crystal_i) / 4.f;
+						Ball[i].velocity.y = glm::abs(Ball[i].velocity.y);
 
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
