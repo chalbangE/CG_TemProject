@@ -114,6 +114,80 @@ glm::vec3 CalVector(glm::vec3 start, glm::vec3 arrival) {
 glm::vec3 NormalizeVector(glm::vec3 vector) {
 	return vector / CalVectorMagnitude(vector);
 }
+glm::vec3 CrossProduct(const glm::vec3& A, const glm::vec3& B) {
+	return glm::vec3(A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x);
+}
+glm::vec3 CalNormalVector(const glm::vec3& A, const glm::vec3& B, const glm::vec3& C) {
+	glm::vec3 AB = CalVector(A, B);
+	glm::vec3 AC = CalVector(A, C);
+
+	glm::vec3 normal = CrossProduct(AC, AB);
+	normal = NormalizeVector(normal);
+
+	return normal;
+}
+glm::mat4 CalInverseMatrix(glm::mat4 matrix) {
+	using Matrix = std::vector<std::vector<float>>;
+	Matrix input = {
+		{matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3]},
+		{matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3]},
+		{matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3]},
+		{matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]}
+	};
+	
+	int n = input.size();
+
+	// 확장된 행렬 생성 (원래 행렬과 단위 행렬을 합침)
+	Matrix augmented(2 * n, std::vector<float>(2 * n, 0.0f));
+
+	// 원래 행렬 복사
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			augmented[i][j] = input[i][j];
+		}
+	}
+
+	// 단위 행렬 추가
+	for (int i = 0; i < n; ++i) {
+		augmented[i][i + n] = 1.0f;
+	}
+
+	// 가우스 소거법 수행
+	for (int i = 0; i < n; ++i) {
+		// 대각원소를 1로 만들기
+		float pivot = augmented[i][i];
+		for (int j = 0; j < 2 * n; ++j) {
+			augmented[i][j] /= pivot;
+		}
+
+		// 다른 행들의 대각원소를 0으로 만들기
+		for (int k = 0; k < n; ++k) {
+			if (k != i) {
+				float factor = augmented[k][i];
+				for (int j = 0; j < 2 * n; ++j) {
+					augmented[k][j] -= factor * augmented[i][j];
+				}
+			}
+		}
+	}
+
+	// 역행렬 부분 추출
+	Matrix result(n, std::vector<float>(n, 0.0f));
+	for (int i = 0; i < n; ++i) {
+		for (int j = 0; j < n; ++j) {
+			result[i][j] = augmented[i][j + n];
+		}
+	}
+
+	glm::mat4 result_matrix = {
+	{result[0][0], result[0][1], result[0][2], result[0][3]},
+	{result[1][0], result[1][1], result[1][2], result[1][3]},
+	{result[2][0], result[2][1], result[2][2], result[2][3]},
+	{result[3][0], result[3][1], result[3][2], result[3][3]}
+	};
+
+	return result_matrix;
+}
 
 void WindowConversion(GLObj& obj, int w, int h) {
 	if (winSizex && winSizey) {
@@ -654,20 +728,137 @@ void LoadMap()
 		}
 	}
 }
-void AdjustAngle() {
+void CrashObstacle(GLObj& ball, GLObj& obstacle) {
+	uniform_real_distribution<float> rand_range[3];
 	std::uniform_real_distribution<float> rand_angle_cnt(glm::radians(15.f), glm::radians(60.f));
 	std::vector <float> angle;
+	std::vector <glm::vec3> vertex;
+	std::vector<glm::vec3> objnor;
+	std::vector <glm::vec3> objpos;
+	std::vector<glm::vec2> objtex;
+	glm::vec3 sum{};
+	float r[3] = { 0.083f, 0.125f, 0.25f };
 
+	// 깨질 반지름 랜덤생성기 만들기
+	for (int i = 0; i < 3; i++) {
+		rand_range[i] = uniform_real_distribution<float>(r[i], r[i] + 0.1f);
+	}
+
+	// 깨질 각도 생성
 	angle.emplace_back(rand_angle_cnt(gen));
-
 	while (angle.back() < glm::radians(360.f)) {
 		cout << glm::degrees(angle.back()) << endl;
 		angle.emplace_back(angle.back() + rand_angle_cnt(gen));
 	};
 	angle.pop_back();
-}
-void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 
+	// 점 얻기
+	//cout << "버텍스 정보" << endl;
+	//cout << "(" << vertex.back().x << ", " << vertex.back().y << ")" << endl;
+
+	CrashedObstacle.emplace_back();
+
+	for (int i = 0; i < 2; i++) {
+		vertex.emplace_back(ball.pos);
+		vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
+		vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
+		sum += vertex.back();
+		if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
+		if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
+		if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
+
+		if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
+		if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
+		if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
+
+		vertex.emplace_back();
+		vertex.back().x = ball.pos.x + glm::cos(angle[0]) * rand_range[0](gen);
+		vertex.back().y = ball.pos.y + glm::sin(angle[0]) * rand_range[0](gen) * ((float)winSizex / (float)winSizey);
+		vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
+		vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
+		sum += vertex.back();
+		if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
+		if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
+		if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
+
+		if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
+		if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
+		if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
+
+		vertex.emplace_back();
+		vertex.back().x = ball.pos.x + glm::cos(angle[1]) * rand_range[0](gen);
+		vertex.back().y = ball.pos.y + glm::sin(angle[1]) * rand_range[0](gen) * ((float)winSizex / (float)winSizey);
+		vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
+		vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
+		sum += vertex.back();
+		if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
+		if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
+		if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
+
+		if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
+		if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
+		if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
+	}
+
+	objpos.emplace_back(vertex[0]);
+	objpos.emplace_back(vertex[2]);
+	objpos.emplace_back(vertex[1]);
+
+	objpos.emplace_back(vertex[0]);
+	objpos.emplace_back(vertex[5]);
+	objpos.emplace_back(vertex[4]);
+
+	objpos.emplace_back(vertex[0]);
+	objpos.emplace_back(vertex[3]);
+	objpos.emplace_back(vertex[2]);
+
+	objpos.emplace_back(vertex[3]);
+	objpos.emplace_back(vertex[5]);
+	objpos.emplace_back(vertex[2]);
+
+	objpos.emplace_back(vertex[0]);
+	objpos.emplace_back(vertex[1]);
+	objpos.emplace_back(vertex[4]);
+
+	objpos.emplace_back(vertex[0]);
+	objpos.emplace_back(vertex[4]);
+	objpos.emplace_back(vertex[3]);
+
+	objpos.emplace_back(vertex[1]);
+	objpos.emplace_back(vertex[2]);
+	objpos.emplace_back(vertex[5]);
+
+	objpos.emplace_back(vertex[1]);
+	objpos.emplace_back(vertex[5]);
+	objpos.emplace_back(vertex[4]);
+
+	for (int i = 0; i < objpos.size() / 3; i++) {
+		objnor.emplace_back(CalNormalVector(objpos[i * 3], objpos[i * 3 + 1], objpos[i * 3 + 2]));
+		objnor.emplace_back(objnor.back());
+		objnor.emplace_back(objnor.back());
+	}
+
+	for (int i = 0; i < objpos.size(); i++) {
+		objtex.emplace_back();
+	}
+
+	CrashedObstacle.back().midpos = sum / float(vertex.size());
+	CrashedObstacle.back().pos = obstacle.pos;
+	CrashedObstacle.back().size = glm::vec3{ abs((CrashedObstacle.back().max - CrashedObstacle.back().min) / 2.f) };
+
+	glGenBuffers(1, &CrashedObstacle.back().v_pos);
+	glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_pos);
+	glBufferData(GL_ARRAY_BUFFER, objpos.size() * sizeof(glm::vec3), objpos.data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &CrashedObstacle.back().v_nor);
+	glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_nor);
+	glBufferData(GL_ARRAY_BUFFER, objnor.size() * sizeof(glm::vec3), objnor.data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &CrashedObstacle.back().v_uv);
+	glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_uv);
+	glBufferData(GL_ARRAY_BUFFER, objtex.size() * sizeof(glm::vec2), objtex.data(), GL_STATIC_DRAW);
+
+	CrashedObstacle.back().imgLoad("./IMG/장애물.png");
 }
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
@@ -823,6 +1014,18 @@ GLvoid drawScene()
 		Obstacle[i].draw("solid");
 	}
 
+	for (int i = 0; i < CrashedObstacle.size(); ++i) {
+		CrashedObstacle[i].Update();
+		CrashedObstacle[i].draw_prepare(PosLocation, "Pos");
+		CrashedObstacle[i].draw_prepare(WorldTransLocation, "World");
+		CrashedObstacle[i].draw_prepare(NormalLocation, "Normal");
+		CrashedObstacle[i].draw_prepare(UvLocation, "UV");
+		CrashedObstacle[i].draw_prepare(false, "Texture");
+		CrashedObstacle[i].draw_prepare(TexorColorLocation, "Texture_bool");
+		glUniform1f(DistanceLocation, distance(Light.pos, CrashedObstacle[i].pos));
+		CrashedObstacle[i].draw("solid");
+	}
+
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
@@ -885,11 +1088,14 @@ void TimerFunction(int value)
 				// 장애물
 				for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Obstacle[o_cnt], cube_i) && !CheckCollision(temp, Obstacle[o_cnt], cube_i)) {
+						CrashObstacle(Ball[i], Obstacle[o_cnt]);
+						
 						Ball[i].pos -= Ball[i].velocity;
 						Ball[i].velocity *= CheckCollisionDir(Obstacle[o_cnt], Ball[i], cube_i) / 4.f;
 
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
+						Obstacle.erase(Obstacle.begin() + o_cnt);
 						break;
 					}
 				}
@@ -1033,9 +1239,12 @@ GLvoid Reshape(int w, int h)
 	}
 	for (int i = 0; i < Obstacle.size(); i++) {
 		WindowConversion(Obstacle[i], w, h);
+	}
+	for (int i = 0; i < CrashedObstacle.size(); i++) {
+		WindowConversion(CrashedObstacle[i], w, h);
 		if (winSizex && winSizey)
-			Obstacle[i].midpos.y /= winSizex / winSizey;
-		Obstacle[i].midpos.y *= (float)w / (float)h;
+			CrashedObstacle[i].midpos.y /= winSizex / winSizey;
+		CrashedObstacle[i].midpos.y *= (float)w / (float)h;
 	}
 	for (int i = 0; i < Background.size(); i++) {
 		WindowConversion(Background[i], w, h);
