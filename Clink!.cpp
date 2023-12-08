@@ -58,28 +58,37 @@ static FMOD::Channel* channel = 0;
 static FMOD_RESULT result;
 static void* extradriverdata = 0;
 
-bool CheckCollision(const GLObj& a, const GLObj& b) {
+bool CheckCollision(const GLObj& a, const GLObj& b, int what) {
+	if (what == crystal_i) {
+		GLObj temp_b = b;
+		temp_b.pos.y += (temp_b.max.y - temp_b.min.y) / 4.f;
+
+		return (std::abs(a.pos.x - temp_b.pos.x) < (a.size.x + temp_b.size.x) &&
+			std::abs(a.pos.y - temp_b.pos.y) < (a.size.y + temp_b.size.y) &&
+			std::abs(a.pos.z - temp_b.pos.z) < (a.size.z + temp_b.size.z));
+	}
+	
 	return (std::abs(a.pos.x - b.pos.x) < (a.size.x + b.size.x) &&
-		std::abs(a.pos.y - b.pos.y) < (a.size.y + b.size.y) &&
-		std::abs(a.pos.z - b.pos.z) < (a.size.z + b.size.z));
+			std::abs(a.pos.y - b.pos.y) < (a.size.y + b.size.y) &&
+			std::abs(a.pos.z - b.pos.z) < (a.size.z + b.size.z));
 }
-glm::vec3 CheckCollisionDir(const GLObj& target, const GLObj& object) {
+glm::vec3 CheckCollisionDir(const GLObj& target, const GLObj& object, int what) {
 	GLObj temp;
 	glm::vec3 result = glm::vec3(1.f);
 
 	temp = object;
 	temp.pos.x += object.velocity.x;
-	if (CheckCollision(target, temp))
+	if (CheckCollision(target, temp, what))
 		result.x = -1.f;
 
 	temp = object;
 	temp.pos.y += object.velocity.y;
-	if (CheckCollision(target, temp))
+	if (CheckCollision(target, temp, what))
 		result.y = -1.f;
 
 	temp = object;
 	temp.pos.z += object.velocity.z;
-	if (CheckCollision(target, temp))
+	if (CheckCollision(target, temp, what))
 		result.z = -1.f;
 
 	return result;
@@ -707,9 +716,9 @@ void TimerFunction(int value)
 
 				// 충돌검사
 				for (int bg_cnt = 0; bg_cnt < Background.size(); ++bg_cnt) {
-					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Background[bg_cnt]) && !CheckCollision(temp, Background[bg_cnt])) {
+					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Background[bg_cnt], fcube_i) && !CheckCollision(temp, Background[bg_cnt], fcube_i)) {
 						Ball[i].pos -= Ball[i].velocity;
-						Ball[i].velocity *= CheckCollisionDir(Background[bg_cnt], Ball[i]) / 4.f;
+						Ball[i].velocity *= CheckCollisionDir(Background[bg_cnt], Ball[i], fcube_i) / 4.f;
 
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
@@ -717,9 +726,9 @@ void TimerFunction(int value)
 					}
 				}
 				for (int c_cnt = 0; c_cnt < Crystal.size(); ++c_cnt) {
-					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Crystal[c_cnt]) && !CheckCollision(temp, Crystal[c_cnt])) {
+					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Crystal[c_cnt], crystal_i) && !CheckCollision(temp, Crystal[c_cnt], crystal_i)) {
 						Ball[i].pos -= Ball[i].velocity;
-						Ball[i].velocity *= CheckCollisionDir(Crystal[c_cnt], Ball[i]) / 4.f;
+						Ball[i].velocity *= CheckCollisionDir(Crystal[c_cnt], Ball[i], crystal_i) / 4.f;
 
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
