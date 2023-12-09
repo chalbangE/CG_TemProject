@@ -744,20 +744,20 @@ void LoadMap()
 	}
 }
 void CrashObstacle(GLObj& ball, GLObj& obstacle) {
-	uniform_real_distribution<float> rand_range[3];
+	uniform_real_distribution<float> rand_range[4];
 	std::uniform_real_distribution<float> rand_angle_cnt(glm::radians(15.f), glm::radians(60.f));
 	std::vector <float> angle;
-	std::vector <float> r;
+	std::vector <float> r[4];
 	std::vector <glm::vec3> vertex;
 	std::vector<glm::vec3> objnor;
 	std::vector <glm::vec3> objpos;
 	std::vector<glm::vec2> objtex;
 	glm::vec3 sum{};
-	float range[3] = { 0.083f, 0.125f, 0.25f };
+	float range[4] = { 0.03125f, 0.0625f, 0.125f, 0.25f };
 
 	// 깨질 반지름 랜덤생성기 만들기
-	for (int i = 0; i < 3; i++) {
-		rand_range[i] = uniform_real_distribution<float>(range[i], range[i] + 0.1f);
+	for (int i = 0; i < 4; i++) {
+		rand_range[i] = uniform_real_distribution<float>(range[i], range[i] * 1.5f);
 	}
 
 	// 깨질 각도 생성
@@ -769,116 +769,339 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 	angle.pop_back();
 
 	// 점 얻기
+	
 	//cout << "버텍스 정보" << endl;
+	//cout << "(" << vertex.back().x << ", " << vertex.back().y << ")" << endl;
+	//cout << "v " << vertex.back().x << " " << vertex.back().y << " " << vertex.back().z << endl;
+	//cout << "vn " << objnor.back().x << " " << objnor.back().y << " " << objnor.back().z << endl;
 
-	CrashedObstacle.emplace_back();
-	r.emplace_back(rand_range[0](gen));
-	r.emplace_back(rand_range[0](gen));
-
-	for (int i = 0; i < 2; i++) {
-		vertex.emplace_back(ball.pos);
-		vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
-		//vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
-		//sum += vertex.back();
-		//if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
-		//if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
-		//if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
-		//if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
-		//if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
-		//if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
-		cout << "v " << vertex.back().x << " " << vertex.back().y << " " << vertex.back().z << endl;
-
-		vertex.emplace_back();
-		vertex.back().x = ball.pos.x + glm::cos(angle[0]) * r[0];
-		vertex.back().y = ball.pos.y + glm::sin(angle[0]) * r[0] * ((float)winSizex / (float)winSizey);
-		vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
-		//vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
-		//sum += vertex.back();
-		//if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
-		//if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
-		//if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
-		//if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
-		//if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
-		//if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
-		cout << "v " << vertex.back().x << " " << vertex.back().y << " " << vertex.back().z << endl;
-
-		vertex.emplace_back();
-		vertex.back().x = ball.pos.x + glm::cos(angle[1]) * r[1];
-		vertex.back().y = ball.pos.y + glm::sin(angle[1]) * r[1] * ((float)winSizex / (float)winSizey);
-		vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
-		//vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
-		//sum += vertex.back();
-		//if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
-		//if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
-		//if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
-		//if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
-		//if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
-		//if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
-		cout << "v " << vertex.back().x << " " << vertex.back().y << " " << vertex.back().z << endl;
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < angle.size(); j++) {
+			r[i].emplace_back(rand_range[i](gen));
+		}
 	}
 
-	objpos.emplace_back(vertex[0]);
-	objpos.emplace_back(vertex[2]);
-	objpos.emplace_back(vertex[1]);
+	// 첫번째 바퀴
+	for (int j = 0; j < angle.size(); j++) {
+		CrashedObstacle.emplace_back();
+		vertex.clear();
+		objpos.clear();
+		objnor.clear();
+		objtex.clear();
 
-	objpos.emplace_back(vertex[3]);
-	objpos.emplace_back(vertex[4]);
-	objpos.emplace_back(vertex[5]);
+		for (int i = 0; i < 2; i++) {
+			vertex.emplace_back(ball.pos);
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
 
-	objpos.emplace_back(vertex[0]);
-	objpos.emplace_back(vertex[3]);
-	objpos.emplace_back(vertex[2]);
+			vertex.emplace_back();
+			vertex.back().x = ball.pos.x + glm::cos(angle[j]) * r[0][j];
+			vertex.back().y = ball.pos.y + glm::sin(angle[j]) * r[0][j] * ((float)winSizex / (float)winSizey);
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
 
-	objpos.emplace_back(vertex[3]);
-	objpos.emplace_back(vertex[5]);
-	objpos.emplace_back(vertex[2]);
+			vertex.emplace_back();
+			if (j + 1 == angle.size()) {
+				vertex.back().x = ball.pos.x + glm::cos(angle[0]) * r[0][0];
+				vertex.back().y = ball.pos.y + glm::sin(angle[0]) * r[0][0] * ((float)winSizex / (float)winSizey);
+			}
+			else {
+				vertex.back().x = ball.pos.x + glm::cos(angle[j + 1]) * r[0][j + 1];
+				vertex.back().y = ball.pos.y + glm::sin(angle[j + 1]) * r[0][j + 1] * ((float)winSizex / (float)winSizey);
+			}
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
+		}
 
-	objpos.emplace_back(vertex[0]);
-	objpos.emplace_back(vertex[1]);
-	objpos.emplace_back(vertex[4]);
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[2]);
+		objpos.emplace_back(vertex[1]);
 
-	objpos.emplace_back(vertex[0]);
-	objpos.emplace_back(vertex[4]);
-	objpos.emplace_back(vertex[3]);
+		objpos.emplace_back(vertex[3]);
+		objpos.emplace_back(vertex[4]);
+		objpos.emplace_back(vertex[5]);
 
-	objpos.emplace_back(vertex[1]);
-	objpos.emplace_back(vertex[2]);
-	objpos.emplace_back(vertex[5]);
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[3]);
+		objpos.emplace_back(vertex[2]);
 
-	objpos.emplace_back(vertex[1]);
-	objpos.emplace_back(vertex[5]);
-	objpos.emplace_back(vertex[4]);
+		objpos.emplace_back(vertex[3]);
+		objpos.emplace_back(vertex[5]);
+		objpos.emplace_back(vertex[2]);
 
-	for (int i = 0; i < objpos.size() / 3; i++) {
-		objnor.emplace_back(CalNormalVector(objpos[i * 3], objpos[i * 3 + 1], objpos[i * 3 + 2]));
-		cout << "vn " << objnor.back().x << " " << objnor.back().y << " " << objnor.back().z << endl;
-		objnor.emplace_back(objnor.back());
-		objnor.emplace_back(objnor.back());
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[1]);
+		objpos.emplace_back(vertex[4]);
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[4]);
+		objpos.emplace_back(vertex[3]);
+
+		objpos.emplace_back(vertex[1]);
+		objpos.emplace_back(vertex[2]);
+		objpos.emplace_back(vertex[5]);
+
+		objpos.emplace_back(vertex[1]);
+		objpos.emplace_back(vertex[5]);
+		objpos.emplace_back(vertex[4]);
+
+		for (int i = 0; i < objpos.size() / 3; i++) {
+			objnor.emplace_back(CalNormalVector(objpos[i * 3], objpos[i * 3 + 1], objpos[i * 3 + 2]));
+			objnor.emplace_back(objnor.back());
+			objnor.emplace_back(objnor.back());
+		}
+
+		for (int i = 0; i < objpos.size(); i++) {
+			objtex.emplace_back();
+		}
+
+		glGenBuffers(1, &CrashedObstacle.back().v_pos);
+		glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_pos);
+		glBufferData(GL_ARRAY_BUFFER, objpos.size() * sizeof(glm::vec3), objpos.data(), GL_STATIC_DRAW);
+
+		glGenBuffers(1, &CrashedObstacle.back().v_nor);
+		glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_nor);
+		glBufferData(GL_ARRAY_BUFFER, objnor.size() * sizeof(glm::vec3), objnor.data(), GL_STATIC_DRAW);
+
+		glGenBuffers(1, &CrashedObstacle.back().v_uv);
+		glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_uv);
+		glBufferData(GL_ARRAY_BUFFER, objtex.size() * sizeof(glm::vec2), objtex.data(), GL_STATIC_DRAW);
+
+		CrashedObstacle.back().face_cnt = objnor.size();
+
+		CrashedObstacle.back().imgLoad("./IMG/장애물.png");
 	}
+	// 두번째 바퀴
+	for (int j = 0; j < angle.size(); j++) {
+		CrashedObstacle.emplace_back();
+		vertex.clear();
+		objpos.clear();
+		objnor.clear();
+		objtex.clear();
 
-	for (int i = 0; i < objpos.size(); i++) {
-		objtex.emplace_back();
+		for (int i = 0; i < 2; i++) {
+			vertex.emplace_back();
+			vertex.back().x = ball.pos.x + glm::cos(angle[j]) * r[0][j];
+			vertex.back().y = ball.pos.y + glm::sin(angle[j]) * r[0][j] * ((float)winSizex / (float)winSizey);
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
+
+			vertex.emplace_back();
+			if (j + 1 == angle.size()) {
+				vertex.back().x = ball.pos.x + glm::cos(angle[0]) * r[0][0];
+				vertex.back().y = ball.pos.y + glm::sin(angle[0]) * r[0][0] * ((float)winSizex / (float)winSizey);
+			}
+			else {
+				vertex.back().x = ball.pos.x + glm::cos(angle[j + 1]) * r[0][j + 1];
+				vertex.back().y = ball.pos.y + glm::sin(angle[j + 1]) * r[0][j + 1] * ((float)winSizex / (float)winSizey);
+			}
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
+
+			vertex.emplace_back();
+			if (j + 1 == angle.size()) {
+				vertex.back().x = ball.pos.x + glm::cos(angle[0]) * r[1][0];
+				vertex.back().y = ball.pos.y + glm::sin(angle[0]) * r[1][0] * ((float)winSizex / (float)winSizey);
+			}
+			else {
+				vertex.back().x = ball.pos.x + glm::cos(angle[j + 1]) * r[1][j + 1];
+				vertex.back().y = ball.pos.y + glm::sin(angle[j + 1]) * r[1][j + 1] * ((float)winSizex / (float)winSizey);
+			}
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
+
+			vertex.emplace_back();
+			vertex.back().x = ball.pos.x + glm::cos(angle[j]) * r[1][j];
+			vertex.back().y = ball.pos.y + glm::sin(angle[j]) * r[1][j] * ((float)winSizex / (float)winSizey);
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
+		}
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[1]);
+		objpos.emplace_back(vertex[2]);
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[2]);
+		objpos.emplace_back(vertex[3]);
+
+		objpos.emplace_back(vertex[6]);
+		objpos.emplace_back(vertex[5]);
+		objpos.emplace_back(vertex[4]);
+
+		objpos.emplace_back(vertex[7]);
+		objpos.emplace_back(vertex[6]);
+		objpos.emplace_back(vertex[4]);
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[4]);
+		objpos.emplace_back(vertex[5]);
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[5]);
+		objpos.emplace_back(vertex[1]);
+
+		objpos.emplace_back(vertex[1]);
+		objpos.emplace_back(vertex[2]);
+		objpos.emplace_back(vertex[6]);
+
+		objpos.emplace_back(vertex[1]);
+		objpos.emplace_back(vertex[6]);
+		objpos.emplace_back(vertex[5]);
+
+		objpos.emplace_back(vertex[2]);
+		objpos.emplace_back(vertex[3]);
+		objpos.emplace_back(vertex[7]);
+
+		objpos.emplace_back(vertex[2]);
+		objpos.emplace_back(vertex[7]);
+		objpos.emplace_back(vertex[6]);
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[3]);
+		objpos.emplace_back(vertex[7]);
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[7]);
+		objpos.emplace_back(vertex[4]);
+
+		for (int i = 0; i < objpos.size() / 3; i++) {
+			objnor.emplace_back(CalNormalVector(objpos[i * 3], objpos[i * 3 + 1], objpos[i * 3 + 2]));
+			cout << "vn " << objnor.back().x << " " << objnor.back().y << " " << objnor.back().z << endl;
+			objnor.emplace_back(objnor.back());
+			objnor.emplace_back(objnor.back());
+		}
+
+		for (int i = 0; i < objpos.size(); i++) {
+			objtex.emplace_back();
+		}
+
+		glGenBuffers(1, &CrashedObstacle.back().v_pos);
+		glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_pos);
+		glBufferData(GL_ARRAY_BUFFER, objpos.size() * sizeof(glm::vec3), objpos.data(), GL_STATIC_DRAW);
+
+		glGenBuffers(1, &CrashedObstacle.back().v_nor);
+		glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_nor);
+		glBufferData(GL_ARRAY_BUFFER, objnor.size() * sizeof(glm::vec3), objnor.data(), GL_STATIC_DRAW);
+
+		glGenBuffers(1, &CrashedObstacle.back().v_uv);
+		glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_uv);
+		glBufferData(GL_ARRAY_BUFFER, objtex.size() * sizeof(glm::vec2), objtex.data(), GL_STATIC_DRAW);
+
+		CrashedObstacle.back().face_cnt = objnor.size();
+
+		CrashedObstacle.back().imgLoad("./IMG/장애물.png");
 	}
+	// 세번째 바퀴
+	for (int j = 0; j < angle.size(); j++) {
+		CrashedObstacle.emplace_back();
+		vertex.clear();
+		objpos.clear();
+		objnor.clear();
+		objtex.clear();
 
-	//CrashedObstacle.back().midpos = sum / float(vertex.size());
-	//CrashedObstacle.back().pos = obstacle.pos;
-	//CrashedObstacle.back().size = glm::vec3{ abs((CrashedObstacle.back().max - CrashedObstacle.back().min) / 2.f) };
+		for (int i = 0; i < 2; i++) {
+			vertex.emplace_back();
+			vertex.back().x = ball.pos.x + glm::cos(angle[j]) * r[1][j];
+			vertex.back().y = ball.pos.y + glm::sin(angle[j]) * r[1][j] * ((float)winSizex / (float)winSizey);
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
 
-	glGenBuffers(1, &CrashedObstacle.back().v_pos);
-	glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_pos);
-	glBufferData(GL_ARRAY_BUFFER, objpos.size() * sizeof(glm::vec3), objpos.data(), GL_STATIC_DRAW);
+			vertex.emplace_back();
+			if (j + 1 == angle.size()) {
+				vertex.back().x = ball.pos.x + glm::cos(angle[0]) * r[1][0];
+				vertex.back().y = ball.pos.y + glm::sin(angle[0]) * r[1][0] * ((float)winSizex / (float)winSizey);
+			}
+			else {
+				vertex.back().x = ball.pos.x + glm::cos(angle[j + 1]) * r[1][j + 1];
+				vertex.back().y = ball.pos.y + glm::sin(angle[j + 1]) * r[1][j + 1] * ((float)winSizex / (float)winSizey);
+			}
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
 
-	glGenBuffers(1, &CrashedObstacle.back().v_nor);
-	glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_nor);
-	glBufferData(GL_ARRAY_BUFFER, objnor.size() * sizeof(glm::vec3), objnor.data(), GL_STATIC_DRAW);
+			vertex.emplace_back();
+			if (j + 1 == angle.size()) {
+				vertex.back().x = ball.pos.x + glm::cos(angle[0]) * r[2][0];
+				vertex.back().y = ball.pos.y + glm::sin(angle[0]) * r[2][0] * ((float)winSizex / (float)winSizey);
+			}
+			else {
+				vertex.back().x = ball.pos.x + glm::cos(angle[j + 1]) * r[2][j + 1];
+				vertex.back().y = ball.pos.y + glm::sin(angle[j + 1]) * r[2][j + 1] * ((float)winSizex / (float)winSizey);
+			}
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
 
-	glGenBuffers(1, &CrashedObstacle.back().v_uv);
-	glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_uv);
-	glBufferData(GL_ARRAY_BUFFER, objtex.size() * sizeof(glm::vec2), objtex.data(), GL_STATIC_DRAW);
+			vertex.emplace_back();
+			vertex.back().x = ball.pos.x + glm::cos(angle[j]) * r[2][j];
+			vertex.back().y = ball.pos.y + glm::sin(angle[j]) * r[2][j] * ((float)winSizex / (float)winSizey);
+			vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
+		}
 
-	CrashedObstacle.back().face_cnt = objnor.size();
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[1]);
+		objpos.emplace_back(vertex[2]);
 
-	CrashedObstacle.back().imgLoad("./IMG/장애물.png");
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[2]);
+		objpos.emplace_back(vertex[3]);
+
+		objpos.emplace_back(vertex[6]);
+		objpos.emplace_back(vertex[5]);
+		objpos.emplace_back(vertex[4]);
+
+		objpos.emplace_back(vertex[7]);
+		objpos.emplace_back(vertex[6]);
+		objpos.emplace_back(vertex[4]);
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[4]);
+		objpos.emplace_back(vertex[5]);
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[5]);
+		objpos.emplace_back(vertex[1]);
+
+		objpos.emplace_back(vertex[1]);
+		objpos.emplace_back(vertex[2]);
+		objpos.emplace_back(vertex[6]);
+
+		objpos.emplace_back(vertex[1]);
+		objpos.emplace_back(vertex[6]);
+		objpos.emplace_back(vertex[5]);
+
+		objpos.emplace_back(vertex[2]);
+		objpos.emplace_back(vertex[3]);
+		objpos.emplace_back(vertex[7]);
+
+		objpos.emplace_back(vertex[2]);
+		objpos.emplace_back(vertex[7]);
+		objpos.emplace_back(vertex[6]);
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[3]);
+		objpos.emplace_back(vertex[7]);
+
+		objpos.emplace_back(vertex[0]);
+		objpos.emplace_back(vertex[7]);
+		objpos.emplace_back(vertex[4]);
+
+		for (int i = 0; i < objpos.size() / 3; i++) {
+			objnor.emplace_back(CalNormalVector(objpos[i * 3], objpos[i * 3 + 1], objpos[i * 3 + 2]));
+			cout << "vn " << objnor.back().x << " " << objnor.back().y << " " << objnor.back().z << endl;
+			objnor.emplace_back(objnor.back());
+			objnor.emplace_back(objnor.back());
+		}
+
+		for (int i = 0; i < objpos.size(); i++) {
+			objtex.emplace_back();
+		}
+
+		glGenBuffers(1, &CrashedObstacle.back().v_pos);
+		glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_pos);
+		glBufferData(GL_ARRAY_BUFFER, objpos.size() * sizeof(glm::vec3), objpos.data(), GL_STATIC_DRAW);
+
+		glGenBuffers(1, &CrashedObstacle.back().v_nor);
+		glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_nor);
+		glBufferData(GL_ARRAY_BUFFER, objnor.size() * sizeof(glm::vec3), objnor.data(), GL_STATIC_DRAW);
+
+		glGenBuffers(1, &CrashedObstacle.back().v_uv);
+		glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_uv);
+		glBufferData(GL_ARRAY_BUFFER, objtex.size() * sizeof(glm::vec2), objtex.data(), GL_STATIC_DRAW);
+
+		CrashedObstacle.back().face_cnt = objnor.size();
+
+		CrashedObstacle.back().imgLoad("./IMG/장애물.png");
+	}
 }
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
@@ -1070,6 +1293,12 @@ void TimerFunction(int value)
 				//CrashedCrystal[i].rotate_theta += glm::vec3(1.f);
 			}
 		}
+
+		//for (int i = 0; i < CrashedObstacle.size(); i++) {
+		//	if (CalVectorMagnitude(CrashedObstacle[i].velocity) != 0.f) {
+		//		CrashedObstacle[i].rotate_theta += glm::vec3(1.f);
+		//	}
+		//}
 
 		GLObj temp;
 
