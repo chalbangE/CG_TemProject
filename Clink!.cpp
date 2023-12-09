@@ -53,23 +53,26 @@ enum SoundChannelList {
 };
 
 enum GameStateList {
-	title_s, option_s, custom_s
+	title_s, option_s, custom_s, play_s
 };
 
 vector <GLObj> Ball, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
-vector <GLUi> Ui[3];
+vector <GLUi> Ui[4];
 GLObj Clink;
 GLObj obj_list[5];
 bool Lbt = false;
 glm::vec3 click_mouse{};
 int ball_num = 1; // 한번에 쏘는 공 개수
 int GameState = title_s;
+GLfloat volumeSize = 1.f;
 
 static FMOD::System* ssystem;
 static FMOD::Sound* Crach_Sound[3], * BallShoot_Sound, *Bgm_Sound;
 static FMOD::Channel* channel[3] = { 0, 0, 0 };
 static FMOD_RESULT result;
 static void* extradriverdata = 0;
+
+void UiClick(int what);
 
 bool CheckCollision(const GLObj& a, const GLObj& b, int what) {
 	if (what == crystal_i) {
@@ -559,7 +562,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 	}
 
 	ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
-	channel[crash_cn]->setVolume(0.35);
+	channel[crash_cn]->setVolume(0.35 * volumeSize);
 
 	Crystal.erase(Crystal.begin() + index);
 }
@@ -680,7 +683,7 @@ void ShootBall(GLRay ray)
 	}
 
 	ssystem->playSound(BallShoot_Sound, 0, false, &channel[ball_cn]);
-	channel[ball_cn]->setVolume(0.35);
+	channel[ball_cn]->setVolume(0.35 * volumeSize);
 }
 void SaveMap()
 {
@@ -1039,7 +1042,7 @@ GLvoid drawScene()
 	for (int i = 0; i < Ui[GameState].size(); ++i) {
 		Ui[GameState][i].draw_prepare(PosLocation, "Pos");
 		Ui[GameState][i].draw_prepare(UvLocation, "UV");
-		Ui[GameState][i].draw_prepare(false, "Texture");
+		Ui[GameState][i].draw_prepare(Ui[GameState][i].now_img, "Texture");
 		Ui[GameState][i].draw_prepare(UiboolLocation, "UI_bool");
 		Ui[GameState][i].draw("solid");
 	}
@@ -1179,12 +1182,17 @@ void Special_Keyboard(int key, int x, int y)
 		glutFullScreenToggle();
 		break;
 	}
+	case GLUT_KEY_SHIFT_L: {
+		GameState = title_s;
+		break;
+	}
 	default:
 		break;
 	}
 
 	glutPostRedisplay(); // 화면 재 출력
 }
+
 GLvoid Mouse(int button, int state, int x, int y)
 {
 	glm::vec3 m = { (x - (winSizex / 2)) / (winSizex / 2), -(y - (winSizey / 2)) / (winSizey / 2), 0.0f };
@@ -1198,12 +1206,14 @@ GLvoid Mouse(int button, int state, int x, int y)
 			for (int i = 0; i < Ui[GameState].size(); ++i) {
 				if (m.x >= Ui[GameState][i].leftbottom.x && m.y >= Ui[GameState][i].leftbottom.y 
 					&& m.x <= Ui[GameState][i].righttop.x && m.y <= Ui[GameState][i].righttop.y) {
-					cout << "ddd" << endl;
+					UiClick(i);
 				}
 			}
 
-			Msray.ScreenToWorld(x, y, Camera.Camera_Mat, Projection_Mat, winSizex, winSizey);
-			ShootBall(Msray);
+			if (GameState == title_s || GameState == play_s) {
+				Msray.ScreenToWorld(x, y, Camera.Camera_Mat, Projection_Mat, winSizex, winSizey);
+				ShootBall(Msray);
+			}
 		}
 	}
 	else if (state == GLUT_DOWN) {
@@ -1242,43 +1252,57 @@ void MouseWheel(int wheel, int diretion, int x, int y)
 		Camera.pos.z += 0.1f;
 	}
 }
-GLvoid Reshape(int w, int h)
+
+void UiClick(int what)
 {
-	WindowConversion(Light, w, h);
-	for (int i = 0; i < 3; i++) {
-		WindowConversion(obj_list[i], w, h);
+	switch (GameState)
+	{
+	case title_s: {
+		if (what == 0) {
+			GameState = option_s;
+		}
+		break;
 	}
-	for (int i = 0; i < Ball.size(); i++) {
-		WindowConversion(Ball[i], w, h);
-	}
-	WindowConversion(Clink, w, h);
-	for (int i = 0; i < Crystal.size(); i++) {
-		WindowConversion(Crystal[i], w, h);
-	}
-	for (int i = 0; i < CrashedCrystal.size(); i++) {
-		WindowConversion(CrashedCrystal[i], w, h);
-		if (winSizex && winSizey)
-			CrashedCrystal[i].midpos.y /= winSizex / winSizey;
-		CrashedCrystal[i].midpos.y *= (float)w / (float)h;
-	}
-	for (int i = 0; i < Obstacle.size(); i++) {
-		WindowConversion(Obstacle[i], w, h);
-	}
-	for (int i = 0; i < CrashedObstacle.size(); i++) {
-		WindowConversion(CrashedObstacle[i], w, h);
-		if (winSizex && winSizey)
-			CrashedObstacle[i].midpos.y /= winSizex / winSizey;
-		CrashedObstacle[i].midpos.y *= (float)w / (float)h;
-	}
-	for (int i = 0; i < Background.size(); i++) {
-		WindowConversion(Background[i], w, h);
-	}
+	case option_s: {
+		if (what == 0) break;
+		else if (what == 1){
+			GameState = title_s;
+		}
+		else if (what == 2) {
+			if (volumeSize < 2.f)
+				volumeSize += 0.2;
+		}
+		else if (what == 3) {
+			if (volumeSize > 0.1f)
+				volumeSize -= 0.2;
+		}
+		else if (what == 4) {
+			if (volumeSize == 0.f) 
+				volumeSize = 1.f;
+			else 
+				volumeSize = 0.f;
+		}
 
-	winSizex = w;
-	winSizey = h;
-
-	glViewport(0, 0, w, h);
+		cout << volumeSize << endl;
+		if (volumeSize < 0.1f)
+			Ui[option_s][4].now_img = 1;
+		else
+			Ui[option_s][4].now_img = 0;
+		
+		channel[bgm_cn]->setVolume(0.08 * volumeSize);
+		break;
+	}
+	case custom_s: {
+		break;
+	}
+	case play_s: {
+		break;
+	}
+	default:
+		break;
+	}
 }
+
 
 void Init()
 {
@@ -1438,8 +1462,16 @@ void Init()
 		Ui[title_s].emplace_back(GLUi(0.363f + 0.15f, -0.8f - 0.15f, 0.8 + 0.15f, -0.5f - 0.15f));
 		Ui[title_s].back().imgLoad("./IMG/Customizing_ui.png");
 
-		Ui[option_s].emplace_back(GLUi(-1.f, -1.f, 1.f, 1.f));
+		Ui[option_s].emplace_back(GLUi(-1.f, -1.f, 1.f, 1.f, 0.1f));
 		Ui[option_s].back().imgLoad("./IMG/gray_background.png");
+		Ui[option_s].emplace_back(GLUi(-0.97, 0.7, -0.8, 0.95));
+		Ui[option_s].back().imgLoad("./IMG/return.png");
+		Ui[option_s].emplace_back(GLUi(0.35f, 0.1f, 0.55f, 0.3f));
+		Ui[option_s].back().imgLoad("./IMG/sound_up.png");
+		Ui[option_s].emplace_back(GLUi(0.35f, -0.15, 0.55f, 0.05));
+		Ui[option_s].back().imgLoad("./IMG/sound_down.png");
+		Ui[option_s].emplace_back(GLUi(-0.5f, -0.1, -0.2, 0.25f));
+		Ui[option_s].back().imgLoad("./IMG/volume_on.png", "./IMG/volume_off.png");
 	}
 
 	// X축 Y축
@@ -1470,7 +1502,7 @@ void Init()
 		ssystem->createSound("WAV/Bgm.mp3", FMOD_LOOP_NORMAL, 0, &Bgm_Sound); //--- BGM
 	}
 	ssystem->playSound(Bgm_Sound, 0, false, &channel[bgm_cn]);
-	channel[bgm_cn]->setVolume(0.08);
+	channel[bgm_cn]->setVolume(0.08 * volumeSize);
 }
 void Mapping() {
 	PosLocation = glGetAttribLocation(shaderProgramID, "in_Position"); //	: 0
@@ -1488,6 +1520,43 @@ void Mapping() {
 	LightColorLocation = glGetUniformLocation(shaderProgramID, "Light_Color");
 	ViewPosLocation = glGetUniformLocation(shaderProgramID, "View_Pos");
 	DistanceLocation = glGetUniformLocation(shaderProgramID, "Distance");
+}
+GLvoid Reshape(int w, int h)
+{
+	WindowConversion(Light, w, h);
+	for (int i = 0; i < 3; i++) {
+		WindowConversion(obj_list[i], w, h);
+	}
+	for (int i = 0; i < Ball.size(); i++) {
+		WindowConversion(Ball[i], w, h);
+	}
+	WindowConversion(Clink, w, h);
+	for (int i = 0; i < Crystal.size(); i++) {
+		WindowConversion(Crystal[i], w, h);
+	}
+	for (int i = 0; i < CrashedCrystal.size(); i++) {
+		WindowConversion(CrashedCrystal[i], w, h);
+		if (winSizex && winSizey)
+			CrashedCrystal[i].midpos.y /= winSizex / winSizey;
+		CrashedCrystal[i].midpos.y *= (float)w / (float)h;
+	}
+	for (int i = 0; i < Obstacle.size(); i++) {
+		WindowConversion(Obstacle[i], w, h);
+	}
+	for (int i = 0; i < CrashedObstacle.size(); i++) {
+		WindowConversion(CrashedObstacle[i], w, h);
+		if (winSizex && winSizey)
+			CrashedObstacle[i].midpos.y /= winSizex / winSizey;
+		CrashedObstacle[i].midpos.y *= (float)w / (float)h;
+	}
+	for (int i = 0; i < Background.size(); i++) {
+		WindowConversion(Background[i], w, h);
+	}
+
+	winSizex = w;
+	winSizey = h;
+
+	glViewport(0, 0, w, h);
 }
 void InitBuffer()
 {
