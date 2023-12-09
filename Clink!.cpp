@@ -876,6 +876,8 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 	glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_uv);
 	glBufferData(GL_ARRAY_BUFFER, objtex.size() * sizeof(glm::vec2), objtex.data(), GL_STATIC_DRAW);
 
+	CrashedObstacle.back().face_cnt = objnor.size();
+
 	CrashedObstacle.back().imgLoad("./IMG/Àå¾Ö¹°.png");
 }
 
@@ -948,14 +950,6 @@ GLvoid drawScene()
 	Light.draw_prepare(LightPosLocation, "LightPos");
 	Light.draw_prepare(LightColorLocation, "LightColor");
 	Light.draw("solid");
-
-	//lineObj.Update();
-	//lineObj.draw_prepare(PosLocation, "Pos");
-	//lineObj.draw_prepare(ColorLocation, "Color");
-	//lineObj.draw_prepare(TexorColorLocation, "Color_bool");
-	//glUniform1i(TexorColorLocation, false);
-	//lineObj.draw_prepare(WorldTransLocation, "World");
-	//lineObj.draw();
 
 	//for (int i = 0; i < Background.size(); ++i) {
 	//	Background[i].Update();
@@ -1033,7 +1027,7 @@ GLvoid drawScene()
 	}
 
 	for (int i = 0; i < CrashedObstacle.size(); ++i) {
-		CrashedObstacle[i].Update();
+		CrashedObstacle[i].Crystal_Update();
 		CrashedObstacle[i].draw_prepare(PosLocation, "Pos");
 		CrashedObstacle[i].draw_prepare(WorldTransLocation, "World");
 		CrashedObstacle[i].draw_prepare(NormalLocation, "Normal");
