@@ -929,7 +929,6 @@ GLvoid drawScene()
 
 	glEnable(GL_DEPTH_TEST);
 
-
 	glUniform1i(UiboolLocation, false);
 
 	// ±¤¿ø
