@@ -5,6 +5,7 @@
 #include "GLLIne.h"
 #include "GLCamera.h"
 #include "GLRay.h"
+#include "GLUi.h"
 #include "fmod.hpp"
 #include "fmod_errors.h" 
 
@@ -32,7 +33,7 @@ void Init();
 void Mapping();
 
 unsigned int PosLocation, ColorLocation, NormalLocation, UvLocation;
-unsigned int WorldTransLocation, CameraLocation, ProjectionLocation, TexSamplerLocation, TexorColorLocation;
+unsigned int WorldTransLocation, CameraLocation, ProjectionLocation, TexSamplerLocation, TexorColorLocation, UiboolLocation;
 unsigned int LightPosLocation, LightColorLocation, ViewPosLocation, DistanceLocation;
 glm::mat4 Projection_Mat = glm::mat4(1.0f);
 float winSizex = 0, winSizey = 0;
@@ -47,7 +48,12 @@ enum ObjectList {
 	ball_i, crystal_i, cube_i, fcube_i, obstacle_i
 };
 
+enum SoundChannel {
+	bgm_cn, ball_cn, crash_cn
+};
+
 vector <GLObj> Ball, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
+vector <GLUi> Ui;
 GLObj Clink;
 GLObj obj_list[5];
 bool Lbt = false;
@@ -56,7 +62,7 @@ int ball_num = 1; // 한번에 쏘는 공 개수
 
 static FMOD::System* ssystem;
 static FMOD::Sound* Crach_Sound[3], * BallShoot_Sound, *Bgm_Sound;
-static FMOD::Channel* channel = 0;
+static FMOD::Channel* channel[3] = { 0, 0, 0 };
 static FMOD_RESULT result;
 static void* extradriverdata = 0;
 
@@ -547,8 +553,8 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 		}
 	}
 
-	ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel);
-	channel->setVolume(0.35);
+	ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
+	channel[crash_cn]->setVolume(0.35);
 
 	Crystal.erase(Crystal.begin() + index);
 }
@@ -668,8 +674,8 @@ void ShootBall(GLRay ray)
 		break;
 	}
 
-	ssystem->playSound(BallShoot_Sound, 0, false, &channel);
-	channel->setVolume(0.35);
+	ssystem->playSound(BallShoot_Sound, 0, false, &channel[ball_cn]);
+	channel[ball_cn]->setVolume(0.35);
 }
 void SaveMap()
 {
@@ -915,6 +921,9 @@ GLvoid drawScene()
 
 	glEnable(GL_DEPTH_TEST);
 
+
+	glUniform1i(UiboolLocation, false);
+
 	// 광원
 	Light.Update();
 	Light.draw_prepare(PosLocation, "Pos");
@@ -1022,6 +1031,14 @@ GLvoid drawScene()
 		CrashedObstacle[i].draw("solid");
 	}
 
+	for (int i = 0; i < Ui.size(); ++i) {
+		Ui[i].draw_prepare(PosLocation, "Pos");
+		Ui[i].draw_prepare(UvLocation, "UV");
+		Ui[i].draw_prepare(false, "Texture");
+		Ui[i].draw_prepare(UiboolLocation, "UI_bool");
+		Ui[i].draw("solid");
+	}
+
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 
@@ -1115,6 +1132,16 @@ void Keyboard(unsigned char key, int x, int y)
 	case 'Q': {
 		SaveMap();
 		exit(829);
+	}
+	case 'f':
+	case 'F': {
+		channel[bgm_cn]->setVolume(0.2);
+		break;
+	}
+	case 'r':
+	case 'R': {
+		channel[bgm_cn]->setVolume(0.08);
+		break;
 	}
 	case 'c': {
 		Crystal.emplace_back(obj_list[crystal_i]);
@@ -1386,7 +1413,7 @@ void Init()
 	}
 	//Background.emplace_back(obj_list[fcube_i]);
 
-	// UI
+	// Clink
 	{
 		std::ifstream inputFile("./OBJ/Clink.obj");
 
@@ -1399,6 +1426,14 @@ void Init()
 		Clink.pos = glm::vec3{ 0.f, 0.2f, 0.f };
 
 		Clink.imgLoad("./IMG/유리.png");
+	}
+
+	// Ui
+	{
+		Ui.emplace_back(GLUi(-0.8f - 0.15f, -0.8f - 0.15f, -0.363f - 0.15f, -0.5f - 0.15f));
+		Ui.back().imgLoad("./IMG/Option_ui.png");
+		Ui.emplace_back(GLUi(0.363f + 0.15f, -0.8f - 0.15f, 0.8 + 0.15f, -0.5f - 0.15f));
+		Ui.back().imgLoad("./IMG/Customizing_ui.png");
 	}
 
 	// X축 Y축
@@ -1420,7 +1455,7 @@ void Init()
 	{
 		result = FMOD::System_Create(&ssystem); //--- 사운드 시스템 생성
 		if (result != FMOD_OK)
-			exit(0);
+			exit(255);
 		ssystem->init(32, FMOD_INIT_NORMAL, extradriverdata); //--- 사운드 시스템 초기화
 		ssystem->createSound("WAV/GlassCrash1.wav", FMOD_LOOP_OFF, 0, &Crach_Sound[0]); //--- 유리 깨지는 소리 1
 		ssystem->createSound("WAV/GlassCrash2.wav", FMOD_LOOP_OFF, 0, &Crach_Sound[1]); //--- 유리 깨지는 소리 2
@@ -1428,8 +1463,8 @@ void Init()
 		ssystem->createSound("WAV/BallShoot.wav", FMOD_LOOP_OFF, 0, &BallShoot_Sound); //--- 공 쏘는 소리
 		ssystem->createSound("WAV/Bgm.mp3", FMOD_LOOP_NORMAL, 0, &Bgm_Sound); //--- BGM
 	}
-	ssystem->playSound(Bgm_Sound, 0, false, &channel);
-	channel->setVolume(0.08);
+	ssystem->playSound(Bgm_Sound, 0, false, &channel[bgm_cn]);
+	channel[bgm_cn]->setVolume(0.08);
 }
 void Mapping() {
 	PosLocation = glGetAttribLocation(shaderProgramID, "in_Position"); //	: 0
@@ -1441,6 +1476,7 @@ void Mapping() {
 	ProjectionLocation = glGetUniformLocation(shaderProgramID, "Projection_trans");
 	TexSamplerLocation = glGetUniformLocation(shaderProgramID, "out_Tex");
 	TexorColorLocation = glGetUniformLocation(shaderProgramID, "Tex_or_Color");
+	UiboolLocation = glGetUniformLocation(shaderProgramID, "Ui_bool");
 
 	LightPosLocation = glGetUniformLocation(shaderProgramID, "Light_Pos");
 	LightColorLocation = glGetUniformLocation(shaderProgramID, "Light_Color");

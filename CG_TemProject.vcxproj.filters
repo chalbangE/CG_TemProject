@@ -25,6 +25,9 @@
     <ClCompile Include="GLRay.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GLUi.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLObj.h">
@@ -46,6 +49,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GLRay.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GLUi.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
