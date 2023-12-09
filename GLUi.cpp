@@ -1,24 +1,6 @@
 #include "GLUi.h"
 
-GLUi::GLUi()
-{
-	const glm::vec3 pos[] = {
-		{ -0.5, -0.5, 0.f }, { 0.5, -0.5, 0.f }, { -0.5, 0.5, 0.f },
-		{ -0.5, 0.5, 0.f }, { 0.5, -0.5, 0.f }, { 0.5, 0.5, 0.f }
-	};
-	const glm::vec2 Tex[] = {
-		{ 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 },
-		{ 0.0, 1.0 }, { 1.0, 0.0 }, { 1.0, 1.0 }
-	};
-
-	glGenBuffers(1, &v_pos);
-	glBindBuffer(GL_ARRAY_BUFFER, v_pos);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(pos), pos, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &v_uv);
-	glBindBuffer(GL_ARRAY_BUFFER, v_uv);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Tex), Tex, GL_STATIC_DRAW);
-}
+GLUi::GLUi() {}
 
 GLUi::GLUi(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 {
@@ -38,6 +20,9 @@ GLUi::GLUi(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
 	glGenBuffers(1, &v_uv);
 	glBindBuffer(GL_ARRAY_BUFFER, v_uv);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Tex), Tex, GL_STATIC_DRAW);
+
+	leftbottom = pos[0];
+	righttop = pos[5];
 }
 
 void GLUi::imgLoad(std::string map)

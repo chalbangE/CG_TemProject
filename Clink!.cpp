@@ -48,17 +48,22 @@ enum ObjectList {
 	ball_i, crystal_i, cube_i, fcube_i, obstacle_i
 };
 
-enum SoundChannel {
+enum SoundChannelList {
 	bgm_cn, ball_cn, crash_cn
 };
 
+enum GameStateList {
+	title_s, option_s, custom_s
+};
+
 vector <GLObj> Ball, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
-vector <GLUi> Ui;
+vector <GLUi> Ui[3];
 GLObj Clink;
 GLObj obj_list[5];
 bool Lbt = false;
 glm::vec3 click_mouse{};
 int ball_num = 1; // 한번에 쏘는 공 개수
+int GameState = title_s;
 
 static FMOD::System* ssystem;
 static FMOD::Sound* Crach_Sound[3], * BallShoot_Sound, *Bgm_Sound;
@@ -1031,12 +1036,12 @@ GLvoid drawScene()
 		CrashedObstacle[i].draw("solid");
 	}
 
-	for (int i = 0; i < Ui.size(); ++i) {
-		Ui[i].draw_prepare(PosLocation, "Pos");
-		Ui[i].draw_prepare(UvLocation, "UV");
-		Ui[i].draw_prepare(false, "Texture");
-		Ui[i].draw_prepare(UiboolLocation, "UI_bool");
-		Ui[i].draw("solid");
+	for (int i = 0; i < Ui[GameState].size(); ++i) {
+		Ui[GameState][i].draw_prepare(PosLocation, "Pos");
+		Ui[GameState][i].draw_prepare(UvLocation, "UV");
+		Ui[GameState][i].draw_prepare(false, "Texture");
+		Ui[GameState][i].draw_prepare(UiboolLocation, "UI_bool");
+		Ui[GameState][i].draw("solid");
 	}
 
 	glDisable(GL_BLEND);
@@ -1133,16 +1138,6 @@ void Keyboard(unsigned char key, int x, int y)
 		SaveMap();
 		exit(829);
 	}
-	case 'f':
-	case 'F': {
-		channel[bgm_cn]->setVolume(0.2);
-		break;
-	}
-	case 'r':
-	case 'R': {
-		channel[bgm_cn]->setVolume(0.08);
-		break;
-	}
 	case 'c': {
 		Crystal.emplace_back(obj_list[crystal_i]);
 		CrashedCrystal.clear();
@@ -1198,6 +1193,14 @@ GLvoid Mouse(int button, int state, int x, int y)
 		if (button == GLUT_LEFT_BUTTON) {
 			Lbt = true;
 			click_mouse = m;
+
+			// 현재 출력중인 ui와의 상호작용 확인
+			for (int i = 0; i < Ui[GameState].size(); ++i) {
+				if (m.x >= Ui[GameState][i].leftbottom.x && m.y >= Ui[GameState][i].leftbottom.y 
+					&& m.x <= Ui[GameState][i].righttop.x && m.y <= Ui[GameState][i].righttop.y) {
+					cout << "ddd" << endl;
+				}
+			}
 
 			Msray.ScreenToWorld(x, y, Camera.Camera_Mat, Projection_Mat, winSizex, winSizey);
 			ShootBall(Msray);
@@ -1430,10 +1433,13 @@ void Init()
 
 	// Ui
 	{
-		Ui.emplace_back(GLUi(-0.8f - 0.15f, -0.8f - 0.15f, -0.363f - 0.15f, -0.5f - 0.15f));
-		Ui.back().imgLoad("./IMG/Option_ui.png");
-		Ui.emplace_back(GLUi(0.363f + 0.15f, -0.8f - 0.15f, 0.8 + 0.15f, -0.5f - 0.15f));
-		Ui.back().imgLoad("./IMG/Customizing_ui.png");
+		Ui[title_s].emplace_back(GLUi(-0.8f - 0.15f, -0.8f - 0.15f, -0.363f - 0.15f, -0.5f - 0.15f));
+		Ui[title_s].back().imgLoad("./IMG/Option_ui.png");
+		Ui[title_s].emplace_back(GLUi(0.363f + 0.15f, -0.8f - 0.15f, 0.8 + 0.15f, -0.5f - 0.15f));
+		Ui[title_s].back().imgLoad("./IMG/Customizing_ui.png");
+
+		Ui[option_s].emplace_back(GLUi(-1.f, -1.f, 1.f, 1.f));
+		Ui[option_s].back().imgLoad("./IMG/gray_background.png");
 	}
 
 	// X축 Y축
