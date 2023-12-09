@@ -1189,7 +1189,7 @@ void Special_Keyboard(int key, int x, int y)
 	default:
 		break;
 	}
-
+	 
 	glutPostRedisplay(); // 화면 재 출력
 }
 
