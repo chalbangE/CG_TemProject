@@ -45,7 +45,9 @@
     <ClInclude Include="stdafx.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="GLRay.h" />
+    <ClInclude Include="GLRay.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vertex.glsl" />

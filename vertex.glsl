@@ -19,10 +19,19 @@ uniform vec3 Light_Color;
 
 uniform vec3 View_Pos;
 
+uniform bool Ui_bool; // ui == True
+
 void main(void) 
 {
-    gl_Position = Projection_trans * Camera_trans * World_trans * vec4 (in_Position.x, in_Position.y, in_Position.z, 1.0);
-    Frag_Pos = vec3(World_trans * vec4(in_Position, 1.0));
+
+	if (Ui_bool){
+        gl_Position = vec4 (in_Position.x, in_Position.y, in_Position.z, 1.0);
+        Frag_Pos = in_Position;
+    }
+    else { 
+        gl_Position = Projection_trans * Camera_trans * World_trans * vec4 (in_Position.x, in_Position.y, in_Position.z, 1.0);
+        Frag_Pos = vec3(World_trans * vec4(in_Position, 1.0));
+    }
 
     out_Normal = vec3(transpose(inverse(World_trans)) * vec4(in_Normal, 1.0));
     out_Color = in_Color;

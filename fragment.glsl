@@ -3,6 +3,7 @@
 in vec3 out_Color;
 in vec3 out_Normal;
 in vec2 out_Uv;
+in vec2 out_;
 
 in vec3 Frag_Pos;
 out vec4 Frag_Color;
@@ -16,6 +17,7 @@ uniform float Distance;
 uniform sampler2D out_Tex; //--- 텍스처 샘플러
 
 uniform bool Tex_or_Color; // 텍스쳐로 출력할지 == True /  컬러로 출력할지 == False
+uniform bool Ui_bool; // ui == True
 
 void main ()
 {
@@ -45,4 +47,7 @@ void main ()
 		Frag_Color = (vec4((ambient + diffuse + specular) / (Distance * 0.5), 1.0) * texture(out_Tex, out_Uv));
 	else
 		Frag_Color = vec4(result / (Distance * 0.5), 1.0);
+
+	if (Ui_bool)
+		Frag_Color = texture(out_Tex, out_Uv);
 }

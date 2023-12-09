@@ -47,7 +47,8 @@ enum ObjectList {
 	ball_i, crystal_i, cube_i, fcube_i, obstacle_i
 };
 
-vector <GLObj> Ball, Crystal, Background, CrashedCrystal, UI, Obstacle, CrashedObstacle;
+vector <GLObj> Ball, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
+GLObj Clink;
 GLObj obj_list[5];
 bool Lbt = false;
 glm::vec3 click_mouse{};
@@ -987,17 +988,15 @@ GLvoid drawScene()
 		CrashedCrystal[i].draw("solid");
 	}
 
-	for (int i = 0; i < UI.size(); ++i) {
-		UI[i].Update();
-		UI[i].draw_prepare(PosLocation, "Pos");
-		UI[i].draw_prepare(WorldTransLocation, "World");
-		UI[i].draw_prepare(NormalLocation, "Normal");
-		UI[i].draw_prepare(UvLocation, "UV");
-		UI[i].draw_prepare(false, "Texture");
-		UI[i].draw_prepare(TexorColorLocation, "Texture_bool");
-		glUniform1f(DistanceLocation, distance(Light.pos, UI[i].pos));
-		UI[i].draw("solid");
-	}
+	Clink.Update();
+	Clink.draw_prepare(PosLocation, "Pos");
+	Clink.draw_prepare(WorldTransLocation, "World");
+	Clink.draw_prepare(NormalLocation, "Normal");
+	Clink.draw_prepare(UvLocation, "UV");
+	Clink.draw_prepare(false, "Texture");
+	Clink.draw_prepare(TexorColorLocation, "Texture_bool");
+	glUniform1f(DistanceLocation, distance(Light.pos, Clink.pos));
+	Clink.draw("solid");
 
 	for (int i = 0; i < Obstacle.size(); ++i) {
 		Obstacle[i].Update();
@@ -1222,9 +1221,7 @@ GLvoid Reshape(int w, int h)
 	for (int i = 0; i < Ball.size(); i++) {
 		WindowConversion(Ball[i], w, h);
 	}
-	for (int i = 0; i < UI.size(); i++) {
-		WindowConversion(UI[i], w, h);
-	}
+	WindowConversion(Clink, w, h);
 	for (int i = 0; i < Crystal.size(); i++) {
 		WindowConversion(Crystal[i], w, h);
 	}
@@ -1392,17 +1389,16 @@ void Init()
 	// UI
 	{
 		std::ifstream inputFile("./OBJ/Clink.obj");
-		UI.emplace_back();
 
 		if (inputFile.is_open())
-			UI.back().objLoad(inputFile);
+			Clink.objLoad(inputFile);
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		UI.back().scale = glm::vec3{ 3.f, 3.f, 3.f };
-		UI.back().pos = glm::vec3{ 0.f, 0.2f, 0.f };
+		Clink.scale = glm::vec3{ 3.f, 3.f, 3.f };
+		Clink.pos = glm::vec3{ 0.f, 0.2f, 0.f };
 
-		UI.back().imgLoad("./IMG/유리.png");
+		Clink.imgLoad("./IMG/유리.png");
 	}
 
 	// X축 Y축
