@@ -109,6 +109,20 @@ glm::vec3 CheckCollisionDir(const GLObj& target, const GLObj& object, int what) 
 
 	return result;
 }
+float TriangleArea(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3) {
+	return abs((p1.x * p2.y + p2.x * p3.y + p3.x * p1.y) - (p2.x * p1.y + p3.x * p2.y + p1.x * p3.y)) / 2;
+}
+bool isPointInsideTriangle(glm::vec2 p, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3) {
+	float area1 = triangleArea(p, p1, p2);
+	float area2 = triangleArea(p, p2, p3);
+	float area3 = triangleArea(p, p1, p3);
+	float total = triangleArea(p1, p2, p3);
+
+	return (total == area1 + area2 + area3);
+}
+bool isPointInsideRectangle(glm::vec2 p, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 p4) {
+	return isPointInsideTriangle(p, p1, p2, p3) || isPointInsideTriangle(p, p1, p3, p4);
+}
 
 float CalVectorMagnitude(glm::vec3 v) {
 	return glm::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
