@@ -747,16 +747,17 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 	uniform_real_distribution<float> rand_range[3];
 	std::uniform_real_distribution<float> rand_angle_cnt(glm::radians(15.f), glm::radians(60.f));
 	std::vector <float> angle;
+	std::vector <float> r;
 	std::vector <glm::vec3> vertex;
 	std::vector<glm::vec3> objnor;
 	std::vector <glm::vec3> objpos;
 	std::vector<glm::vec2> objtex;
 	glm::vec3 sum{};
-	float r[3] = { 0.083f, 0.125f, 0.25f };
+	float range[3] = { 0.083f, 0.125f, 0.25f };
 
 	// 깨질 반지름 랜덤생성기 만들기
 	for (int i = 0; i < 3; i++) {
-		rand_range[i] = uniform_real_distribution<float>(r[i], r[i] + 0.1f);
+		rand_range[i] = uniform_real_distribution<float>(range[i], range[i] + 0.1f);
 	}
 
 	// 깨질 각도 생성
@@ -769,56 +770,60 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 
 	// 점 얻기
 	//cout << "버텍스 정보" << endl;
-	//cout << "(" << vertex.back().x << ", " << vertex.back().y << ")" << endl;
 
 	CrashedObstacle.emplace_back();
+	r.emplace_back(rand_range[0](gen));
+	r.emplace_back(rand_range[0](gen));
 
 	for (int i = 0; i < 2; i++) {
 		vertex.emplace_back(ball.pos);
 		vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
-		vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
-		sum += vertex.back();
-		if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
-		if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
-		if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
-		if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
-		if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
-		if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
+		//vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
+		//sum += vertex.back();
+		//if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
+		//if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
+		//if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
+		//if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
+		//if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
+		//if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
+		cout << "v " << vertex.back().x << " " << vertex.back().y << " " << vertex.back().z << endl;
 
 		vertex.emplace_back();
-		vertex.back().x = ball.pos.x + glm::cos(angle[0]) * rand_range[0](gen);
-		vertex.back().y = ball.pos.y + glm::sin(angle[0]) * rand_range[0](gen) * ((float)winSizex / (float)winSizey);
+		vertex.back().x = ball.pos.x + glm::cos(angle[0]) * r[0];
+		vertex.back().y = ball.pos.y + glm::sin(angle[0]) * r[0] * ((float)winSizex / (float)winSizey);
 		vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
-		vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
-		sum += vertex.back();
-		if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
-		if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
-		if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
-		if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
-		if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
-		if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
+		//vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
+		//sum += vertex.back();
+		//if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
+		//if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
+		//if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
+		//if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
+		//if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
+		//if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
+		cout << "v " << vertex.back().x << " " << vertex.back().y << " " << vertex.back().z << endl;
 
 		vertex.emplace_back();
-		vertex.back().x = ball.pos.x + glm::cos(angle[1]) * rand_range[0](gen);
-		vertex.back().y = ball.pos.y + glm::sin(angle[1]) * rand_range[0](gen) * ((float)winSizex / (float)winSizey);
+		vertex.back().x = ball.pos.x + glm::cos(angle[1]) * r[1];
+		vertex.back().y = ball.pos.y + glm::sin(angle[1]) * r[1] * ((float)winSizex / (float)winSizey);
 		vertex.back().z = i == 0 ? obstacle.pos.z + obstacle.size.z : obstacle.pos.z - obstacle.size.z;
-		vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
-		sum += vertex.back();
-		if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
-		if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
-		if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
-		if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
-		if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
-		if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
+		//vertex.back() = CalInverseMatrix(obstacle.World_mat) * glm::vec4(vertex.back(), 1.f);
+		//sum += vertex.back();
+		//if (vertex.back().x > CrashedObstacle.back().max.x)	CrashedObstacle.back().max.x = vertex.back().x;
+		//if (vertex.back().y > CrashedObstacle.back().max.y)	CrashedObstacle.back().max.y = vertex.back().y;
+		//if (vertex.back().z > CrashedObstacle.back().max.z)	CrashedObstacle.back().max.z = vertex.back().z;
+		//if (vertex.back().x < CrashedObstacle.back().min.x)	CrashedObstacle.back().min.x = vertex.back().x;
+		//if (vertex.back().y < CrashedObstacle.back().min.y)	CrashedObstacle.back().min.y = vertex.back().y;
+		//if (vertex.back().z < CrashedObstacle.back().min.z)	CrashedObstacle.back().min.z = vertex.back().z;
+		cout << "v " << vertex.back().x << " " << vertex.back().y << " " << vertex.back().z << endl;
 	}
 
 	objpos.emplace_back(vertex[0]);
 	objpos.emplace_back(vertex[2]);
 	objpos.emplace_back(vertex[1]);
 
-	objpos.emplace_back(vertex[0]);
-	objpos.emplace_back(vertex[5]);
+	objpos.emplace_back(vertex[3]);
 	objpos.emplace_back(vertex[4]);
+	objpos.emplace_back(vertex[5]);
 
 	objpos.emplace_back(vertex[0]);
 	objpos.emplace_back(vertex[3]);
@@ -846,6 +851,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 
 	for (int i = 0; i < objpos.size() / 3; i++) {
 		objnor.emplace_back(CalNormalVector(objpos[i * 3], objpos[i * 3 + 1], objpos[i * 3 + 2]));
+		cout << "vn " << objnor.back().x << " " << objnor.back().y << " " << objnor.back().z << endl;
 		objnor.emplace_back(objnor.back());
 		objnor.emplace_back(objnor.back());
 	}
@@ -854,9 +860,9 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 		objtex.emplace_back();
 	}
 
-	CrashedObstacle.back().midpos = sum / float(vertex.size());
-	CrashedObstacle.back().pos = obstacle.pos;
-	CrashedObstacle.back().size = glm::vec3{ abs((CrashedObstacle.back().max - CrashedObstacle.back().min) / 2.f) };
+	//CrashedObstacle.back().midpos = sum / float(vertex.size());
+	//CrashedObstacle.back().pos = obstacle.pos;
+	//CrashedObstacle.back().size = glm::vec3{ abs((CrashedObstacle.back().max - CrashedObstacle.back().min) / 2.f) };
 
 	glGenBuffers(1, &CrashedObstacle.back().v_pos);
 	glBindBuffer(GL_ARRAY_BUFFER, CrashedObstacle.back().v_pos);
@@ -951,17 +957,17 @@ GLvoid drawScene()
 	//lineObj.draw_prepare(WorldTransLocation, "World");
 	//lineObj.draw();
 
-	for (int i = 0; i < Background.size(); ++i) {
-		Background[i].Update();
-		Background[i].draw_prepare(PosLocation, "Pos");
-		Background[i].draw_prepare(ColorLocation, "Color");
-		Background[i].draw_prepare(TexorColorLocation, "Color_bool");
-		Background[i].draw_prepare(WorldTransLocation, "World");
-		Background[i].draw_prepare(NormalLocation, "Normal");
-		Background[i].draw_prepare(UvLocation, "UV");
-		glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
-		Background[i].draw("solid");
-	}
+	//for (int i = 0; i < Background.size(); ++i) {
+	//	Background[i].Update();
+	//	Background[i].draw_prepare(PosLocation, "Pos");
+	//	Background[i].draw_prepare(ColorLocation, "Color");
+	//	Background[i].draw_prepare(TexorColorLocation, "Color_bool");
+	//	Background[i].draw_prepare(WorldTransLocation, "World");
+	//	Background[i].draw_prepare(NormalLocation, "Normal");
+	//	Background[i].draw_prepare(UvLocation, "UV");
+	//	glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
+	//	Background[i].draw("solid");
+	//}
 
 	// 알파값 포함 객체 그리기 시작 -------
 
@@ -1350,6 +1356,7 @@ void Init()
 		obj_list[ball_i].imgLoad("./IMG/iron.png");
 	}
 
+	// Obstacle
 	{
 		std::ifstream inputFile("./OBJ/cube_tex.obj");
 
