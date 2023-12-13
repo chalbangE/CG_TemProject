@@ -724,7 +724,7 @@ void SaveMap()
 		}
 	}
 }
-void LoadMap()
+void LoadMap(int randint)
 {
 	// Crystal, Background;
 
@@ -733,36 +733,47 @@ void LoadMap()
 	if (SaveFlie.is_open()) {
 		std::string bind;
 
+		int mcnt = 0;
+		bool select = false;
 		while (getline(SaveFlie, bind)) {
 			std::stringstream ss_bind{};
 			std::string a;
 			ss_bind.str(bind);
 			ss_bind >> a;
-			cout << a << endl;
 
-			if (bind[0] == 'c') {
-				Crystal.emplace_back(obj_list[crystal_i]);
-				ss_bind >> Crystal.back().pos.x >> Crystal.back().pos.y >> Crystal.back().pos.z
-					>> Crystal.back().scale.x >> Crystal.back().scale.y >> Crystal.back().scale.z;
-				Crystal.back().scale.y *= winSizex / winSizey;
-				Crystal.back().pos.y *= winSizex / winSizey;
-				WindowConversion(Crystal.back(), winSizex, winSizey);
+			if (bind[0] == 'm') {
+				mcnt++;
+				if (mcnt == randint)
+					select = true;
+				else
+					select = false;
 			}
-			else if (bind[0] == 'b') {
-				Background.emplace_back(obj_list[fcube_i]);
-				ss_bind >> Background.back().pos.x >> Background.back().pos.y >> Background.back().pos.z
-					>> Background.back().scale.x >> Background.back().scale.y >> Background.back().scale.z;
-				Background.back().scale.y *= winSizex / winSizey;
-				Background.back().pos.y *= winSizex / winSizey;
-				WindowConversion(Background.back(), winSizex, winSizey);
-			}
-			else if (bind[0] == 'o') {
-				Obstacle.emplace_back(obj_list[obstacle_i]);
-				ss_bind >> Obstacle.back().pos.x >> Obstacle.back().pos.y >> Obstacle.back().pos.z
-					>> Obstacle.back().scale.x >> Obstacle.back().scale.y >> Obstacle.back().scale.z;
-				Obstacle.back().scale.y *= winSizex / winSizey;
-				Obstacle.back().pos.y *= winSizex / winSizey;
-				WindowConversion(Obstacle.back(), winSizex, winSizey);
+			
+			if (select) {
+				if (bind[0] == 'c') {
+					Crystal.emplace_back(obj_list[crystal_i]);
+					ss_bind >> Crystal.back().pos.x >> Crystal.back().pos.y >> Crystal.back().pos.z
+						>> Crystal.back().scale.x >> Crystal.back().scale.y >> Crystal.back().scale.z;
+					Crystal.back().scale.y *= winSizex / winSizey;
+					Crystal.back().pos.y *= winSizex / winSizey;
+					WindowConversion(Crystal.back(), winSizex, winSizey);
+				}
+				else if (bind[0] == 'b') {
+					Background.emplace_back(obj_list[fcube_i]);
+					ss_bind >> Background.back().pos.x >> Background.back().pos.y >> Background.back().pos.z
+						>> Background.back().scale.x >> Background.back().scale.y >> Background.back().scale.z;
+					Background.back().scale.y *= winSizex / winSizey;
+					Background.back().pos.y *= winSizex / winSizey;
+					WindowConversion(Background.back(), winSizex, winSizey);
+				}
+				else if (bind[0] == 'o') {
+					Obstacle.emplace_back(obj_list[obstacle_i]);
+					ss_bind >> Obstacle.back().pos.x >> Obstacle.back().pos.y >> Obstacle.back().pos.z
+						>> Obstacle.back().scale.x >> Obstacle.back().scale.y >> Obstacle.back().scale.z;
+					Obstacle.back().scale.y *= winSizex / winSizey;
+					Obstacle.back().pos.y *= winSizex / winSizey;
+					WindowConversion(Obstacle.back(), winSizex, winSizey);
+				}
 			}
 		}
 	}
@@ -1012,6 +1023,14 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 		}
 
 	}
+}
+
+void MakeCrystal(glm::vec3 pos, glm::vec3 scale) {
+	Crystal.emplace_back(obj_list[crystal_i]);
+	Crystal.back().pos = pos;
+	Background.emplace_back(obj_list[fcube_i]);
+	Background.back().scale = scale;
+	Background.back().pos = pos;
 }
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
@@ -1334,11 +1353,6 @@ void Keyboard(unsigned char key, int x, int y)
 			ball_num = 1;
 		break;
 	}
-	case 's':
-	case 'S': {
-		LoadMap();
-		break;
-	}
 	default:
 		break;
 	}
@@ -1564,7 +1578,7 @@ void Init()
 		obj_list[crystal_i].imgLoad("./IMG/유리.png");
 	}
 	Crystal.emplace_back(obj_list[crystal_i]);
-	Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
+	Crystal.back().pos = glm::vec3{ -0.8f, 0.f, 0.f };
 
 	//  Background
 	{
@@ -1623,8 +1637,9 @@ void Init()
 		glBindBuffer(GL_ARRAY_BUFFER, obj_list[fcube_i].v_color);
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
-	Background.emplace_back(obj_list[fcube_i]);
-	Background.back().pos = glm::vec3{ 0.f, -1.f, 0.f };
+
+	MakeCrystal(glm::vec3{ -0.8f, 0.f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
+	MakeCrystal(glm::vec3{ 0.8f, 0.f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
 
 	// Clink
 	{
