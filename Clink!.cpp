@@ -48,6 +48,10 @@ enum ObjectList {
 	ball_i, crystal_i, cube_i, fcube_i, obstacle_i
 };
 
+enum BallDecoList {
+	sunglass1, sunglass2, sunglass3, hat1, hat2, hat3, non_deco
+};
+
 enum SoundChannelList {
 	bgm_cn, ball_cn, crash_cn
 };
@@ -56,15 +60,16 @@ enum GameStateList {
 	title_s, option_s, custom_s, play_s
 };
 
-vector <GLObj> Ball, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
+vector <GLObj> Ball, BallDeco, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
 vector <GLUi> Ui[4];
 GLObj Clink;
-GLObj obj_list[5];
+GLObj obj_list[5], deco_list[6];
 bool Lbt = false;
 glm::vec3 click_mouse{};
 int ball_num = 1; // 한번에 쏘는 공 개수
 int GameState = title_s;
 GLfloat volumeSize = 1.f, Speed = 0.03f;
+int Whatdeco = non_deco;
 
 static FMOD::System* ssystem;
 static FMOD::Sound* Crach_Sound[3], * BallShoot_Sound, *Bgm_Sound;
@@ -72,7 +77,85 @@ static FMOD::Channel* channel[3] = { 0, 0, 0 };
 static FMOD_RESULT result;
 static void* extradriverdata = 0;
 
-void UiClick(int what);
+void UiClick(int what)
+{
+	switch (GameState)
+	{
+	case title_s: {
+		if (what == 0) {
+			GameState = option_s;
+		}
+		else if (what == 1) {
+			GameState = custom_s;
+
+			Ball.clear();
+			Ball.emplace_back(obj_list[ball_i]);
+			Ball.back().pos = glm::vec3{ 0.f, 0.f, 0.f };
+			Ball.back().velocity = glm::vec3{ 0.f, 0.f, 0.f };
+
+			BallDeco.clear();
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+
+			Camera.pos = glm::vec3{ 0.f, 0.f, 0.3f };
+			Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 2.f };
+		}
+		break;
+	}
+	case option_s: {
+		if (what == 0) break;
+		else if (what == 1) {
+			GameState = title_s;
+		}
+		else if (what == 2) {
+			if (volumeSize < 2.f)
+				volumeSize += 0.2;
+		}
+		else if (what == 3) {
+			if (volumeSize > 0.1f)
+				volumeSize -= 0.2;
+		}
+		else if (what == 4) {
+			if (volumeSize == 0.f)
+				volumeSize = 1.f;
+			else
+				volumeSize = 0.f;
+		}
+
+		if (volumeSize < 0.1f)
+			Ui[option_s][4].now_img = 1;
+		else
+			Ui[option_s][4].now_img = 0;
+
+		channel[bgm_cn]->setVolume(0.08 * volumeSize);
+		break;
+	}
+	case custom_s: {
+		if (what >= 0 && what <= 5) {
+			BallDeco.clear();
+			BallDeco.emplace_back(deco_list[what]);
+			Whatdeco = what;
+		}
+		else if (what == 6) {
+			BallDeco.clear();
+			Whatdeco = what;
+		}
+		else if (what == 7) {
+			Ball.clear();
+			BallDeco.clear();
+
+			Camera.pos = glm::vec3{ 0.f, 0.f, 3.f };
+			Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 2.f };
+			GameState = title_s;
+		}
+		break;
+	}
+	case play_s: {
+		break;
+	}
+	default:
+		break;
+	}
+}
 
 bool CheckCollision(const GLObj& a, const GLObj& b, int what) {
 	if (what == crystal_i) {
@@ -589,6 +672,14 @@ void ShootBall(GLRay ray)
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
+
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
 		break;
 	}
 	case 2: {
@@ -598,11 +689,29 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x -= 0.002f;
 
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
+
 		Ball.emplace_back(obj_list[ball_i]);
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
+
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
 		break;
 	}
 	case 3: {
@@ -612,6 +721,15 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.y += 0.003f;
 
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
+
 		Ball.emplace_back(obj_list[ball_i]);
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
@@ -619,12 +737,30 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity.x -= 0.002f;
 		Ball.back().velocity.y -= 0.002f;
 
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
+
 		Ball.emplace_back(obj_list[ball_i]);
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
 		Ball.back().velocity.y -= 0.002f;
+
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
 		break;
 	}
 	case 4: {
@@ -635,12 +771,30 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity.x -= 0.002f;
 		Ball.back().velocity.y -= 0.003f;
 
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
+
 		Ball.emplace_back(obj_list[ball_i]);
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
 		Ball.back().velocity.y -= 0.003f;
+
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
 
 		Ball.emplace_back(obj_list[ball_i]);
 		Ball.back().pos = ray.origin;
@@ -649,12 +803,30 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity.x -= 0.002f;
 		Ball.back().velocity.y += 0.003f;
 
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
+
 		Ball.emplace_back(obj_list[ball_i]);
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
 		Ball.back().velocity.y += 0.003f;
+
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
 		break;
 	}
 	case 5: {
@@ -664,11 +836,29 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.emplace_back(obj_list[ball_i]);
 
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
+
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x -= 0.002f;
 		Ball.back().velocity.y -= 0.003f;
+
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
 
 		Ball.emplace_back(obj_list[ball_i]);
 		Ball.back().pos = ray.origin;
@@ -677,6 +867,15 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity.x += 0.002f;
 		Ball.back().velocity.y -= 0.003f;
 
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
+
 		Ball.emplace_back(obj_list[ball_i]);
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
@@ -684,12 +883,30 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity.x -= 0.002f;
 		Ball.back().velocity.y += 0.003f;
 
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
+
 		Ball.emplace_back(obj_list[ball_i]);
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
 		Ball.back().velocity.y += 0.003f;
+
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			 
+			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
+		}
+		else {
+			BallDeco.emplace_back();
+		}
 		break;
 	}
 	default:
@@ -726,7 +943,8 @@ void SaveMap()
 			Obstacle.back().scale.y /= winSizex / winSizey;
 			Obstacle.back().pos.y /= winSizex / winSizey;
 			SaveFlie << "o " << Obstacle[i].pos.x << " " << Obstacle[i].pos.y << " " << Obstacle[i].pos.z << " "
-				<< Obstacle[i].scale.x << " " << Obstacle[i].scale.y << " " << Obstacle[i].scale.z << endl;
+				<< Obstacle[i].scale.x << " " << Obstacle[i].scale.y << " " << Obstacle[i].scale.z 
+				<< Obstacle[i].velocity.x << " " << Obstacle[i].velocity.y << " " << Obstacle[i].velocity.z << endl;
 		}
 	}
 }
@@ -775,7 +993,8 @@ void LoadMap(int randint)
 				else if (bind[0] == 'o') {
 					Obstacle.emplace_back(obj_list[obstacle_i]);
 					ss_bind >> Obstacle.back().pos.x >> Obstacle.back().pos.y >> Obstacle.back().pos.z
-						>> Obstacle.back().scale.x >> Obstacle.back().scale.y >> Obstacle.back().scale.z;
+						>> Obstacle.back().scale.x >> Obstacle.back().scale.y >> Obstacle.back().scale.z
+						>> Obstacle.back().velocity.x >> Obstacle.back().velocity.y >> Obstacle.back().velocity.z;
 					Obstacle.back().scale.y *= winSizex / winSizey;
 					Obstacle.back().pos.y *= winSizex / winSizey;
 					WindowConversion(Obstacle.back(), winSizex, winSizey);
@@ -1067,6 +1286,7 @@ int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 
 GLvoid drawScene()
 {
+	cout << Ball.size() << "  " << BallDeco.size() << endl;
 	glUseProgram(shaderProgramID);
 
 	// 버텍스 쉐이더에게 전달
@@ -1109,19 +1329,21 @@ GLvoid drawScene()
 	Light.draw_prepare(LightColorLocation, "LightColor");
 	Light.draw("solid");
 
-	for (int i = 0; i < Background.size(); ++i) {
-		Background[i].Update();
-		Background[i].draw_prepare(PosLocation, "Pos");
-		Background[i].draw_prepare(ColorLocation, "Color");
-		Background[i].draw_prepare(TexorColorLocation, "Color_bool");
-		Background[i].draw_prepare(WorldTransLocation, "World");
-		Background[i].draw_prepare(NormalLocation, "Normal");
-		Background[i].draw_prepare(UvLocation, "UV");
-		if (i < 4)
-			glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos) / 3.f);
-		else
-			glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
-		Background[i].draw("solid");
+	if (GameState != custom_s) {
+		for (int i = 0; i < Background.size(); ++i) {
+			Background[i].Update();
+			Background[i].draw_prepare(PosLocation, "Pos");
+			Background[i].draw_prepare(ColorLocation, "Color");
+			Background[i].draw_prepare(TexorColorLocation, "Color_bool");
+			Background[i].draw_prepare(WorldTransLocation, "World");
+			Background[i].draw_prepare(NormalLocation, "Normal");
+			Background[i].draw_prepare(UvLocation, "UV");
+			if (i < 4)
+				glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos) / 3.f);
+			else
+				glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
+			Background[i].draw("solid");
+		}
 	}
 
 	// 알파값 포함 객체 그리기 시작 -------
@@ -1141,62 +1363,76 @@ GLvoid drawScene()
 		Ball[i].draw("solid");
 	}
 
-	for (int i = 0; i < Crystal.size(); ++i) {
-		Crystal[i].Update();
-		Crystal[i].draw_prepare(PosLocation, "Pos");
-		Crystal[i].draw_prepare(WorldTransLocation, "World");
-		Crystal[i].draw_prepare(NormalLocation, "Normal");
-		Crystal[i].draw_prepare(UvLocation, "UV");
-		Crystal[i].draw_prepare(false, "Texture");
-		Crystal[i].draw_prepare(TexorColorLocation, "Texture_bool");
-		glUniform1f(DistanceLocation, distance(Light.pos, Crystal[i].pos));
-		Crystal[i].draw("solid");
+	for (int i = 0; i < BallDeco.size(); ++i) {
+		BallDeco[i].Update();
+		BallDeco[i].draw_prepare(PosLocation, "Pos");
+		BallDeco[i].draw_prepare(WorldTransLocation, "World");
+		BallDeco[i].draw_prepare(NormalLocation, "Normal");
+		BallDeco[i].draw_prepare(UvLocation, "UV");
+		BallDeco[i].draw_prepare(false, "Texture");
+		BallDeco[i].draw_prepare(TexorColorLocation, "Texture_bool");
+		glUniform1f(DistanceLocation, distance(Light.pos, BallDeco[i].pos));
+		BallDeco[i].draw("solid");
 	}
 
-	for (int i = 0; i < CrashedCrystal.size(); ++i) {
-		CrashedCrystal[i].Crystal_Update();
-		CrashedCrystal[i].draw_prepare(PosLocation, "Pos");
-		CrashedCrystal[i].draw_prepare(WorldTransLocation, "World");
-		CrashedCrystal[i].draw_prepare(NormalLocation, "Normal");
-		CrashedCrystal[i].draw_prepare(UvLocation, "UV");
-		CrashedCrystal[i].draw_prepare(false, "Texture");
-		CrashedCrystal[i].draw_prepare(TexorColorLocation, "Texture_bool");
-		glUniform1f(DistanceLocation, distance(Light.pos, CrashedCrystal[i].pos));
-		CrashedCrystal[i].draw("solid");
-	}
+	if (GameState != custom_s) {
+		for (int i = 0; i < Crystal.size(); ++i) {
+			Crystal[i].Update();
+			Crystal[i].draw_prepare(PosLocation, "Pos");
+			Crystal[i].draw_prepare(WorldTransLocation, "World");
+			Crystal[i].draw_prepare(NormalLocation, "Normal");
+			Crystal[i].draw_prepare(UvLocation, "UV");
+			Crystal[i].draw_prepare(false, "Texture");
+			Crystal[i].draw_prepare(TexorColorLocation, "Texture_bool");
+			glUniform1f(DistanceLocation, distance(Light.pos, Crystal[i].pos));
+			Crystal[i].draw("solid");
+		}
 
-	Clink.Update();
-	Clink.draw_prepare(PosLocation, "Pos");
-	Clink.draw_prepare(WorldTransLocation, "World");
-	Clink.draw_prepare(NormalLocation, "Normal");
-	Clink.draw_prepare(UvLocation, "UV");
-	Clink.draw_prepare(false, "Texture");
-	Clink.draw_prepare(TexorColorLocation, "Texture_bool");
-	glUniform1f(DistanceLocation, distance(Light.pos, Clink.pos));
-	Clink.draw("solid");
+		for (int i = 0; i < CrashedCrystal.size(); ++i) {
+			CrashedCrystal[i].Crystal_Update();
+			CrashedCrystal[i].draw_prepare(PosLocation, "Pos");
+			CrashedCrystal[i].draw_prepare(WorldTransLocation, "World");
+			CrashedCrystal[i].draw_prepare(NormalLocation, "Normal");
+			CrashedCrystal[i].draw_prepare(UvLocation, "UV");
+			CrashedCrystal[i].draw_prepare(false, "Texture");
+			CrashedCrystal[i].draw_prepare(TexorColorLocation, "Texture_bool");
+			glUniform1f(DistanceLocation, distance(Light.pos, CrashedCrystal[i].pos));
+			CrashedCrystal[i].draw("solid");
+		}
 
-	for (int i = 0; i < Obstacle.size(); ++i) {
-		Obstacle[i].Update();
-		Obstacle[i].draw_prepare(PosLocation, "Pos");
-		Obstacle[i].draw_prepare(WorldTransLocation, "World");
-		Obstacle[i].draw_prepare(NormalLocation, "Normal");
-		Obstacle[i].draw_prepare(UvLocation, "UV");
-		Obstacle[i].draw_prepare(false, "Texture");
-		Obstacle[i].draw_prepare(TexorColorLocation, "Texture_bool");
-		glUniform1f(DistanceLocation, distance(Light.pos, Obstacle[i].pos));
-		Obstacle[i].draw("solid");
-	}
+		Clink.Update();
+		Clink.draw_prepare(PosLocation, "Pos");
+		Clink.draw_prepare(WorldTransLocation, "World");
+		Clink.draw_prepare(NormalLocation, "Normal");
+		Clink.draw_prepare(UvLocation, "UV");
+		Clink.draw_prepare(false, "Texture");
+		Clink.draw_prepare(TexorColorLocation, "Texture_bool");
+		glUniform1f(DistanceLocation, distance(Light.pos, Clink.pos));
+		Clink.draw("solid");
 
-	for (int i = 0; i < CrashedObstacle.size(); ++i) {
-		CrashedObstacle[i].Crystal_Update();
-		CrashedObstacle[i].draw_prepare(PosLocation, "Pos");
-		CrashedObstacle[i].draw_prepare(WorldTransLocation, "World");
-		CrashedObstacle[i].draw_prepare(NormalLocation, "Normal");
-		CrashedObstacle[i].draw_prepare(UvLocation, "UV");
-		CrashedObstacle[i].draw_prepare(false, "Texture");
-		CrashedObstacle[i].draw_prepare(TexorColorLocation, "Texture_bool");
-		glUniform1f(DistanceLocation, distance(Light.pos, CrashedObstacle[i].pos));
-		CrashedObstacle[i].draw("solid");
+		for (int i = 0; i < Obstacle.size(); ++i) {
+			Obstacle[i].Update();
+			Obstacle[i].draw_prepare(PosLocation, "Pos");
+			Obstacle[i].draw_prepare(WorldTransLocation, "World");
+			Obstacle[i].draw_prepare(NormalLocation, "Normal");
+			Obstacle[i].draw_prepare(UvLocation, "UV");
+			Obstacle[i].draw_prepare(false, "Texture");
+			Obstacle[i].draw_prepare(TexorColorLocation, "Texture_bool");
+			glUniform1f(DistanceLocation, distance(Light.pos, Obstacle[i].pos));
+			Obstacle[i].draw("solid");
+		}
+
+		for (int i = 0; i < CrashedObstacle.size(); ++i) {
+			CrashedObstacle[i].Crystal_Update();
+			CrashedObstacle[i].draw_prepare(PosLocation, "Pos");
+			CrashedObstacle[i].draw_prepare(WorldTransLocation, "World");
+			CrashedObstacle[i].draw_prepare(NormalLocation, "Normal");
+			CrashedObstacle[i].draw_prepare(UvLocation, "UV");
+			CrashedObstacle[i].draw_prepare(false, "Texture");
+			CrashedObstacle[i].draw_prepare(TexorColorLocation, "Texture_bool");
+			glUniform1f(DistanceLocation, distance(Light.pos, CrashedObstacle[i].pos));
+			CrashedObstacle[i].draw("solid");
+		}
 	}
 
 	for (int i = 0; i < Ui[GameState].size(); ++i) {
@@ -1226,10 +1462,6 @@ void TimerFunction(int value)
 		if (GameState == play_s) {
 			for (int i = 0; i < Crystal.size(); ++i) {
 				Crystal[i].pos += Crystal[i].velocity;
-				if (Light.pos.z > Crystal[i].pos.z) {
-					Crystal.erase(Crystal.begin() + i);
-					--i;
-				}
 			}
 			for (int i = 0; i < Ball.size(); ++i) {
 				Ball[i].pos.z += Speed;
@@ -1242,10 +1474,6 @@ void TimerFunction(int value)
 			}
 			for (int i = 0; i < CrashedObstacle.size(); ++i) {
 				CrashedObstacle[i].pos += CrashedObstacle[i].velocity;
-				if (Light.pos.z > Crystal[i].pos.z) {
-					Crystal.erase(Crystal.begin() + i);
-					--i;
-				}
 			}
 			Clink.pos += Clink.velocity;
 		}
@@ -1328,6 +1556,9 @@ void TimerFunction(int value)
 				}
 			}
 		}
+
+		for (int i = 0; i < Ball.size(); ++i)
+			BallDeco[i].pos = BallDeco[i].velocity + Ball[i].pos;
 		break;
 	}
 	default:
@@ -1383,10 +1614,6 @@ void Special_Keyboard(int key, int x, int y)
 		glutFullScreenToggle();
 		break;
 	}
-	case GLUT_KEY_SHIFT_L: {
-		GameState = title_s;
-		break;
-	}
 	default:
 		break;
 	}
@@ -1408,6 +1635,7 @@ GLvoid Mouse(int button, int state, int x, int y)
 				if (m.x >= Ui[GameState][i].leftbottom.x && m.y >= Ui[GameState][i].leftbottom.y 
 					&& m.x <= Ui[GameState][i].righttop.x && m.y <= Ui[GameState][i].righttop.y) {
 					UiClick(i);
+					break;
 				}
 			}
 
@@ -1430,15 +1658,15 @@ GLvoid Motion(int x, int y)
 	if (Lbt) {
 		glm::vec3 m = { (x - (winSizex / 2)) / (winSizex / 2), -(y - (winSizey / 2)) / (winSizey / 2), 0.0f };
 
-		//if (m.x < click_mouse.x)
-		//	Camera.revolve_theta.y += 1.f;
-		//else if (m.x > click_mouse.x)
-		//	Camera.revolve_theta.y += -1.f;
+		if (GameState == custom_s) {
+			if (m.x < click_mouse.x)
+				Ball.back().rotate_theta.y += 1.f;
+			else if (m.x > click_mouse.x)
+				Ball.back().rotate_theta.y += -1.f;
 
-		//if (m.y < click_mouse.y)
-		//	Camera.revolve_theta.x += 1.f;
-		//else if (m.y > click_mouse.y)
-		//	Camera.revolve_theta.x += -1.f;
+			if (BallDeco.size())
+				BallDeco.back().revolve_theta = Ball.back().rotate_theta;
+		}
 
 		click_mouse = m;
 	}
@@ -1457,55 +1685,6 @@ void MouseWheel(int wheel, int diretion, int x, int y)
 	}
 }
 
-void UiClick(int what)
-{
-	switch (GameState)
-	{
-	case title_s: {
-		if (what == 0) {
-			GameState = option_s;
-		}
-		break;
-	}
-	case option_s: {
-		if (what == 0) break;
-		else if (what == 1){
-			GameState = title_s;
-		}
-		else if (what == 2) {
-			if (volumeSize < 2.f)
-				volumeSize += 0.2;
-		}
-		else if (what == 3) {
-			if (volumeSize > 0.1f)
-				volumeSize -= 0.2;
-		}
-		else if (what == 4) {
-			if (volumeSize == 0.f) 
-				volumeSize = 1.f;
-			else 
-				volumeSize = 0.f;
-		}
-
-		cout << volumeSize << endl;
-		if (volumeSize < 0.1f)
-			Ui[option_s][4].now_img = 1;
-		else
-			Ui[option_s][4].now_img = 0;
-		
-		channel[bgm_cn]->setVolume(0.08 * volumeSize);
-		break;
-	}
-	case custom_s: {
-		break;
-	}
-	case play_s: {
-		break;
-	}
-	default:
-		break;
-	}
-}
 
 void Init()
 {
@@ -1565,8 +1744,6 @@ void Init()
 
 		obj_list[obstacle_i].imgLoad("./IMG/장애물.png");
 	}
-	//Obstacle.emplace_back(obj_list[obstacle_i]);
-	//Obstacle.back().scale = glm::vec3(1.f, 1.f, 0.1f);
 
 	//  Crystal 안깨진거
 	{
@@ -1644,7 +1821,9 @@ void Init()
 
 	MakeCrystal(glm::vec3{ 0.0f, -0.2f, -5.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
 	MakeCrystal(glm::vec3{ 0.0f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
-
+	//Obstacle.emplace_back(obj_list[obstacle_i]);
+	//Obstacle.back().scale = glm::vec3(1.f, 1.f, 0.1f);
+	
 	// Clink
 	{
 		std::ifstream inputFile("./OBJ/Clink.obj");
@@ -1677,6 +1856,111 @@ void Init()
 		Ui[option_s].back().imgLoad("./IMG/sound_down.png");
 		Ui[option_s].emplace_back(GLUi(-0.5f, -0.1, -0.2, 0.25f));
 		Ui[option_s].back().imgLoad("./IMG/volume_on.png", "./IMG/volume_off.png");
+
+		Ui[custom_s].emplace_back(GLUi(0.7f, 0.75f, 0.95f, 0.9f));
+		Ui[custom_s].back().imgLoad("./IMG/Sunglass1.png");
+		Ui[custom_s].emplace_back(GLUi(0.7f, 0.55f, 0.95f, 0.7f));
+		Ui[custom_s].back().imgLoad("./IMG/Sunglass2.png");
+		Ui[custom_s].emplace_back(GLUi(0.7f, 0.35f, 0.95f, 0.5f));
+		Ui[custom_s].back().imgLoad("./IMG/Sunglass3.png");
+		Ui[custom_s].emplace_back(GLUi(0.7f, 0.15f, 0.95f, 0.3f));
+		Ui[custom_s].back().imgLoad("./IMG/Hat1.png");
+		Ui[custom_s].emplace_back(GLUi(0.7f, -0.05f, 0.95f, 0.1f));
+		Ui[custom_s].back().imgLoad("./IMG/Hat2.png");
+		Ui[custom_s].emplace_back(GLUi(0.7f, -0.25f, 0.95f, -0.1f));
+		Ui[custom_s].back().imgLoad("./IMG/Hat3.png");
+		Ui[custom_s].emplace_back(GLUi(0.7f, -0.45f, 0.95f, -0.3f));
+		Ui[custom_s].back().imgLoad("./IMG/초기화.png");
+		Ui[custom_s].emplace_back(GLUi(0.7f, -0.9f, 0.95f, -0.75f));
+		Ui[custom_s].back().imgLoad("./IMG/완료.png");
+	}
+
+	//  Deco
+	{
+		{
+			std::ifstream inputFile("./OBJ/Sunglass1/Gafas4.obj");
+
+			if (inputFile.is_open())
+				deco_list[sunglass1].objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			deco_list[sunglass1].velocity = glm::vec3{ 0.f, 0.01f, 0.03f };
+			deco_list[sunglass1].scale = glm::vec3{ 0.024f, 0.024f, 0.024f };
+			deco_list[sunglass1].pos = glm::vec3{ 0.f, 0.f, 0.f };
+
+			deco_list[sunglass1].imgLoad("./OBJ/Sunglass1/Environment_Tropical.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/Sunglass2/Gafas2.obj");
+
+			if (inputFile.is_open())
+				deco_list[sunglass2].objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			deco_list[sunglass2].velocity = glm::vec3{ 0.f, 0.008f, 0.03f };
+			deco_list[sunglass2].scale = glm::vec3{ 0.022f, 0.022f, 0.022f };
+			deco_list[sunglass2].pos = glm::vec3{ 0.f, 0.f, 0.f };
+
+			deco_list[sunglass2].imgLoad("./OBJ/Sunglass2/Environment_Tropical.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/sunglass3/Gafas3.obj");
+
+			if (inputFile.is_open())
+				deco_list[sunglass3].objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			deco_list[sunglass3].velocity = glm::vec3{ 0.f, 0.008f, 0.03f };
+			deco_list[sunglass3].scale = glm::vec3{ 0.022f, 0.022f, 0.022f };
+			deco_list[sunglass3].pos = glm::vec3{ 0.f, 0.f, 0.f };
+
+			deco_list[sunglass3].imgLoad("./OBJ/sunglass3/Environment_Tropical.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/Hat1/Accesorios 22.obj");
+
+			if (inputFile.is_open())
+				deco_list[hat1].objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			deco_list[hat1].velocity = glm::vec3{ 0.f, 0.06f, -0.04f };
+			deco_list[hat1].scale = glm::vec3{ 0.035f, 0.035f, 0.035f };
+			deco_list[hat1].pos = glm::vec3{ 0.f, 0.f, 0.f };
+
+			deco_list[hat1].imgLoad("./OBJ/Hat1/mat_SharkHat01_Albedo.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/Hat2/Gorro_navidad.obj");
+
+			if (inputFile.is_open())
+				deco_list[hat2].objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			deco_list[hat2].velocity = glm::vec3{ 0.f, 0.04f, -0.015f };
+			deco_list[hat2].scale = glm::vec3{ 0.035f, 0.035f, 0.035f };
+			deco_list[hat2].pos = glm::vec3{ 0.f, 0.f, 0.f };
+
+			deco_list[hat2].imgLoad("./OBJ/Hat2/Colores.png");
+		}
+		{
+			std::ifstream inputFile("./OBJ/Hat3/hat_elephant_model.obj");
+
+			if (inputFile.is_open())
+				deco_list[hat3].objLoad(inputFile);
+			else
+				std::cerr << "Failed to obj file" << std::endl;
+
+			deco_list[hat3].velocity = glm::vec3{ 0.f, 0.035f, 0.01f };
+			deco_list[hat3].scale = glm::vec3{ 0.0011f, 0.0011f, 0.0011f };
+			deco_list[hat3].pos = glm::vec3{ 0.f, 0.f, 0.f };
+						  
+			deco_list[hat3].imgLoad("./OBJ/Hat3/hat_elephant_color.png");
+		}
 	}
 
 	// X축 Y축
@@ -1732,8 +2016,14 @@ GLvoid Reshape(int w, int h)
 	for (int i = 0; i < 3; i++) {
 		WindowConversion(obj_list[i], w, h);
 	}
+	for (int i = 0; i < 3; i++) {
+		WindowConversion(deco_list[i], w, h);
+	}
 	for (int i = 0; i < Ball.size(); i++) {
 		WindowConversion(Ball[i], w, h);
+	}
+	for (int i = 0; i < BallDeco.size(); i++) {
+		WindowConversion(BallDeco[i], w, h);
 	}
 	WindowConversion(Clink, w, h);
 	for (int i = 0; i < Crystal.size(); i++) {
