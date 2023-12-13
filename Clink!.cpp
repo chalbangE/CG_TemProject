@@ -705,7 +705,7 @@ void SaveMap()
 {
 	// Crystal, Background;
 
-	std::ofstream SaveFlie("./MapList.txt"/*, ios::app*/);
+	std::ofstream SaveFlie("./MapList.txt", ios::app);
 
 	if (SaveFlie.is_open()) {
 		SaveFlie << "m" << endl;
@@ -721,6 +721,12 @@ void SaveMap()
 			Background.back().pos.y /= winSizex / winSizey;
 			SaveFlie << "b " << Background[i].pos.x << " " << Background[i].pos.y << " " << Background[i].pos.z << " "
 				<< Background[i].scale.x << " " << Background[i].scale.y << " " << Background[i].scale.z << endl;
+		}
+		for (int i = 0; i < Obstacle.size(); ++i) {
+			Obstacle.back().scale.y /= winSizex / winSizey;
+			Obstacle.back().pos.y /= winSizex / winSizey;
+			SaveFlie << "o " << Obstacle[i].pos.x << " " << Obstacle[i].pos.y << " " << Obstacle[i].pos.z << " "
+				<< Obstacle[i].scale.x << " " << Obstacle[i].scale.y << " " << Obstacle[i].scale.z << endl;
 		}
 	}
 }
@@ -1112,7 +1118,7 @@ GLvoid drawScene()
 		Background[i].draw_prepare(NormalLocation, "Normal");
 		Background[i].draw_prepare(UvLocation, "UV");
 		if (i < 4)
-			glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos) / 2.f);
+			glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos) / 3.f);
 		else
 			glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
 		Background[i].draw("solid");
@@ -1517,7 +1523,7 @@ void Init()
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 0.3f };
+		Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 2.f };
 		Light.scale = glm::vec3(0.f);
 
 		std::vector<glm::vec3> color;
@@ -1577,8 +1583,6 @@ void Init()
 
 		obj_list[crystal_i].imgLoad("./IMG/À¯¸®.png");
 	}
-	Crystal.emplace_back(obj_list[crystal_i]);
-	Crystal.back().pos = glm::vec3{ -0.8f, 0.f, 0.f };
 
 	//  Background
 	{
@@ -1638,8 +1642,8 @@ void Init()
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
 
-	MakeCrystal(glm::vec3{ -0.8f, 0.f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
-	MakeCrystal(glm::vec3{ 0.8f, 0.f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
+	MakeCrystal(glm::vec3{ 0.0f, -0.2f, -5.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
+	MakeCrystal(glm::vec3{ 0.0f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
 
 	// Clink
 	{
