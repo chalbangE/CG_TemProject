@@ -64,7 +64,7 @@ bool Lbt = false;
 glm::vec3 click_mouse{};
 int ball_num = 1; // 한번에 쏘는 공 개수
 int GameState = title_s;
-GLfloat volumeSize = 1.f;
+GLfloat volumeSize = 1.f, Speed = 0.03f;
 
 static FMOD::System* ssystem;
 static FMOD::Sound* Crach_Sound[3], * BallShoot_Sound, *Bgm_Sound;
@@ -696,6 +696,8 @@ void ShootBall(GLRay ray)
 		break;
 	}
 
+	if (GameState == play_s) // 앞으로 가는거 상쇄
+		Ball.back().velocity.z -= Speed;
 	ssystem->playSound(BallShoot_Sound, 0, false, &channel[ball_cn]);
 	channel[ball_cn]->setVolume(0.35 * volumeSize);
 }
@@ -753,6 +755,14 @@ void LoadMap()
 				Background.back().scale.y *= winSizex / winSizey;
 				Background.back().pos.y *= winSizex / winSizey;
 				WindowConversion(Background.back(), winSizex, winSizey);
+			}
+			else if (bind[0] == 'o') {
+				Obstacle.emplace_back(obj_list[obstacle_i]);
+				ss_bind >> Obstacle.back().pos.x >> Obstacle.back().pos.y >> Obstacle.back().pos.z
+					>> Obstacle.back().scale.x >> Obstacle.back().scale.y >> Obstacle.back().scale.z;
+				Obstacle.back().scale.y *= winSizex / winSizey;
+				Obstacle.back().pos.y *= winSizex / winSizey;
+				WindowConversion(Obstacle.back(), winSizex, winSizey);
 			}
 		}
 	}
@@ -1074,17 +1084,20 @@ GLvoid drawScene()
 	Light.draw_prepare(LightColorLocation, "LightColor");
 	Light.draw("solid");
 
-	//for (int i = 0; i < Background.size(); ++i) {
-	//	Background[i].Update();
-	//	Background[i].draw_prepare(PosLocation, "Pos");
-	//	Background[i].draw_prepare(ColorLocation, "Color");
-	//	Background[i].draw_prepare(TexorColorLocation, "Color_bool");
-	//	Background[i].draw_prepare(WorldTransLocation, "World");
-	//	Background[i].draw_prepare(NormalLocation, "Normal");
-	//	Background[i].draw_prepare(UvLocation, "UV");
-	//	glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
-	//	Background[i].draw("solid");
-	//}
+	for (int i = 0; i < Background.size(); ++i) {
+		Background[i].Update();
+		Background[i].draw_prepare(PosLocation, "Pos");
+		Background[i].draw_prepare(ColorLocation, "Color");
+		Background[i].draw_prepare(TexorColorLocation, "Color_bool");
+		Background[i].draw_prepare(WorldTransLocation, "World");
+		Background[i].draw_prepare(NormalLocation, "Normal");
+		Background[i].draw_prepare(UvLocation, "UV");
+		if (i < 4)
+			glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos) / 2.f);
+		else
+			glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
+		Background[i].draw("solid");
+	}
 
 	// 알파값 포함 객체 그리기 시작 -------
 
@@ -1184,6 +1197,34 @@ void TimerFunction(int value)
 	switch (value)
 	{
 	case 1: {
+
+		if (GameState == play_s) {
+			for (int i = 0; i < Crystal.size(); ++i) {
+				Crystal[i].pos += Crystal[i].velocity;
+				if (Light.pos.z > Crystal[i].pos.z) {
+					Crystal.erase(Crystal.begin() + i);
+					--i;
+				}
+			}
+			for (int i = 0; i < Ball.size(); ++i) {
+				Ball[i].pos.z += Speed;
+			}
+			for (int i = 4; i < Background.size(); ++i) {
+				Background[i].pos += Background[i].velocity;
+			}
+			for (int i = 0; i < Obstacle.size(); ++i) {
+				Obstacle[i].pos += Obstacle[i].velocity;
+			}
+			for (int i = 0; i < CrashedObstacle.size(); ++i) {
+				CrashedObstacle[i].pos += CrashedObstacle[i].velocity;
+				if (Light.pos.z > Crystal[i].pos.z) {
+					Crystal.erase(Crystal.begin() + i);
+					--i;
+				}
+			}
+			Clink.pos += Clink.velocity;
+		}
+
 		// 깨진 크리스탈 움직이기
 		for (int i = 0; i < CrashedCrystal.size(); i++) {
 			if (CalVectorMagnitude(CrashedCrystal[i].velocity) != 0.f) {
@@ -1193,12 +1234,6 @@ void TimerFunction(int value)
 				//CrashedCrystal[i].rotate_theta += glm::vec3(1.f);
 			}
 		}
-
-		//for (int i = 0; i < CrashedObstacle.size(); i++) {
-		//	if (CalVectorMagnitude(CrashedObstacle[i].velocity) != 0.f) {
-		//		CrashedObstacle[i].rotate_theta += glm::vec3(1.f);
-		//	}
-		//}
 
 		GLObj temp;
 
@@ -1231,6 +1266,24 @@ void TimerFunction(int value)
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
 						LoadCrashedCrystal(Ball[i], c_cnt);
+						if (GameState == title_s) {
+							GameState = play_s;
+
+							//vector <GLObj> Ball, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
+							for (int i = 0; i < Ball.size(); ++i)
+								Ball[i].velocity.z += Speed;
+							for (int i = 0; i < Crystal.size(); ++i)
+								Crystal[i].velocity.z += Speed;
+							for (int i = 0; i < Background.size(); ++i)
+								Background[i].velocity.z += Speed;
+							for (int i = 0; i < CrashedCrystal.size(); ++i)
+								CrashedCrystal[i].velocity.z += Speed;
+							for (int i = 0; i < Obstacle.size(); ++i)
+								Obstacle[i].velocity.z += Speed;
+							for (int i = 0; i < CrashedObstacle.size(); ++i)
+								CrashedObstacle[i].velocity.z += Speed;
+							Clink.velocity.z += Speed;
+						}
 						break;
 					}
 				}
@@ -1351,6 +1404,7 @@ GLvoid Mouse(int button, int state, int x, int y)
 		}
 	}
 }
+
 GLvoid Motion(int x, int y)
 {
 	if (Lbt) {
@@ -1374,10 +1428,12 @@ void MouseWheel(int wheel, int diretion, int x, int y)
 	// 줌인
 	if (diretion > 0) {
 		Camera.pos.z -= 0.1f;
+		Light.pos.z -= 0.1f;
 	}
 	// 줌아웃
 	else if (diretion < 0) {
 		Camera.pos.z += 0.1f;
+		Light.pos.z += 0.1f;
 	}
 }
 
@@ -1430,7 +1486,6 @@ void UiClick(int what)
 		break;
 	}
 }
-
 
 void Init()
 {
@@ -1490,8 +1545,8 @@ void Init()
 
 		obj_list[obstacle_i].imgLoad("./IMG/장애물.png");
 	}
-	Obstacle.emplace_back(obj_list[obstacle_i]);
-	Obstacle.back().scale = glm::vec3(1.f, 1.f, 0.1f);
+	//Obstacle.emplace_back(obj_list[obstacle_i]);
+	//Obstacle.back().scale = glm::vec3(1.f, 1.f, 0.1f);
 
 	//  Crystal 안깨진거
 	{
@@ -1520,7 +1575,7 @@ void Init()
 			else
 				std::cerr << "Failed to obj file" << std::endl;
 
-			obj_list[cube_i].scale = glm::vec3{ 4.f, 4.f, 15.f };
+			obj_list[cube_i].scale = glm::vec3{ 4.f, 4.f, 30.f };
 
 			std::vector<glm::vec3> color;
 			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
