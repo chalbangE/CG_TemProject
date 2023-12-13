@@ -1563,7 +1563,8 @@ void Init()
 
 		obj_list[crystal_i].imgLoad("./IMG/À¯¸®.png");
 	}
-	//Crystal.emplace_back(obj_list[crystal_i]);
+	Crystal.emplace_back(obj_list[crystal_i]);
+	Crystal.back().pos = glm::vec3{ 0.f, -0.5f, 0.f };
 
 	//  Background
 	{
@@ -1622,7 +1623,8 @@ void Init()
 		glBindBuffer(GL_ARRAY_BUFFER, obj_list[fcube_i].v_color);
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
-	//Background.emplace_back(obj_list[fcube_i]);
+	Background.emplace_back(obj_list[fcube_i]);
+	Background.back().pos = glm::vec3{ 0.f, -1.f, 0.f };
 
 	// Clink
 	{
