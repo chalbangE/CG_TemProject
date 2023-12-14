@@ -1940,6 +1940,7 @@ GLvoid Mouse(int button, int state, int x, int y)
 			Lbt = true;
 			click_mouse = m;
 			bool skip = false;
+			int Now_state = GameState;
 
 			// 현재 출력중인 ui와의 상호작용 확인
 			for (int i = 0; i < Ui[GameState].size(); ++i) {
@@ -1947,7 +1948,7 @@ GLvoid Mouse(int button, int state, int x, int y)
 					&& m.x <= Ui[GameState][i].righttop.x && m.y <= Ui[GameState][i].righttop.y) {
 					UiClick(i);
 					skip = true;
-					if (GameState != option_s || i != 0)
+					if (GameState != Now_state || GameState != option_s || i != 0)
 						break;
 				}
 			}
