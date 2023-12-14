@@ -60,7 +60,7 @@ enum GameStateList {
 	title_s, option_s, custom_s, play_s
 };
 
-vector <GLObj> Ball, BallDeco, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
+vector <GLObj> Ball, BallDeco, Crystal, Background, MakeCrashedCrystal, CrashedCrystal, Obstacle, CrashedObstacle;
 vector <GLUi> Ui[4];
 GLObj Clink;
 GLObj obj_list[5], deco_list[6];
@@ -1005,6 +1005,8 @@ void LoadMap(int randint)
 						>> Crystal.back().scale.x >> Crystal.back().scale.y >> Crystal.back().scale.z;
 					Crystal.back().scale.y *= winSizex / winSizey;
 					Crystal.back().pos.y *= winSizex / winSizey;
+					Crystal.back().pos.z -= 7.f;
+					Crystal.back().velocity.z  = Speed;
 					WindowConversion(Crystal.back(), winSizex, winSizey);
 				}
 				else if (bind[0] == 'b') {
@@ -1013,6 +1015,8 @@ void LoadMap(int randint)
 						>> Background.back().scale.x >> Background.back().scale.y >> Background.back().scale.z;
 					Background.back().scale.y *= winSizex / winSizey;
 					Background.back().pos.y *= winSizex / winSizey;
+					Background.back().pos.z -= 7.f;
+					Background.back().velocity.z = Speed;
 					WindowConversion(Background.back(), winSizex, winSizey);
 				}
 				else if (bind[0] == 'o') {
@@ -1022,6 +1026,8 @@ void LoadMap(int randint)
 						>> Obstacle.back().velocity.x >> Obstacle.back().velocity.y >> Obstacle.back().velocity.z;
 					Obstacle.back().scale.y *= winSizex / winSizey;
 					Obstacle.back().pos.y *= winSizex / winSizey;
+					Obstacle.back().pos.z -= 7.f;
+					Obstacle.back().velocity.z = Speed;
 					WindowConversion(Obstacle.back(), winSizex, winSizey);
 				}
 			}
@@ -1508,11 +1514,12 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 }
 
 void MakeCrystal(glm::vec3 pos, glm::vec3 scale) {
-	Crystal.emplace_back(obj_list[crystal_i]);
-	Crystal.back().pos = pos;
 	Background.emplace_back(obj_list[fcube_i]);
 	Background.back().scale = scale;
 	Background.back().pos = pos;
+	Crystal.emplace_back(obj_list[crystal_i]);
+	Crystal.back().pos = pos;
+	Crystal.back().pos.y = pos.y + (scale.y * 0.5f);
 }
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
@@ -1666,7 +1673,7 @@ GLvoid drawScene()
 		glUniform1f(DistanceLocation, distance(Light.pos, Clink.pos));
 		Clink.draw("solid");
 
-		for (int i = 0; i < Obstacle.size(); ++i) {
+		for (int i = Obstacle.size() - 1; i >= 0; --i) {
 			Obstacle[i].Update();
 			Obstacle[i].draw_prepare(PosLocation, "Pos");
 			Obstacle[i].draw_prepare(WorldTransLocation, "World");
@@ -1717,21 +1724,53 @@ void TimerFunction(int value)
 		if (GameState == play_s) {
 			for (int i = 0; i < Crystal.size(); ++i) {
 				Crystal[i].pos += Crystal[i].velocity;
+				if (Crystal[i].pos.z > Camera.pos.z + 0.3f) {
+					Crystal.erase(Crystal.begin() + i);
+					--i;
+				}
+			}
+			for (int i = 0; i < CrashedCrystal.size(); ++i) {
+				CrashedCrystal[i].pos.z += Speed;
+				if (CrashedCrystal[i].pos.z > Camera.pos.z + 0.3f) {
+					DeleteObject(CrashedCrystal[i]);
+					CrashedCrystal.erase(CrashedCrystal.begin() + i);
+					--i;
+				}
 			}
 			for (int i = 0; i < Ball.size(); ++i) {
 				Ball[i].pos.z += Speed;
+				if (Ball[i].pos.z > Camera.pos.z + 0.3f) {
+					BallDeco.erase(BallDeco.begin() + i);
+					Ball.erase(Ball.begin() + i);
+					--i;
+				}
 			}
 			for (int i = 4; i < Background.size(); ++i) {
 				Background[i].pos += Background[i].velocity;
+				if (Background[i].pos.z > Camera.pos.z + 0.3f) {
+					Background.erase(Background.begin() + i);
+					--i;
+				}
 			}
 			for (int i = 0; i < Obstacle.size(); ++i) {
 				Obstacle[i].pos += Obstacle[i].velocity;
+				if (Obstacle[i].pos.z > Camera.pos.z + 0.3f) {
+					Obstacle.erase(Obstacle.begin() + i);
+					--i;
+				}
 			}
 			for (int i = 0; i < CrashedObstacle.size(); ++i) {
-				CrashedObstacle[i].pos += CrashedObstacle[i].velocity;
+				CrashedObstacle[i].pos.z += Speed;
+				if (CrashedObstacle[i].pos.z > Camera.pos.z + 0.3f) {
+					DeleteObject(CrashedObstacle[i]);
+					CrashedObstacle.erase(CrashedObstacle.begin() + i);
+					--i;
+				}
 			}
 			Clink.pos += Clink.velocity;
 		}
+
+		// Ball, BallDeco, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
 
 		// 깨진 크리스탈 움직이기
 		for (int i = 0; i < CrashedCrystal.size(); i++) {
@@ -1774,8 +1813,10 @@ void TimerFunction(int value)
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
 						LoadCrashedCrystal(Ball[i], c_cnt);
+
 						if (GameState == title_s) {
 							GameState = play_s;
+							glutTimerFunc(2000, TimerFunction, 2);
 
 							//vector <GLObj> Ball, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
 							for (int i = 0; i < Ball.size(); ++i)
@@ -1814,6 +1855,17 @@ void TimerFunction(int value)
 
 		for (int i = 0; i < Ball.size(); ++i)
 			BallDeco[i].pos = BallDeco[i].velocity + Ball[i].pos;
+
+		glutTimerFunc(10, TimerFunction, 1);
+		break;
+	}
+	case 2: {
+		static std::uniform_int_distribution<int> LoadMapRd(0, 5);
+		
+		LoadMap(LoadMapRd(rd));
+
+		if (GameState == play_s)
+			glutTimerFunc(2000, TimerFunction, 2);
 		break;
 	}
 	default:
@@ -1821,7 +1873,6 @@ void TimerFunction(int value)
 	}
 
 	glutPostRedisplay(); // 화면 재 출력
-	glutTimerFunc(10, TimerFunction, 1);
 }
 
 void Keyboard(unsigned char key, int x, int y)
@@ -1840,10 +1891,6 @@ void Keyboard(unsigned char key, int x, int y)
 		CrashedObstacle.clear();
 		Obstacle.emplace_back(obj_list[obstacle_i]);
 		Obstacle.back().scale = glm::vec3(1.f, 1.f * winSizex / winSizey, 0.1f);
-		break;
-	}
-	case 's': {
-		LoadMap(3);
 		break;
 	}
 	case '+':
@@ -2089,18 +2136,16 @@ void Init()
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
 
-	//MakeCrystal(glm::vec3{ -0.8f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
-	//MakeCrystal(glm::vec3{ 0.8f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
+	MakeCrystal(glm::vec3{ -0.8f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
+	MakeCrystal(glm::vec3{ 0.8f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
+	
 
 	//Obstacle.emplace_back(obj_list[obstacle_i]);
-	//Obstacle.back().pos = glm::vec3(0.f, 0.f, -0.5f);
-	//Obstacle.back().scale = glm::vec3(2.f, 0.4f, 0.1f);
+	//Obstacle.back().pos = glm::vec3(0.f, 0.2, -0.5f);
+	//Obstacle.back().scale = glm::vec3(1.f, 1.5f, 0.1f);
 	//Background.emplace_back(obj_list[fcube_i]);
-	//Background.back().pos = glm::vec3(-1.f, 0.f, -0.5f);
-	//Background.back().scale = glm::vec3(1.f, 1.f, 0.5f);
-	//Background.emplace_back(obj_list[fcube_i]);
-	//Background.back().pos = glm::vec3(1.f, 0.f, -0.5f);
-	//Background.back().scale = glm::vec3(1.f, 1.f, 0.5f);
+	//Background.back().pos = glm::vec3(0.f, 0.5, 0.f);
+	//Background.back().scale = glm::vec3(1.f, 0.2, 0.3f);
 
 	
 	// Clink
