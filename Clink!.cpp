@@ -102,8 +102,7 @@ void UiClick(int what)
 		break;
 	}
 	case option_s: {
-		if (what == 0) break;
-		else if (what == 1) {
+		if (what == 1) {
 			GameState = title_s;
 		}
 		else if (what == 2) {
@@ -137,6 +136,7 @@ void UiClick(int what)
 		}
 		else if (what == 6) {
 			BallDeco.clear();
+			BallDeco.emplace_back();
 			Whatdeco = what;
 		}
 		else if (what == 7) {
@@ -968,7 +968,7 @@ void SaveMap()
 			Obstacle.back().scale.y /= winSizex / winSizey;
 			Obstacle.back().pos.y /= winSizex / winSizey;
 			SaveFlie << "o " << Obstacle[i].pos.x << " " << Obstacle[i].pos.y << " " << Obstacle[i].pos.z << " "
-				<< Obstacle[i].scale.x << " " << Obstacle[i].scale.y << " " << Obstacle[i].scale.z 
+				<< Obstacle[i].scale.x << " " << Obstacle[i].scale.y << " " << Obstacle[i].scale.z  << " "
 				<< Obstacle[i].velocity.x << " " << Obstacle[i].velocity.y << " " << Obstacle[i].velocity.z << endl;
 		}
 	}
@@ -1543,7 +1543,6 @@ int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 
 GLvoid drawScene()
 {
-	cout << Ball.size() << "  " << BallDeco.size() << endl;
 	glUseProgram(shaderProgramID);
 
 	// 버텍스 쉐이더에게 전달
@@ -1715,7 +1714,6 @@ void TimerFunction(int value)
 	switch (value)
 	{
 	case 1: {
-
 		if (GameState == play_s) {
 			for (int i = 0; i < Crystal.size(); ++i) {
 				Crystal[i].pos += Crystal[i].velocity;
@@ -1844,6 +1842,10 @@ void Keyboard(unsigned char key, int x, int y)
 		Obstacle.back().scale = glm::vec3(1.f, 1.f * winSizex / winSizey, 0.1f);
 		break;
 	}
+	case 's': {
+		LoadMap(3);
+		break;
+	}
 	case '+':
 	case '=': {
 		ball_num++;
@@ -1890,17 +1892,20 @@ GLvoid Mouse(int button, int state, int x, int y)
 		if (button == GLUT_LEFT_BUTTON) {
 			Lbt = true;
 			click_mouse = m;
+			bool skip = false;
 
 			// 현재 출력중인 ui와의 상호작용 확인
 			for (int i = 0; i < Ui[GameState].size(); ++i) {
 				if (m.x >= Ui[GameState][i].leftbottom.x && m.y >= Ui[GameState][i].leftbottom.y 
 					&& m.x <= Ui[GameState][i].righttop.x && m.y <= Ui[GameState][i].righttop.y) {
 					UiClick(i);
-					break;
+					skip = true;
+					if (GameState != option_s || i != 0)
+						break;
 				}
 			}
 
-			if (GameState == title_s || GameState == play_s) {
+			if ((GameState == title_s || GameState == play_s) && !skip) {
 				Msray.ScreenToWorld(x, y, Camera.Camera_Mat, Projection_Mat, winSizex, winSizey);
 				ShootBall(Msray);
 			}
@@ -1934,18 +1939,22 @@ GLvoid Motion(int x, int y)
 }
 void MouseWheel(int wheel, int diretion, int x, int y)
 {
+	static int control = 0;
 	// 줌인
-	if (diretion > 0) {
-		Camera.pos.z -= 0.1f;
-		Light.pos.z -= 0.1f;
-	}
-	// 줌아웃
-	else if (diretion < 0) {
-		Camera.pos.z += 0.1f;
-		Light.pos.z += 0.1f;
+	if (GameState == custom_s) {
+		if (diretion > 0 && control < 2) {
+			control++;
+			Camera.pos.z -= 0.06f;
+			Light.pos.z -= 0.06f;
+		}
+		// 줌아웃
+		else if (diretion < 0 && control > -2) {
+			control--;
+			Camera.pos.z += 0.06f;
+			Light.pos.z += 0.06f;
+		}
 	}
 }
-
 
 void Init()
 {
@@ -2080,10 +2089,19 @@ void Init()
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
 
-	MakeCrystal(glm::vec3{ 0.0f, -0.2f, -5.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
-	MakeCrystal(glm::vec3{ 0.0f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
+	//MakeCrystal(glm::vec3{ -0.8f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
+	//MakeCrystal(glm::vec3{ 0.8f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
+
 	//Obstacle.emplace_back(obj_list[obstacle_i]);
-	//Obstacle.back().scale = glm::vec3(1.f, 1.f, 0.1f);
+	//Obstacle.back().pos = glm::vec3(0.f, 0.f, -0.5f);
+	//Obstacle.back().scale = glm::vec3(2.f, 0.4f, 0.1f);
+	//Background.emplace_back(obj_list[fcube_i]);
+	//Background.back().pos = glm::vec3(-1.f, 0.f, -0.5f);
+	//Background.back().scale = glm::vec3(1.f, 1.f, 0.5f);
+	//Background.emplace_back(obj_list[fcube_i]);
+	//Background.back().pos = glm::vec3(1.f, 0.f, -0.5f);
+	//Background.back().scale = glm::vec3(1.f, 1.f, 0.5f);
+
 	
 	// Clink
 	{
@@ -2299,12 +2317,12 @@ GLvoid Reshape(int w, int h)
 	for (int i = 0; i < Obstacle.size(); i++) {
 		WindowConversion(Obstacle[i], w, h);
 	}
-	for (int i = 0; i < CrashedObstacle.size(); i++) {
-		WindowConversion(CrashedObstacle[i], w, h);
-		if (winSizex && winSizey)
-			CrashedObstacle[i].midpos.y /= winSizex / winSizey;
-		CrashedObstacle[i].midpos.y *= (float)w / (float)h;
-	}
+	//for (int i = 0; i < CrashedObstacle.size(); i++) {
+	//	WindowConversion(CrashedObstacle[i], w, h);
+	//	if (winSizex && winSizey)
+	//		CrashedObstacle[i].midpos.y /= winSizex / winSizey;
+	//	CrashedObstacle[i].midpos.y *= (float)w / (float)h;
+	//}
 	for (int i = 0; i < Background.size(); i++) {
 		WindowConversion(Background[i], w, h);
 	}
