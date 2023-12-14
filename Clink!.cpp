@@ -999,6 +999,7 @@ void LoadMap(int randint)
 						>> Obstacle.back().scale.x >> Obstacle.back().scale.y >> Obstacle.back().scale.z
 						>> Obstacle.back().velocity.x >> Obstacle.back().velocity.y >> Obstacle.back().velocity.z;
 					Obstacle.back().scale.y *= winSizex / winSizey;
+					Obstacle.back().scale.z *= winSizex / winSizey;
 					Obstacle.back().pos.y *= winSizex / winSizey;
 					Obstacle.back().pos.z -= 7.f;
 					Obstacle.back().velocity.z = Speed;
