@@ -1210,16 +1210,16 @@ std::vector <glm::vec3>  InputVertexIndex(std::vector <glm::vec3>& vertex) {
 	return objpos;
 }
 void CrashObstacle(GLObj& ball, GLObj& obstacle) {
-	uniform_real_distribution<float> rand_range[5];
+	uniform_real_distribution<float> rand_range[6];
 	std::uniform_real_distribution<float> rand_angle_cnt(glm::radians(15.f), glm::radians(60.f));
 	std::vector <float> angle;
-	std::vector <float> r[5];
+	std::vector <float> r[6];
 	std::vector <glm::vec3> vertex;
 	std::vector <glm::vec3> vertex_temp;
 	std::vector<glm::vec3> objnor;
 	std::vector <glm::vec3> objpos;
 	std::vector<glm::vec2> objtex;
-	float range[5] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f };
+	float range[6] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.f };
 	float essential_angle[4] = {
 		atan2((obstacle.pos.y + obstacle.size.y - ball.pos.y) / (winSizex / winSizey), obstacle.pos.x + obstacle.size.x - ball.pos.x),
 		atan2((obstacle.pos.y + obstacle.size.y - ball.pos.y) / (winSizex / winSizey), obstacle.pos.x - obstacle.size.x - ball.pos.x),
@@ -1229,7 +1229,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 	int size;
 
 	// 깨질 반지름 랜덤생성기 만들기
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 6; i++) {
 		rand_range[i] = uniform_real_distribution<float>(range[i], range[i] * 1.5f);
 	}
 
@@ -1259,7 +1259,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 	//cout << "v " << vertex.back().x << " " << vertex.back().y << " " << vertex.back().z << endl;
 	//cout << "vn " << objnor.back().x << " " << objnor.back().y << " " << objnor.back().z << endl;
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < angle.size(); j++) {
 			r[i].emplace_back(rand_range[i](gen));
 		}
@@ -1352,7 +1352,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 
 	// 일반 조각
 	//cout << "------------------------------------일반 조각------------------------------------" << endl;
-	for (int cnt = 0; cnt < 4; cnt++) {
+	for (int cnt = 0; cnt < 5; cnt++) {
 		for (int j = 0; j < angle.size(); j++) {
 			vertex.clear();
 			vertex_temp.clear();
