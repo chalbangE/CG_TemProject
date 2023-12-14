@@ -368,11 +368,11 @@ glm::vec3 CalFragmentVelocity(GLObj& ball, GLObj& fragment, const char* mode) {
 		//cout << "공\t(" << ball.pos.x << ", " << ball.pos.y << ", " << ball.pos.z << ")" << endl;
 		//cout << "장애물\t(" << fragment.pos.x + fragment.midpos.x << ", " << fragment.pos.y + fragment.midpos.y << ", " << fragment.pos.z + fragment.midpos.z << ")" << endl;
 		//cout << endl;
-		velocity = CalVector(ball.pos, glm::vec3(fragment.pos.x + fragment.midpos.x, fragment.pos.y + fragment.midpos.y, ball.pos.z)); // 공에서 조각으로의 벡터 구하기
-		cout << fragment.pos.y + fragment.midpos.y - ball.pos.y << endl;
-		//velocity.z *= 2.f; // 공에서 조각으로의 벡터 구하기
+		velocity = CalVector(ball.pos, glm::vec3(fragment.pos.x + fragment.midpos.x, fragment.pos.y + fragment.midpos.y, ball.pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
+		//cout << fragment.pos.y + fragment.midpos.y - ball.pos.y << endl;
 		velocity = NormalizeVector(velocity); // 벡터 정규화
-		velocity *= CalVectorMagnitude(ball.velocity) / 20.f; // 벡터에 속력 곱하기
+		velocity *= CalVectorMagnitude(ball.velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+		//velocity.x /= 2.f; // 공에서 조각으로의 벡터 구하기
 
 		if (fragment.pos.y + fragment.midpos.y > ball.pos.y + 0.25f)
 			velocity = glm::vec3(0.f);
@@ -383,11 +383,11 @@ glm::vec3 CalFragmentVelocity(GLObj& ball, GLObj& fragment, const char* mode) {
 		//cout << "공\t(" << ball.pos.x << ", " << ball.pos.y << ", " << ball.pos.z << ")" << endl;
 		//cout << "장애물\t(" << fragment.pos.x + fragment.midpos.x << ", " << fragment.pos.y + fragment.midpos.y << ", " << fragment.pos.z + fragment.midpos.z << ")" << endl;
 		//cout << endl;
-		velocity = CalVector(ball.pos, glm::vec3(fragment.pos.x + fragment.midpos.x, fragment.pos.y + fragment.midpos.y, ball.pos.z)); // 공에서 조각으로의 벡터 구하기
-		cout << fragment.pos.y + fragment.midpos.y - ball.pos.y << endl;
-		//velocity.z *= 2.f; // 공에서 조각으로의 벡터 구하기
+		velocity = CalVector(ball.pos, glm::vec3(fragment.pos.x + fragment.midpos.x, fragment.pos.y + fragment.midpos.y, ball.pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
+		//cout << fragment.pos.y + fragment.midpos.y - ball.pos.y << endl;
 		velocity = NormalizeVector(velocity); // 벡터 정규화
-		velocity *= CalVectorMagnitude(ball.velocity) / 20.f; // 벡터에 속력 곱하기
+		velocity *= CalVectorMagnitude(ball.velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+		//velocity.x /= 2.f; // 공에서 조각으로의 벡터 구하기
 
 		if (fragment.pos.x + fragment.midpos.x > ball.pos.x + 0.25f)
 			velocity = glm::vec3(0.f);
@@ -1785,6 +1785,7 @@ void TimerFunction(int value)
 			if (CalVectorMagnitude(CrashedObstacle[i].velocity) != 0.f) {
 				CrashedObstacle[i].pos += CrashedObstacle[i].velocity;
 				CrashedObstacle[i].rotate_theta += NormalizeVector(PerpendicularInXZPlane(CrashedObstacle[i].velocity)) * -2.f;
+				//cout << CrashedObstacle[i].velocity.x << ' ' << CrashedObstacle[i].velocity.y << ' ' << CrashedObstacle[i].velocity.z << endl;
 				CrashedObstacle[i].velocity.y -= g;
 				//CrashedObstacle[i].rotate_theta += glm::vec3(1.f);
 			}
