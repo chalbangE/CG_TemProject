@@ -895,20 +895,20 @@ void SaveMap()
 		SaveFlie << "m" << endl;
 
 		for (int i = 0; i < Crystal.size(); ++i) {
-			Crystal.back().scale.y /= winSizex / winSizey;
-			Crystal.back().pos.y /= winSizex / winSizey;
+			Crystal[i].scale.y /= winSizex / winSizey;
+			Crystal[i].pos.y /= winSizex / winSizey;
 			SaveFlie << "c " << Crystal[i].pos.x << " " << Crystal[i].pos.y << " " << Crystal[i].pos.z << " "
 				<< Crystal[i].scale.x << " " << Crystal[i].scale.y << " " << Crystal[i].scale.z << endl;
 		}
 		for (int i = 4; i < Background.size(); ++i) {
-			Background.back().scale.y /= winSizex / winSizey;
-			Background.back().pos.y /= winSizex / winSizey;
+			Background[i].scale.y /= winSizex / winSizey;
+			Background[i].pos.y /= winSizex / winSizey;
 			SaveFlie << "b " << Background[i].pos.x << " " << Background[i].pos.y << " " << Background[i].pos.z << " "
 				<< Background[i].scale.x << " " << Background[i].scale.y << " " << Background[i].scale.z << endl;
 		}
 		for (int i = 0; i < Obstacle.size(); ++i) {
-			Obstacle.back().scale.y /= winSizex / winSizey;
-			Obstacle.back().pos.y /= winSizex / winSizey;
+			Obstacle[i].scale.y /= winSizex / winSizey;
+			Obstacle[i].pos.y /= winSizex / winSizey;
 			SaveFlie << "o " << Obstacle[i].pos.x << " " << Obstacle[i].pos.y << " " << Obstacle[i].pos.z << " "
 				<< Obstacle[i].scale.x << " " << Obstacle[i].scale.y << " " << Obstacle[i].scale.z  << " "
 				<< Obstacle[i].velocity.x << " " << Obstacle[i].velocity.y << " " << Obstacle[i].velocity.z << endl;
@@ -1347,7 +1347,6 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 			CrashedObstacle.back().face_cnt = objnor.size();
 
 			CrashedObstacle.back().imgLoad("./IMG/장애물.png");
-			CrashedObstacle.back().scale.y *= (float)winSizex / (float)winSizey;
 		}
 	}
 
@@ -1449,7 +1448,6 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 				CrashedObstacle.back().face_cnt = objnor.size();
 
 				CrashedObstacle.back().imgLoad("./IMG/장애물.png");
-				CrashedObstacle.back().scale.y *= (float)winSizex / (float)winSizey;
 			}
 		}
 	}
