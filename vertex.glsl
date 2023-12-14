@@ -33,7 +33,7 @@ void main(void)
         Frag_Pos = vec3(World_trans * vec4(in_Position, 1.0));
     }
 
-    out_Normal = vec3(transpose(inverse(World_trans)) * vec4(in_Normal, 1.0));
+    out_Normal = mat3(transpose(inverse(World_trans))) * in_Normal;
     out_Color = in_Color;
     out_Uv = in_Uv;
 }

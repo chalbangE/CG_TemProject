@@ -999,7 +999,6 @@ void LoadMap(int randint)
 						>> Obstacle.back().scale.x >> Obstacle.back().scale.y >> Obstacle.back().scale.z
 						>> Obstacle.back().velocity.x >> Obstacle.back().velocity.y >> Obstacle.back().velocity.z;
 					Obstacle.back().scale.y *= winSizex / winSizey;
-					Obstacle.back().scale.z *= winSizex / winSizey;
 					Obstacle.back().pos.y *= winSizex / winSizey;
 					Obstacle.back().pos.z -= 7.f;
 					Obstacle.back().velocity.z = Speed;
@@ -2153,21 +2152,20 @@ void Init()
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
 
-	//MakeCrystal(glm::vec3{ -0.3, -0.6, 0.f }, glm::vec3{ 0.5, 0.3, 0.5 });
-	//MakeCrystal(glm::vec3{ 0.8f, -1.f, -3.f }, glm::vec3{ 0.5, 0.3, 0.5 });
+	MakeCrystal(glm::vec3{ -0.3, -0.6, 0.f }, glm::vec3{ 0.5, 0.3, 0.5 });
+	MakeCrystal(glm::vec3{ 0.3, -0.6, 0.f }, glm::vec3{ 0.5, 0.3, 0.5 });
 	
-
-	Obstacle.emplace_back(obj_list[obstacle_i]);
-	Obstacle.back().pos = glm::vec3(0.f, 0.2, -0.5f);
-	Obstacle.back().scale = glm::vec3(0.3, 1.5f, 0.1f);
-	Obstacle.back().velocity = glm::vec3(0.002f, 0.f, 0.f);
-	Obstacle.emplace_back(obj_list[obstacle_i]);
-	Obstacle.back().pos = glm::vec3(0.f, 0.2, -0.5f);
-	Obstacle.back().scale = glm::vec3(0.3, 1.5f, 0.1f);
-	Obstacle.back().velocity = glm::vec3(-0.002f, 0.f, 0.f);
-	Background.emplace_back(obj_list[fcube_i]);
-	Background.back().pos = glm::vec3(0.f, 0.5, 0.f);
-	Background.back().scale = glm::vec3(1.f, 0.2, 0.3f);
+	//Obstacle.emplace_back(obj_list[obstacle_i]);
+	//Obstacle.back().pos = glm::vec3(0.f, 0.2, -0.5f);
+	//Obstacle.back().scale = glm::vec3(0.3, 1.5f, 0.1f);
+	//Obstacle.back().velocity = glm::vec3(0.002f, 0.f, 0.f);
+	//Obstacle.emplace_back(obj_list[obstacle_i]);
+	//Obstacle.back().pos = glm::vec3(0.f, 0.2, -0.5f);
+	//Obstacle.back().scale = glm::vec3(0.3, 1.5f, 0.1f);
+	//Obstacle.back().velocity = glm::vec3(-0.002f, 0.f, 0.f);
+	//Background.emplace_back(obj_list[fcube_i]);
+	//Background.back().pos = glm::vec3(0.f, 0.5, 0.f);
+	//Background.back().scale = glm::vec3(1.f, 0.2, 0.3f);
 
 	
 	// Clink
