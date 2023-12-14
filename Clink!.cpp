@@ -94,7 +94,9 @@ void UiClick(int what)
 			Ball.back().velocity = glm::vec3{ 0.f, 0.f, 0.f };
 
 			BallDeco.clear();
-			BallDeco.emplace_back(deco_list[Whatdeco]);
+			
+			if (Whatdeco != non_deco)
+				BallDeco.emplace_back(deco_list[Whatdeco]);
 
 			Camera.pos = glm::vec3{ 0.f, 0.f, 0.3f };
 			Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 2.f };
@@ -136,7 +138,6 @@ void UiClick(int what)
 		}
 		else if (what == 6) {
 			BallDeco.clear();
-			BallDeco.emplace_back();
 			Whatdeco = what;
 		}
 		else if (what == 7) {
@@ -702,9 +703,6 @@ void ShootBall(GLRay ray)
 			BallDeco.emplace_back(deco_list[Whatdeco]);
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
 		}
-		else {
-			BallDeco.emplace_back();
-		}
 		break;
 	}
 	case 2: {
@@ -716,11 +714,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 
 		Ball.emplace_back(obj_list[ball_i]);
@@ -731,11 +725,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 		break;
 	}
@@ -748,11 +738,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 
 		Ball.emplace_back(obj_list[ball_i]);
@@ -764,11 +750,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 
 		Ball.emplace_back(obj_list[ball_i]);
@@ -780,11 +762,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 		break;
 	}
@@ -798,11 +776,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 
 		Ball.emplace_back(obj_list[ball_i]);
@@ -814,11 +788,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 
 		Ball.emplace_back(obj_list[ball_i]);
@@ -830,11 +800,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 
 		Ball.emplace_back(obj_list[ball_i]);
@@ -846,11 +812,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 		break;
 	}
@@ -863,11 +825,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 
 		Ball.back().pos = ray.origin;
@@ -878,11 +836,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 
 		Ball.emplace_back(obj_list[ball_i]);
@@ -894,11 +848,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 
 		Ball.emplace_back(obj_list[ball_i]);
@@ -910,11 +860,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 
 		Ball.emplace_back(obj_list[ball_i]);
@@ -926,11 +872,7 @@ void ShootBall(GLRay ray)
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
-			 
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
-		}
-		else {
-			BallDeco.emplace_back();
 		}
 		break;
 	}
@@ -1740,7 +1682,8 @@ void TimerFunction(int value)
 			for (int i = 0; i < Ball.size(); ++i) {
 				Ball[i].pos.z += Speed;
 				if (Ball[i].pos.z > Camera.pos.z + 0.3f) {
-					BallDeco.erase(BallDeco.begin() + i);
+					if (Whatdeco != non_deco) 
+						BallDeco.erase(BallDeco.begin() + i);
 					Ball.erase(Ball.begin() + i);
 					--i;
 				}
@@ -1853,8 +1796,11 @@ void TimerFunction(int value)
 			}
 		}
 
-		for (int i = 0; i < Ball.size(); ++i)
-			BallDeco[i].pos = BallDeco[i].velocity + Ball[i].pos;
+
+		if (Whatdeco != non_deco) {
+			for (int i = 0; i < Ball.size(); ++i)
+				BallDeco[i].pos = BallDeco[i].velocity + Ball[i].pos;
+		}
 
 		glutTimerFunc(10, TimerFunction, 1);
 		break;
