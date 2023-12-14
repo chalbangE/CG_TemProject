@@ -1664,14 +1664,14 @@ void TimerFunction(int value)
 		if (GameState == play_s) {
 			for (int i = 0; i < Crystal.size(); ++i) {
 				Crystal[i].pos += Crystal[i].velocity;
-				if (Crystal[i].pos.z > Camera.pos.z + 0.3f) {
+				if (Crystal[i].pos.z > Camera.pos.z + 1.f) {
 					Crystal.erase(Crystal.begin() + i);
 					--i;
 				}
 			}
 			for (int i = 0; i < CrashedCrystal.size(); ++i) {
 				CrashedCrystal[i].pos.z += Speed;
-				if (CrashedCrystal[i].pos.z > Camera.pos.z + 0.3f) {
+				if (CrashedCrystal[i].pos.z > Camera.pos.z + 1.f) {
 					DeleteObject(CrashedCrystal[i]);
 					CrashedCrystal.erase(CrashedCrystal.begin() + i);
 					--i;
@@ -1679,7 +1679,7 @@ void TimerFunction(int value)
 			}
 			for (int i = 0; i < Ball.size(); ++i) {
 				Ball[i].pos.z += Speed;
-				if (Ball[i].pos.z > Camera.pos.z + 0.3f) {
+				if (Ball[i].pos.z > Camera.pos.z + 1.f) {
 					if (Whatdeco != non_deco) 
 						BallDeco.erase(BallDeco.begin() + i);
 					Ball.erase(Ball.begin() + i);
@@ -1688,21 +1688,21 @@ void TimerFunction(int value)
 			}
 			for (int i = 4; i < Background.size(); ++i) {
 				Background[i].pos += Background[i].velocity;
-				if (Background[i].pos.z > Camera.pos.z + 0.3f) {
+				if (Background[i].pos.z > Camera.pos.z + 1.f) {
 					Background.erase(Background.begin() + i);
 					--i;
 				}
 			}
 			for (int i = 0; i < Obstacle.size(); ++i) {
 				Obstacle[i].pos += Obstacle[i].velocity;
-				if (Obstacle[i].pos.z > Camera.pos.z + 0.3f) {
+				if (Obstacle[i].pos.z > Camera.pos.z + 1.f) {
 					Obstacle.erase(Obstacle.begin() + i);
 					--i;
 				}
 			}
 			for (int i = 0; i < CrashedObstacle.size(); ++i) {
 				CrashedObstacle[i].pos.z += Speed;
-				if (CrashedObstacle[i].pos.z > Camera.pos.z + 0.3f) {
+				if (CrashedObstacle[i].pos.z > Camera.pos.z + 1.f) {
 					DeleteObject(CrashedObstacle[i]);
 					CrashedObstacle.erase(CrashedObstacle.begin() + i);
 					--i;
@@ -1835,6 +1835,10 @@ void Keyboard(unsigned char key, int x, int y)
 		CrashedObstacle.clear();
 		Obstacle.emplace_back(obj_list[obstacle_i]);
 		Obstacle.back().scale = glm::vec3(1.f, 1.f * winSizex / winSizey, 0.1f);
+		break;
+	}
+	case 's': {
+		MakeCrystal({ 0.f, -0.5f, 0.1f }, { 0.5f, 0.5, 0.5 });
 		break;
 	}
 	case '+':
@@ -2081,16 +2085,21 @@ void Init()
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
 
-	MakeCrystal(glm::vec3{ -0.8f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
-	MakeCrystal(glm::vec3{ 0.8f, -0.2f, 0.f }, glm::vec3{ 0.5, 0.1f, 0.5 });
+	//MakeCrystal(glm::vec3{ -0.3, -0.6, 0.f }, glm::vec3{ 0.5, 0.3, 0.5 });
+	//MakeCrystal(glm::vec3{ 0.8f, -1.f, -3.f }, glm::vec3{ 0.5, 0.3, 0.5 });
 	
 
-	//Obstacle.emplace_back(obj_list[obstacle_i]);
-	//Obstacle.back().pos = glm::vec3(0.f, 0.2, -0.5f);
-	//Obstacle.back().scale = glm::vec3(1.f, 1.5f, 0.1f);
-	//Background.emplace_back(obj_list[fcube_i]);
-	//Background.back().pos = glm::vec3(0.f, 0.5, 0.f);
-	//Background.back().scale = glm::vec3(1.f, 0.2, 0.3f);
+	Obstacle.emplace_back(obj_list[obstacle_i]);
+	Obstacle.back().pos = glm::vec3(0.f, 0.2, -0.5f);
+	Obstacle.back().scale = glm::vec3(0.3, 1.5f, 0.1f);
+	Obstacle.back().velocity = glm::vec3(0.002f, 0.f, 0.f);
+	Obstacle.emplace_back(obj_list[obstacle_i]);
+	Obstacle.back().pos = glm::vec3(0.f, 0.2, -0.5f);
+	Obstacle.back().scale = glm::vec3(0.3, 1.5f, 0.1f);
+	Obstacle.back().velocity = glm::vec3(-0.002f, 0.f, 0.f);
+	Background.emplace_back(obj_list[fcube_i]);
+	Background.back().pos = glm::vec3(0.f, 0.5, 0.f);
+	Background.back().scale = glm::vec3(1.f, 0.2, 0.3f);
 
 	
 	// Clink
