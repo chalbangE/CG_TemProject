@@ -348,7 +348,7 @@ void DeleteObject(GLObj& obj) {
 	if (obj.v_color)
 		glDeleteBuffers(1, &obj.v_color);
 }
-glm::vec3 CalFragmentVelocity(GLObj& ball, GLObj& fragment) {
+glm::vec3 CalFragmentVelocity(GLObj& ball, GLObj& fragment, const char mode) {
 	glm::vec3 velocity;
 	std::uniform_real_distribution<float> rand_magnitude(0.5f, 0.8f);
 	std::uniform_int_distribution<int> rand_bool(0, 1);
@@ -358,10 +358,18 @@ glm::vec3 CalFragmentVelocity(GLObj& ball, GLObj& fragment) {
 	velocity = NormalizeVector(velocity); // 벡터 정규화
 	velocity *= CalVectorMagnitude(ball.velocity) * rand_magnitude(gen); // 벡터에 속력 곱하기
 
-	if (fragment.pos.y + fragment.midpos.y < ball.pos.y - 0.25f)
-		velocity = glm::vec3(0.f);
-	else if (fragment.pos.y + fragment.midpos.y < ball.pos.y - 0.15f && rand_bool(gen))
-		velocity = glm::vec3(0.f);
+	if (mode == 'c') {
+		if (fragment.pos.y + fragment.midpos.y < ball.pos.y - 0.25f)
+			velocity = glm::vec3(0.f);
+		else if (fragment.pos.y + fragment.midpos.y < ball.pos.y - 0.15f && rand_bool(gen))
+			velocity = glm::vec3(0.f);
+	}
+	if (mode == 'o') {
+		if (fragment.pos.y + fragment.midpos.y > ball.pos.y + 0.25f)
+			velocity = glm::vec3(0.f);
+		else if (fragment.pos.y + fragment.midpos.y > ball.pos.y + 0.15f)
+			velocity = glm::vec3(0.f);
+	}
 
 	return velocity;
 }
@@ -383,7 +391,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -399,7 +407,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -415,7 +423,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -432,7 +440,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
 			if (rand_bool(gen))
-				CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+				CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -449,7 +457,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
 			if (rand_bool(gen))
-				CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+				CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -466,7 +474,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
 			if (rand_bool(gen))
-				CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+				CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -483,7 +491,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
 			if (rand_bool(gen))
-				CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+				CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -500,7 +508,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
 			if (rand_bool(gen))
-				CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+				CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -518,7 +526,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -534,7 +542,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -550,7 +558,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -566,7 +574,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -582,7 +590,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -598,7 +606,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -614,7 +622,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -630,7 +638,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -646,7 +654,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -662,7 +670,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -678,7 +686,7 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 			CrashedCrystal.back().scale = Crystal[index].scale;
 			CrashedCrystal.back().pos = Crystal[index].pos;
 			CrashedCrystal.back().midpos *= CrashedCrystal.back().scale;
-			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back());
+			CrashedCrystal.back().velocity = CalFragmentVelocity(ball, CrashedCrystal.back(), 'c');
 
 			CrashedCrystal.back().imgLoad("./IMG/유리.png");
 		}
@@ -1227,6 +1235,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 		atan2((obstacle.pos.y - obstacle.size.y - ball.pos.y) / (winSizex / winSizey), obstacle.pos.x + obstacle.size.x - ball.pos.x)
 	};
 	int size;
+	glm::vec3 sum{};
 
 	// 깨질 반지름 랜덤생성기 만들기
 	for (int i = 0; i < 6; i++) {
@@ -1273,6 +1282,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 		objpos.clear();
 		objnor.clear();
 		objtex.clear();
+		sum = {};
 
 		// 찍어서 나오는 좌표 넣기
 		{
@@ -1306,6 +1316,10 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 		size = vertex.size();
 		for (int i = 0; i < size; i++) {
 			vertex.emplace_back(glm::vec3(vertex[i].x, vertex[i].y, obstacle.pos.z - obstacle.size.z));
+		}
+		for (int i = 0; i < vertex.size(); i++) {
+			vertex[i] -= obstacle.pos;
+			sum += vertex[i];
 		}
 		//cout << vertex.size() << endl;
 		objpos = InputVertexIndex(vertex);
@@ -1344,9 +1358,13 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 
 			//cout << CrashedObstacle.back().v_pos << ' ' << CrashedObstacle.back().v_nor << ' ' << CrashedObstacle.back().v_uv << endl;
 
+			CrashedObstacle.back().pos = obstacle.pos;
+			CrashedObstacle.back().midpos = sum / float(size * 2);
+			CrashedObstacle.back().midpos *= CrashedObstacle.back().scale;
 			CrashedObstacle.back().face_cnt = objnor.size();
 
 			CrashedObstacle.back().imgLoad("./IMG/장애물.png");
+			CrashedObstacle.back().velocity = CalFragmentVelocity(ball, CrashedObstacle.back(), 'o');
 		}
 	}
 
@@ -1359,6 +1377,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 			objpos.clear();
 			objnor.clear();
 			objtex.clear();
+			sum = {};
 
 			// 찍어서 나오는 좌표 넣기
 			{
@@ -1409,6 +1428,10 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 			for (int i = 0; i < size; i++) {
 				vertex.emplace_back(glm::vec3(vertex[i].x, vertex[i].y, obstacle.pos.z - obstacle.size.z));
 			}
+			for (int i = 0; i < vertex.size(); i++) {
+				vertex[i] -= obstacle.pos;
+				sum += vertex[i];
+			}
 			//cout << vertex.size() << endl;
 			objpos = InputVertexIndex(vertex);
 			//if (objpos.size() == 0)
@@ -1445,9 +1468,13 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 
 				//cout << CrashedObstacle.back().v_pos << ' ' << CrashedObstacle.back().v_nor << ' ' << CrashedObstacle.back().v_uv << endl;
 
+				CrashedObstacle.back().pos = obstacle.pos;
+				CrashedObstacle.back().midpos = sum / float(size * 2);
+				CrashedObstacle.back().midpos *= CrashedObstacle.back().scale;
 				CrashedObstacle.back().face_cnt = objnor.size();
 
 				CrashedObstacle.back().imgLoad("./IMG/장애물.png");
+				CrashedObstacle.back().velocity = CalFragmentVelocity(ball, CrashedObstacle.back(), 'o');
 			}
 		}
 	}
@@ -1720,6 +1747,17 @@ void TimerFunction(int value)
 				CrashedCrystal[i].rotate_theta += PerpendicularInXZPlane(CrashedCrystal[i].velocity) * -200.f;
 				CrashedCrystal[i].velocity.y -= g;
 				//CrashedCrystal[i].rotate_theta += glm::vec3(1.f);
+			}
+		}
+
+		// 깨진 오브젝트 움직이기
+		for (int i = 0; i < CrashedObstacle.size(); i++) {
+			if (CalVectorMagnitude(CrashedObstacle[i].velocity) != 0.f) {
+				CrashedObstacle[i].pos += CrashedObstacle[i].velocity / 10.f;
+				cout << CrashedObstacle[i].velocity.z << endl;
+				CrashedObstacle[i].rotate_theta += NormalizeVector(PerpendicularInXZPlane(CrashedObstacle[i].velocity)) * 2.f;
+				CrashedObstacle[i].velocity.y -= g;
+				//CrashedObstacle[i].rotate_theta += glm::vec3(1.f);
 			}
 		}
 
