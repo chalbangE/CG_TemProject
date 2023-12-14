@@ -1804,7 +1804,7 @@ void TimerFunction(int value)
 		break;
 	}
 	case 2: {
-		static std::uniform_int_distribution<int> LoadMapRd(0, 5);
+		static std::uniform_int_distribution<int> LoadMapRd(1, 5);
 		
 		LoadMap(LoadMapRd(rd));
 
