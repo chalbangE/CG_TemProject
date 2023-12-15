@@ -648,9 +648,6 @@ void LoadCrashedCrystal(GLObj& ball, const int& index) {
 		CrashedCrystal.back().imgLoad("./IMG/유리.png");
 	}
 
-	ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
-	channel[crash_cn]->setVolume(0.35 * volumeSize);
-
 	Crystal.erase(Crystal.begin() + index);
 }
 void ShootBall(GLRay ray)
@@ -1749,6 +1746,7 @@ void TimerFunction(int value)
 		GLObj temp;
 		bool crash_f = false;
 		std::uniform_real_distribution<float> rand_magnitude(0.5f, 0.8f);
+		std::uniform_int_distribution<int> rand_sound(0, 2);
 
 		for (int i = 0; i < Ball.size(); ++i) {
 			temp.pos = Ball[i].pos;
@@ -1795,6 +1793,8 @@ void TimerFunction(int value)
 								Obstacle[i].velocity.z += Speed;
 							Clink.velocity.z += Speed;
 						}
+						ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
+						channel[crash_cn]->setVolume(0.35 * volumeSize);
 						break;
 					}
 				}
@@ -1832,7 +1832,6 @@ void TimerFunction(int value)
 				//}
 
 				// 장애물
-				crash_f = false;
 				for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Obstacle[o_cnt], cube_i) && !CheckCollision(temp, Obstacle[o_cnt], cube_i)) {
 						if (Obstacle[o_cnt].scale == glm::vec3(0.f)) {
@@ -1847,16 +1846,12 @@ void TimerFunction(int value)
 							CrashObstacle(Ball[i], Obstacle[o_cnt]);
 							Obstacle[o_cnt].scale = glm::vec3(0.f);
 						}
-						crash_f = true;
+						Ball[i].velocity.z = -0.05f;
+
+						ssystem->playSound(Crach_Sound[0], 0, false, &channel[crash_cn]);
+						channel[crash_cn]->setVolume(0.35 * volumeSize);
 						break;
 					}
-				}
-				if (crash_f) {
-					Ball[i].pos -= Ball[i].velocity;
-					Ball[i].velocity /= 4.f;
-					if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
-						Ball[i].velocity = glm::vec3(0.f);
-					cout << "으악" << endl;
 				}
 			}
 		}
