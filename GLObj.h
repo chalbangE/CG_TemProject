@@ -15,6 +15,7 @@ public:
     glm::vec3 max{}, min{};
     glm::vec3 size{ 0.f, 0.f, 0.f };
     glm::vec3 velocity{ 0.f, 0.f, 0.f };
+    std::vector <glm::vec3> vertex;
 
 
     GLObj(){}

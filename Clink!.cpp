@@ -241,10 +241,6 @@ glm::vec3 CheckCollisionDir(const GLObj& target, const GLObj& object, int what) 
 
 	return result;
 }
-bool isPointInsideRectangle(glm::vec2 p, glm::vec2 rt, glm::vec2 lb) {
-	//cout << rt.x << ' ' << rt.y << ' ' << lb.x << ' ' << lb.y << ' ' << p.x << ' ' << p.y << endl;
-	return (rt.x > p.x) && (p.x > lb.x) && (rt.y > p.y) && (p.y > lb.y);
-}
 bool FindIntersection(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 p4, glm::vec2* intersection) {
 	//cout << "선분\t(" << p1.x << ", " << p1.y << ")\t(" << p2.x << ", " << p2.y << ")" << endl;
 	//cout << "장애물\t(" << p3.x << ", " << p3.y << ")\t(" << p4.x << ", " << p4.y << ")" << endl;
@@ -302,6 +298,27 @@ bool FindIntersection(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 p4, gl
 			return false;
 		}
 	}
+}
+float TriangleArea(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3) {
+	return abs((p1.x * p2.y + p2.x * p3.y + p3.x * p1.y) - (p2.x * p1.y + p3.x * p2.y + p1.x * p3.y)) / 2;
+}
+bool isPointInsideRectangle(glm::vec2 p, glm::vec2 rt, glm::vec2 lb) {
+	//cout << rt.x << ' ' << rt.y << ' ' << lb.x << ' ' << lb.y << ' ' << p.x << ' ' << p.y << endl;
+	return (rt.x > p.x) && (p.x > lb.x) && (rt.y > p.y) && (p.y > lb.y);
+}
+bool isPointInsideTriangle(glm::vec2 p, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3) {
+	float area1 = TriangleArea(p, p1, p2);
+	float area2 = TriangleArea(p, p2, p3);
+	float area3 = TriangleArea(p, p1, p3);
+	float total = TriangleArea(p1, p2, p3);
+
+	return abs(total - (area1 + area2 + area3)) < 0.01f;
+}
+bool isPointInsideQuadrangle(glm::vec2 p, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 p4) {
+	return isPointInsideTriangle(p, p1, p2, p3) || isPointInsideTriangle(p, p1, p3, p4);
+}
+bool isPointInsidePentagon(glm::vec2 p, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 p4, glm::vec2 p5) {
+	return isPointInsideTriangle(p, p1, p2, p3) || isPointInsideTriangle(p, p1, p3, p4) || isPointInsideTriangle(p, p1, p4, p5);
 }
 
 float CalVectorMagnitude(glm::vec3 v) {
@@ -1319,13 +1336,17 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 
 			//cout << CrashedObstacle.back().v_pos << ' ' << CrashedObstacle.back().v_nor << ' ' << CrashedObstacle.back().v_uv << endl;
 
-			CrashedObstacle.back().pos = obstacle.pos;
-			CrashedObstacle.back().midpos = sum / float(size * 2);
+			CrashedObstacle.back().size = obstacle.size; // 장애물 위치
+			CrashedObstacle.back().pos = obstacle.pos; // 장애물 위치
+			CrashedObstacle.back().midpos = sum / float(size * 2); // 조각 위치
 			CrashedObstacle.back().midpos *= CrashedObstacle.back().scale;
 			CrashedObstacle.back().face_cnt = objnor.size();
 
 			CrashedObstacle.back().imgLoad("./IMG/장애물.png");
 			CrashedObstacle.back().velocity = CalFragmentVelocity(ball, CrashedObstacle.back(), 'o');
+			for (int i = 0; i < size; i++) {
+				CrashedObstacle.back().vertex.emplace_back(vertex[i]);
+			}
 		}
 	}
 
@@ -1429,13 +1450,17 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 
 				//cout << CrashedObstacle.back().v_pos << ' ' << CrashedObstacle.back().v_nor << ' ' << CrashedObstacle.back().v_uv << endl;
 
-				CrashedObstacle.back().pos = obstacle.pos;
-				CrashedObstacle.back().midpos = sum / float(size * 2);
+				CrashedObstacle.back().size = obstacle.size; // 장애물 위치
+				CrashedObstacle.back().pos = obstacle.pos; // 장애물 위치
+				CrashedObstacle.back().midpos = sum / float(size * 2); // 조각 위치
 				CrashedObstacle.back().midpos *= CrashedObstacle.back().scale;
 				CrashedObstacle.back().face_cnt = objnor.size();
 
 				CrashedObstacle.back().imgLoad("./IMG/장애물.png");
 				CrashedObstacle.back().velocity = CalFragmentVelocity(ball, CrashedObstacle.back(), 'o');
+				for (int i = 0; i < size; i++) {
+					CrashedObstacle.back().vertex.emplace_back(vertex[i]);
+				}
 			}
 		}
 	}
@@ -1516,7 +1541,7 @@ GLvoid drawScene()
 	Light.draw("solid");
 
 	if (GameState != custom_s) {
-		for (int i = 4; i < Background.size(); ++i) {
+		for (int i = 0; i < Background.size(); ++i) {
 			Background[i].Update();
 			Background[i].draw_prepare(PosLocation, "Pos");
 			Background[i].draw_prepare(ColorLocation, "Color");
@@ -1789,12 +1814,25 @@ void TimerFunction(int value)
 			}
 		}
 
-		for (int o_cnt = 0; o_cnt < Crystal.size(); ++o_cnt) {
-			if (CheckCollision(Camera, Crystal[o_cnt])) {
-				GameState = end_s;
+		for (int i = 0; i < CrashedObstacle.size(); i++) {
+			if (CheckCollision(Camera, CrashedObstacle[i])) {
+				if (CrashedObstacle[i].vertex.size() == 3 &&
+					isPointInsideTriangle(Camera.pos, CrashedObstacle[i].vertex[0], CrashedObstacle[i].vertex[1], CrashedObstacle[i].vertex[2])) {
+					GameState = end_s;
+					break;
+				}
+				if (CrashedObstacle[i].vertex.size() == 4 &&
+					isPointInsideQuadrangle(Camera.pos, CrashedObstacle[i].vertex[0], CrashedObstacle[i].vertex[1], CrashedObstacle[i].vertex[2], CrashedObstacle[i].vertex[3])) {
+					GameState = end_s;
+					break;
+				}
+				if (CrashedObstacle[i].vertex.size() == 5 &&
+					isPointInsidePentagon(Camera.pos, CrashedObstacle[i].vertex[0], CrashedObstacle[i].vertex[1], CrashedObstacle[i].vertex[2], CrashedObstacle[i].vertex[3], CrashedObstacle[i].vertex[4])) {
+					GameState = end_s;
+					break;
+				}
 			}
 		}
-
 
 		if (Whatdeco != non_deco) {
 			for (int i = 0; i < Ball.size(); ++i)
@@ -1805,7 +1843,7 @@ void TimerFunction(int value)
 		break;
 	}
 	case 2: {
-		static std::uniform_int_distribution<int> LoadMapRd(1, 5);
+		static std::uniform_int_distribution<int> LoadMapRd(1, 6);
 
 		LoadMap(LoadMapRd(rd));
 
@@ -2326,9 +2364,20 @@ GLvoid Reshape(int w, int h)
 	}
 	for (int i = 0; i < CrashedCrystal.size(); i++) {
 		WindowConversion(CrashedCrystal[i], w, h);
-		if (winSizex && winSizey)
-			CrashedCrystal[i].midpos.y /= winSizex / winSizey;
+
+		CrashedCrystal[i].midpos.y /= winSizex / winSizey;
 		CrashedCrystal[i].midpos.y *= (float)w / (float)h;
+	}
+	for (int i = 0; i < CrashedObstacle.size(); i++) {
+		WindowConversion(CrashedObstacle[i], w, h);
+
+		CrashedObstacle[i].midpos.y /= winSizex / winSizey;
+		CrashedObstacle[i].midpos.y *= (float)w / (float)h;
+
+		for (int j = 0; j < CrashedObstacle[i].vertex.size(); j++) {
+			CrashedObstacle[i].vertex[j].y /= winSizex / winSizey;
+			CrashedObstacle[i].vertex[j].y *= (float)w / (float)h;
+		}
 	}
 	for (int i = 0; i < Obstacle.size(); i++) {
 		WindowConversion(Obstacle[i], w, h);
