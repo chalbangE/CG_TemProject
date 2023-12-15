@@ -1618,7 +1618,7 @@ GLvoid drawScene()
 		number.emplace_back(temp);
 
 		for (int i = 0; i < number.size(); i++) {
-			Number[number[i]].pos = glm::vec3(0.282f * (0.2f * (float)i) + (0.005f * (float)i), 1.f - 0.175f, 0.f);
+			Number[number[i]].pos = glm::vec3(0.286f * (0.2f * (float)i) + (0.005f * (float)i), 1.f - 0.175f, 0.f);
 			Number[number[i]].Update();
 			Number[number[i]].draw_prepare(PosLocation, "Pos");
 			Number[number[i]].draw_prepare(WorldTransLocation, "World");
@@ -2209,34 +2209,34 @@ void Init()
 		Ui[custom_s].emplace_back(GLUi(0.7f, -0.9f, 0.95f, -0.75f));
 		Ui[custom_s].back().imgLoad("./IMG/¿Ï·á.png");
 
-		Number.emplace_back(SetImageSize(282, 419));
+		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/0.png");
 		Number.back().scale = glm::vec3(0.2f);
-		Number.emplace_back(SetImageSize(282, 419));
+		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/1.png");
 		Number.back().scale = glm::vec3(0.2f);
-		Number.emplace_back(SetImageSize(282, 419));
+		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/2.png");
 		Number.back().scale = glm::vec3(0.2f);
-		Number.emplace_back(SetImageSize(282, 419));
+		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/3.png");
 		Number.back().scale = glm::vec3(0.2f);
-		Number.emplace_back(SetImageSize(282, 419));
+		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/4.png");
 		Number.back().scale = glm::vec3(0.2f);
-		Number.emplace_back(SetImageSize(282, 419));
+		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/5.png");
 		Number.back().scale = glm::vec3(0.2f);
-		Number.emplace_back(SetImageSize(282, 419));
+		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/6.png");
 		Number.back().scale = glm::vec3(0.2f);
-		Number.emplace_back(SetImageSize(282, 419));
+		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/7.png");
 		Number.back().scale = glm::vec3(0.2f);
-		Number.emplace_back(SetImageSize(282, 419));
+		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/8.png");
 		Number.back().scale = glm::vec3(0.2f);
-		Number.emplace_back(SetImageSize(282, 419));
+		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/9.png");
 		Number.back().scale = glm::vec3(0.2f);
 
