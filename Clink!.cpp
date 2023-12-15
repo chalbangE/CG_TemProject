@@ -62,6 +62,8 @@ enum GameStateList {
 
 vector <GLObj> Ball, BallDeco, Crystal, Background, MakeCrashedCrystal, CrashedCrystal, Obstacle, CrashedObstacle;
 vector <GLUi> Ui[6];
+vector <GLUi> Gauge;
+vector <GLUi> Number;
 GLObj Clink;
 GLObj obj_list[5], deco_list[6];
 bool Lbt = false;
@@ -1409,6 +1411,9 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 	ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
 	channel[crash_cn]->setVolume(0.35 * volumeSize);
 }
+GLUi SetImageSize(int sizex, int sizey) {
+	return GLUi(-(float)sizex / 1000.f / 2.f, -(float)sizey / 1000.f / 2.f, (float)sizex / 1000.f / 2.f, (float)sizey / 1000.f / 2.f);
+}
 
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
@@ -1588,11 +1593,49 @@ GLvoid drawScene()
 	}
 
 	for (int i = 0; i < Ui[GameState].size(); ++i) {
+		Ui[GameState][i].Update();
 		Ui[GameState][i].draw_prepare(PosLocation, "Pos");
+		Ui[GameState][i].draw_prepare(WorldTransLocation, "World");
 		Ui[GameState][i].draw_prepare(UvLocation, "UV");
 		Ui[GameState][i].draw_prepare(Ui[GameState][i].now_img, "Texture");
 		Ui[GameState][i].draw_prepare(UiboolLocation, "UI_bool");
 		Ui[GameState][i].draw("solid");
+	}
+
+	if (GameState == play_s) {
+		vector <int> number;
+		int temp;
+		if (total_ball / 100 > 0) {
+			number.emplace_back(total_ball / 100);
+		}
+		if (total_ball / 10 > 0) {
+			temp = total_ball;
+			temp -= (total_ball / 100) * 100;
+			number.emplace_back(temp / 10);
+		}
+		temp = total_ball;
+		temp -= (total_ball / 10) * 10;
+		number.emplace_back(temp);
+
+		for (int i = 0; i < number.size(); i++) {
+			Number[number[i]].pos = glm::vec3(0.282f * (0.2f * (float)i) + (0.005f * (float)i), 1.f - 0.175f, 0.f);
+			Number[number[i]].Update();
+			Number[number[i]].draw_prepare(PosLocation, "Pos");
+			Number[number[i]].draw_prepare(WorldTransLocation, "World");
+			Number[number[i]].draw_prepare(UvLocation, "UV");
+			Number[number[i]].draw_prepare(Number[number[i]].now_img, "Texture");
+			Number[number[i]].draw_prepare(UiboolLocation, "UI_bool");
+			Number[number[i]].draw("solid");
+		}
+
+		Gauge[ball_gauge].Update();
+		Gauge[ball_gauge].draw_prepare(PosLocation, "Pos");
+		Gauge[ball_gauge].draw_prepare(WorldTransLocation, "World");
+		Gauge[ball_gauge].draw_prepare(UvLocation, "UV");
+		Gauge[ball_gauge].draw_prepare(Gauge[ball_gauge].now_img, "Texture");
+		Gauge[ball_gauge].draw_prepare(UiboolLocation, "UI_bool");
+		Gauge[ball_gauge].draw("solid");
+
 	}
 
 	glDisable(GL_BLEND);
@@ -1616,6 +1659,7 @@ void TimerFunction(int value)
 				if (Crystal[i].pos.z > Camera.pos.z + 1.f) {
 					Crystal.erase(Crystal.begin() + i);
 					--i;
+					ball_gauge = 0;
 				}
 			}
 			for (int i = 0; i < CrashedCrystal.size(); ++i) {
@@ -1715,7 +1759,12 @@ void TimerFunction(int value)
 						Ball[i].velocity *= CheckCollisionDir(Crystal[c_cnt], Ball[i], crystal_i) / 4.f;
 						Ball[i].velocity.y = glm::abs(Ball[i].velocity.y);
 						ball_gauge++;
+						if (ball_gauge > 40)
+							ball_gauge = 40;
 						ball_num = ball_gauge / 10 + 1;
+						total_ball += 3;
+						if (total_ball > 999)
+							total_ball = 999;
 
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
@@ -1723,8 +1772,8 @@ void TimerFunction(int value)
 
 						if (GameState == title_s) {
 							GameState = play_s;
-							total_ball++;
-							ball_gauge--;
+							total_ball = 25;
+							ball_gauge = 0;
 							glutTimerFunc(2000, TimerFunction, 2);
 
 							//vector <GLObj> Ball, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
@@ -1759,7 +1808,7 @@ void TimerFunction(int value)
 							CrashObstacle(Ball[i], Obstacle[o_cnt]);
 							Obstacle[o_cnt].scale = glm::vec3(0.f);
 						}
-						Ball[i].velocity.z = -0.05f;
+						//Ball[i].velocity.z = -0.05f;
 
 						ssystem->playSound(Crach_Sound[0], 0, false, &channel[crash_cn]);
 						channel[crash_cn]->setVolume(0.35 * volumeSize);
@@ -1890,10 +1939,6 @@ GLvoid Mouse(int button, int state, int x, int y)
 
 	if (state == GLUT_DOWN) {
 		if (button == GLUT_LEFT_BUTTON) {
-			total_ball--;
-			if (!total_ball) {
-				GameState = end_s;
-			}
 			Lbt = true;
 			click_mouse = m;
 			bool skip = false;
@@ -1911,6 +1956,10 @@ GLvoid Mouse(int button, int state, int x, int y)
 			}
 
 			if ((GameState == title_s || GameState == play_s) && !skip) {
+				total_ball--;
+				if (!total_ball) {
+					GameState = end_s;
+				}
 				Msray.ScreenToWorld(x, y, Camera.Camera_Mat, Projection_Mat, winSizex, winSizey);
 				ShootBall(Msray);
 			}
@@ -2160,6 +2209,202 @@ void Init()
 		Ui[custom_s].emplace_back(GLUi(0.7f, -0.9f, 0.95f, -0.75f));
 		Ui[custom_s].back().imgLoad("./IMG/완료.png");
 
+		Number.emplace_back(SetImageSize(282, 419));
+		Number.back().imgLoad("./IMG/0.png");
+		Number.back().scale = glm::vec3(0.2f);
+		Number.emplace_back(SetImageSize(282, 419));
+		Number.back().imgLoad("./IMG/1.png");
+		Number.back().scale = glm::vec3(0.2f);
+		Number.emplace_back(SetImageSize(282, 419));
+		Number.back().imgLoad("./IMG/2.png");
+		Number.back().scale = glm::vec3(0.2f);
+		Number.emplace_back(SetImageSize(282, 419));
+		Number.back().imgLoad("./IMG/3.png");
+		Number.back().scale = glm::vec3(0.2f);
+		Number.emplace_back(SetImageSize(282, 419));
+		Number.back().imgLoad("./IMG/4.png");
+		Number.back().scale = glm::vec3(0.2f);
+		Number.emplace_back(SetImageSize(282, 419));
+		Number.back().imgLoad("./IMG/5.png");
+		Number.back().scale = glm::vec3(0.2f);
+		Number.emplace_back(SetImageSize(282, 419));
+		Number.back().imgLoad("./IMG/6.png");
+		Number.back().scale = glm::vec3(0.2f);
+		Number.emplace_back(SetImageSize(282, 419));
+		Number.back().imgLoad("./IMG/7.png");
+		Number.back().scale = glm::vec3(0.2f);
+		Number.emplace_back(SetImageSize(282, 419));
+		Number.back().imgLoad("./IMG/8.png");
+		Number.back().scale = glm::vec3(0.2f);
+		Number.emplace_back(SetImageSize(282, 419));
+		Number.back().imgLoad("./IMG/9.png");
+		Number.back().scale = glm::vec3(0.2f);
+
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge0.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge1.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge2.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge3.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge4.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge5.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge6.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge7.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge8.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge9.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge10.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge11.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge12.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge13.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge14.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge15.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge16.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge17.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge18.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge19.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge20.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge21.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge22.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge23.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge24.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge25.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge26.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge27.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge28.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge29.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge30.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge31.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge32.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge33.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge34.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge35.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge36.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge37.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge38.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge39.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(500, 500));
+		Gauge.back().imgLoad("./IMG/gauge40.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+
 		Ui[stop_s].emplace_back(GLUi(-1.f, -1.f, 1.f, 1.f, 0.1f));
 		Ui[stop_s].back().imgLoad("./IMG/gray_background.png");
 		Ui[stop_s].emplace_back(GLUi(-0.97, 0.7, -0.8, 0.95));
@@ -2355,6 +2600,26 @@ GLvoid Reshape(int w, int h)
 	//}
 	for (int i = 0; i < Background.size(); i++) {
 		WindowConversion(Background[i], w, h);
+	}
+	for (int i = 0; i < 6; i++) {
+		for (int j = 0; j < Ui[i].size(); j++) {
+			if (winSizex && winSizey) {
+				Ui[i][j].scale.y /= winSizex / winSizey;
+			}
+			Ui[i][j].scale.y *= (float)w / (float)h;
+		}
+	}
+	for (int i = 0; i < Number.size(); i++) {
+		if (winSizex && winSizey) {
+			Number[i].scale.y /= winSizex / winSizey;
+		}
+		Number[i].scale.y *= (float)w / (float)h;
+	}
+	for (int i = 0; i < Gauge.size(); i++) {
+		if (winSizex && winSizey) {
+			Gauge[i].scale.y /= winSizex / winSizey;
+		}
+		Gauge[i].scale.y *= (float)w / (float)h;
 	}
 
 	winSizex = w;

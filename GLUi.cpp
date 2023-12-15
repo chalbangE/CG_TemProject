@@ -116,4 +116,14 @@ void GLUi::draw_prepare(int Location, std::string Location_str) {
 	else if ("Texture" == Location_str) {
 		glBindTexture(GL_TEXTURE_2D, img[Location]);
 	}
+	else if ("World" == Location_str) {
+		glUniformMatrix4fv(Location, 1, GL_FALSE, glm::value_ptr(World_mat));
+	}
+}
+
+void GLUi::Update()
+{
+	World_mat = glm::mat4(1.0);
+	World_mat = glm::translate(World_mat, pos);
+	World_mat = glm::scale(World_mat, scale);
 }
