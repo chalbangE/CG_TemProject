@@ -57,11 +57,11 @@ enum SoundChannelList {
 };
 
 enum GameStateList {
-	title_s, option_s, custom_s, play_s
+	title_s, option_s, custom_s, play_s, stop_s, end_s
 };
 
 vector <GLObj> Ball, BallDeco, Crystal, Background, MakeCrashedCrystal, CrashedCrystal, Obstacle, CrashedObstacle;
-vector <GLUi> Ui[4];
+vector <GLUi> Ui[6];
 GLObj Clink;
 GLObj obj_list[5], deco_list[6];
 bool Lbt = false;
@@ -77,6 +77,14 @@ static FMOD::Channel* channel[3] = { 0, 0, 0 };
 static FMOD_RESULT result;
 static void* extradriverdata = 0;
 
+void MakeCrystal(glm::vec3 pos, glm::vec3 scale) {
+	Background.emplace_back(obj_list[fcube_i]);
+	Background.back().scale = scale;
+	Background.back().pos = pos;
+	Crystal.emplace_back(obj_list[crystal_i]);
+	Crystal.back().pos = pos;
+	Crystal.back().pos.y = pos.y + (scale.y * 0.5f);
+}
 void UiClick(int what)
 {
 	switch (GameState)
@@ -153,6 +161,41 @@ void UiClick(int what)
 	case play_s: {
 		break;
 	}
+	case end_s: {
+		if (what == 1) {
+			GameState = title_s;
+
+			Ball.clear();
+			BallDeco.clear();
+			Crystal.clear();
+			MakeCrashedCrystal.clear();
+			Obstacle.clear();
+			for (int i = 4; i < Background.size(); ++i) {
+				Background.erase(Background.begin() + i);
+				--i;
+			}
+			for (int i = 0; i < CrashedCrystal.size(); ++i)
+				DeleteObject(&CrashedCrystal[i]);
+			CrashedCrystal.clear();
+			for (int i = 0; i < CrashedObstacle.size(); ++i)
+				DeleteObject(&CrashedObstacle[i]);
+			CrashedObstacle.clear();
+
+			Clink.pos = glm::vec3{ 0.f, 0.2f, 0.f };
+
+			MakeCrystal(glm::vec3{ -0.3, -0.7, 0.f }, glm::vec3{ 0.5, 0.2, 0.5 });
+			MakeCrystal(glm::vec3{ 0.3, -0.7, 0.f }, glm::vec3{ 0.5, 0.2, 0.5 });
+		}
+		break;
+	}
+	case stop_s: {
+		if (what == 1) {
+			GameState = play_s;
+
+			glutTimerFunc(2000, TimerFunction, 2);
+		}
+		break;
+	}
 	default:
 		break;
 	}
@@ -171,6 +214,11 @@ bool CheckCollision(const GLObj& a, const GLObj& b, int what) {
 	return (std::abs(a.pos.x - b.pos.x) < (a.size.x + b.size.x) &&
 			std::abs(a.pos.y - b.pos.y) < (a.size.y + b.size.y) &&
 			std::abs(a.pos.z - b.pos.z) < (a.size.z + b.size.z));
+}
+bool CheckCollision(const GLCamera a, const GLObj& b) {
+	return (std::abs(a.pos.x - b.pos.x) < b.size.x &&
+			std::abs(a.pos.y - b.pos.y) < b.size.y &&
+			std::abs(a.pos.z - b.pos.z) < b.size.z);
 }
 glm::vec3 CheckCollisionDir(const GLObj& target, const GLObj& object, int what) {
 	GLObj temp;
@@ -371,12 +419,10 @@ glm::vec3 CalFragmentVelocity(GLObj& ball, GLObj& fragment, const char* mode) {
 		velocity = CalVector(ball.pos, glm::vec3(fragment.pos.x + fragment.midpos.x, fragment.pos.y + fragment.midpos.y, ball.pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
 		//cout << fragment.pos.y + fragment.midpos.y - ball.pos.y << endl;
 		velocity = NormalizeVector(velocity); // 벡터 정규화
-		velocity *= CalVectorMagnitude(ball.velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+		velocity *= CalVectorMagnitude(ball.velocity) / 5.f * rand_magnitude(gen); // 벡터에 속력 곱하기
 		//velocity.x /= 2.f; // 공에서 조각으로의 벡터 구하기
 
-		if (fragment.pos.y + fragment.midpos.y > ball.pos.y + 0.25f)
-			velocity = glm::vec3(0.f);
-		else if (fragment.pos.y + fragment.midpos.y > ball.pos.y + 0.15f && rand_bool(gen))
+		if ((fragment.pos.y + fragment.midpos.y > ball.pos.y + 0.25f) || (fragment.pos.y + fragment.midpos.y > ball.pos.y + 0.15f && rand_bool(gen))) 
 			velocity = glm::vec3(0.f);
 	}
 	else if (mode == "wo") {
@@ -386,12 +432,10 @@ glm::vec3 CalFragmentVelocity(GLObj& ball, GLObj& fragment, const char* mode) {
 		velocity = CalVector(ball.pos, glm::vec3(fragment.pos.x + fragment.midpos.x, fragment.pos.y + fragment.midpos.y, ball.pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
 		//cout << fragment.pos.y + fragment.midpos.y - ball.pos.y << endl;
 		velocity = NormalizeVector(velocity); // 벡터 정규화
-		velocity *= CalVectorMagnitude(ball.velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+		velocity *= CalVectorMagnitude(ball.velocity) / 5.f * rand_magnitude(gen); // 벡터에 속력 곱하기
 		//velocity.x /= 2.f; // 공에서 조각으로의 벡터 구하기
 
-		if (fragment.pos.x + fragment.midpos.x > ball.pos.x + 0.25f)
-			velocity = glm::vec3(0.f);
-		else if (fragment.pos.x + fragment.midpos.x < ball.pos.x - 0.25f)
+		if ((fragment.pos.x + fragment.midpos.x > ball.pos.x + 0.25f) || (fragment.pos.x + fragment.midpos.x < ball.pos.x - 0.25f))
 			velocity = glm::vec3(0.f);
 	}
 
@@ -730,6 +774,8 @@ void ShootBall(GLRay ray)
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -743,6 +789,8 @@ void ShootBall(GLRay ray)
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x -= 0.002f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -754,6 +802,8 @@ void ShootBall(GLRay ray)
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -767,6 +817,8 @@ void ShootBall(GLRay ray)
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.y += 0.003f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -779,6 +831,8 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x -= 0.002f;
 		Ball.back().velocity.y -= 0.002f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -791,6 +845,8 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
 		Ball.back().velocity.y -= 0.002f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -805,6 +861,8 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x -= 0.002f;
 		Ball.back().velocity.y -= 0.003f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -817,6 +875,8 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
 		Ball.back().velocity.y -= 0.003f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -829,6 +889,8 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x -= 0.002f;
 		Ball.back().velocity.y += 0.003f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -841,6 +903,8 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
 		Ball.back().velocity.y += 0.003f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -853,18 +917,22 @@ void ShootBall(GLRay ray)
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
-		Ball.emplace_back(obj_list[ball_i]);
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
 			BallDeco.back().pos = Ball.back().pos + BallDeco.back().velocity;
 		}
 
+		Ball.emplace_back(obj_list[ball_i]);
 		Ball.back().pos = ray.origin;
 		Ball.back().pos.z -= 0.2f;
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x -= 0.002f;
 		Ball.back().velocity.y -= 0.003f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -877,6 +945,8 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
 		Ball.back().velocity.y -= 0.003f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -889,6 +959,8 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x -= 0.002f;
 		Ball.back().velocity.y += 0.003f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -901,6 +973,8 @@ void ShootBall(GLRay ray)
 		Ball.back().velocity = ray.direction / 15.f;
 		Ball.back().velocity.x += 0.002f;
 		Ball.back().velocity.y += 0.003f;
+		if (GameState == play_s) // 앞으로 가는거 상쇄
+			Ball.back().velocity.z -= Speed;
 
 		if (Whatdeco != non_deco) {
 			BallDeco.emplace_back(deco_list[Whatdeco]);
@@ -912,8 +986,6 @@ void ShootBall(GLRay ray)
 		break;
 	}
 
-	if (GameState == play_s) // 앞으로 가는거 상쇄
-		Ball.back().velocity.z -= Speed;
 	ssystem->playSound(BallShoot_Sound, 0, false, &channel[ball_cn]);
 	channel[ball_cn]->setVolume(0.35 * volumeSize);
 }
@@ -1505,19 +1577,18 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 					CrashedObstacle.back().velocity = CalFragmentVelocity(ball, CrashedObstacle.back(), "wo");
 				else
 					CrashedObstacle.back().velocity = CalFragmentVelocity(ball, CrashedObstacle.back(), "ho");
+
+				if (CrashedObstacle.back().velocity == glm::vec3(0.f))
+					CrashedObstacle.back().revolve_theta.x = 0.f;
 			}
 		}
 	}
+
+	std::uniform_int_distribution<int> rand_sound(0, 2);
+	ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
+	channel[crash_cn]->setVolume(0.35 * volumeSize);
 }
 
-void MakeCrystal(glm::vec3 pos, glm::vec3 scale) {
-	Background.emplace_back(obj_list[fcube_i]);
-	Background.back().scale = scale;
-	Background.back().pos = pos;
-	Crystal.emplace_back(obj_list[crystal_i]);
-	Crystal.back().pos = pos;
-	Crystal.back().pos.y = pos.y + (scale.y * 0.5f);
-}
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 {
@@ -1787,7 +1858,7 @@ void TimerFunction(int value)
 				CrashedObstacle[i].rotate_theta += NormalizeVector(PerpendicularInXZPlane(CrashedObstacle[i].velocity)) * -2.f;
 				//cout << CrashedObstacle[i].velocity.x << ' ' << CrashedObstacle[i].velocity.y << ' ' << CrashedObstacle[i].velocity.z << endl;
 				CrashedObstacle[i].velocity.y -= g;
-				//CrashedObstacle[i].rotate_theta += glm::vec3(1.f);
+				// cout << CrashedObstacle[i].revolve_theta.x << endl;
 			}
 		}
 
@@ -1834,12 +1905,8 @@ void TimerFunction(int value)
 								Crystal[i].velocity.z += Speed;
 							for (int i = 0; i < Background.size(); ++i)
 								Background[i].velocity.z += Speed;
-							for (int i = 0; i < CrashedCrystal.size(); ++i)
-								CrashedCrystal[i].velocity.z += Speed;
 							for (int i = 0; i < Obstacle.size(); ++i)
 								Obstacle[i].velocity.z += Speed;
-							for (int i = 0; i < CrashedObstacle.size(); ++i)
-								CrashedObstacle[i].velocity.z += Speed;
 							Clink.velocity.z += Speed;
 						}
 						break;
@@ -1852,6 +1919,7 @@ void TimerFunction(int value)
 						
 						Ball[i].pos -= Ball[i].velocity;
 						Ball[i].velocity *= CheckCollisionDir(Obstacle[o_cnt], Ball[i], cube_i) / 4.f;
+						Ball[i].velocity.y = glm::abs(Ball[i].velocity.y);
 
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
@@ -1859,6 +1927,18 @@ void TimerFunction(int value)
 						break;
 					}
 				}
+			}
+		}
+
+		for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
+			if (CheckCollision(Camera, Obstacle[o_cnt])) {
+				GameState = end_s;
+			}
+		}
+		
+		for (int o_cnt = 0; o_cnt < Crystal.size(); ++o_cnt) {
+			if (CheckCollision(Camera, Crystal[o_cnt])) {
+				GameState = end_s;
 			}
 		}
 
@@ -1895,6 +1975,11 @@ void Keyboard(unsigned char key, int x, int y)
 	case 'Q': {
 		SaveMap();
 		exit(829);
+	}
+	case 27: {
+		if (GameState == play_s)
+			GameState = stop_s;
+		break;
 	}
 	case 'o': {
 		for (int i = 0; i < CrashedObstacle.size(); i++) {
@@ -1964,7 +2049,7 @@ GLvoid Mouse(int button, int state, int x, int y)
 					&& m.x <= Ui[GameState][i].righttop.x && m.y <= Ui[GameState][i].righttop.y) {
 					UiClick(i);
 					skip = true;
-					if (GameState != Now_state || GameState != option_s || i != 0)
+					if (GameState != Now_state || (GameState != option_s && GameState != end_s && GameState != stop_s) || i != 0)
 						break;
 				}
 			}
@@ -2153,8 +2238,8 @@ void Init()
 		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
 	}
 
-	MakeCrystal(glm::vec3{ -0.3, -0.6, 0.f }, glm::vec3{ 0.5, 0.3, 0.5 });
-	MakeCrystal(glm::vec3{ 0.3, -0.6, 0.f }, glm::vec3{ 0.5, 0.3, 0.5 });
+	MakeCrystal(glm::vec3{ -0.3, -0.7, 0.f }, glm::vec3{ 0.5, 0.2, 0.5 });
+	MakeCrystal(glm::vec3{ 0.3, -0.7, 0.f }, glm::vec3{ 0.5, 0.2, 0.5 });
 	
 	//Obstacle.emplace_back(obj_list[obstacle_i]);
 	//Obstacle.back().pos = glm::vec3(0.f, 0.2, -0.5f);
@@ -2218,6 +2303,18 @@ void Init()
 		Ui[custom_s].back().imgLoad("./IMG/초기화.png");
 		Ui[custom_s].emplace_back(GLUi(0.7f, -0.9f, 0.95f, -0.75f));
 		Ui[custom_s].back().imgLoad("./IMG/완료.png");
+
+		Ui[stop_s].emplace_back(GLUi(-1.f, -1.f, 1.f, 1.f, 0.1f));
+		Ui[stop_s].back().imgLoad("./IMG/gray_background.png");
+		Ui[stop_s].emplace_back(GLUi(-0.97, 0.7, -0.8, 0.95));
+		Ui[stop_s].back().imgLoad("./IMG/return.png");
+		Ui[stop_s].emplace_back(GLUi(-0.8f - 0.15f, -0.8f - 0.15f, -0.363f - 0.15f, -0.5f - 0.15f));
+		Ui[stop_s].back().imgLoad("./IMG/Option_ui.png");
+
+		Ui[end_s].emplace_back(GLUi(-1.f, -1.f, 1.f, 1.f, 0.1f));
+		Ui[end_s].back().imgLoad("./IMG/gray_background.png");
+		Ui[end_s].emplace_back(GLUi(-0.4, -0.7, 0.4, -0.4));
+		Ui[end_s].back().imgLoad("./IMG/title_go.png");
 	}
 
 	//  Deco
