@@ -266,24 +266,24 @@ bool FindIntersection(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 p4, gl
 	y = (a - b) / (c - d);
 
 	*intersection = glm::vec2(x, y) / 10000.f;
-	cout << "교점\t(" << intersection->x << ", " << intersection->y << ")" << endl;
-	cout << "x\t(" << glm::min(p1.x, p2.x) << ", " << glm::max(p1.x, p2.x) << ")" << endl;
-	cout << "y\t(" << glm::min(p1.y, p2.y) << ", " << glm::max(p1.y, p2.y) << ")" << endl;
-	cout << "x\t(" << glm::min(p3.x, p4.x) << ", " << glm::max(p3.x, p4.x) << ")" << endl;
-	cout << "y\t(" << glm::min(p3.y, p4.y) << ", " << glm::max(p3.y, p4.y) << ")" << endl;
+	//cout << "교점\t(" << intersection->x << ", " << intersection->y << ")" << endl;
+	//cout << "x\t(" << glm::min(p1.x, p2.x) << ", " << glm::max(p1.x, p2.x) << ")" << endl;
+	//cout << "y\t(" << glm::min(p1.y, p2.y) << ", " << glm::max(p1.y, p2.y) << ")" << endl;
+	//cout << "x\t(" << glm::min(p3.x, p4.x) << ", " << glm::max(p3.x, p4.x) << ")" << endl;
+	//cout << "y\t(" << glm::min(p3.y, p4.y) << ", " << glm::max(p3.y, p4.y) << ")" << endl;
 
 	// 가로
 	if (p3.x == p4.x) {
 		if (x >= glm::min(p1.x, p2.x) && x <= glm::max(p1.x, p2.x) &&
 			y >= glm::min(p1.y, p2.y) && y <= glm::max(p1.y, p2.y) &&
 			y >= glm::min(p3.y, p4.y) && y <= glm::max(p3.y, p4.y)) {
-			cout << "교점이에여" << endl;
-			cout << endl;
+			//cout << "교점이에여" << endl;
+			//cout << endl;
 			return true;
 		}
 		else {
-			cout << "교점 없음" << endl;
-			cout << endl;
+			//cout << "교점 없음" << endl;
+			//cout << endl;
 			return false;
 		}
 	}
@@ -292,13 +292,13 @@ bool FindIntersection(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 p4, gl
 		if (x >= glm::min(p1.x, p2.x) && x <= glm::max(p1.x, p2.x) &&
 			x >= glm::min(p3.x, p4.x) && x <= glm::max(p3.x, p4.x) &&
 			y >= glm::min(p1.y, p2.y) && y <= glm::max(p1.y, p2.y)) {
-			cout << "교점이에여" << endl;
-			cout << endl;
+			//cout << "교점이에여" << endl;
+			//cout << endl;
 			return true;
 		}
 		else {
-			cout << "교점 없음" << endl;
-			cout << endl;
+			//cout << "교점 없음" << endl;
+			//cout << endl;
 			return false;
 		}
 	}
@@ -956,7 +956,7 @@ std::vector <glm::vec3> ClampCrashVertex(std::vector <glm::vec3>& vertex, GLObj&
 	glm::vec2 intersection;
 	std::vector <glm::vec2> additional;
 	int index;
-	cout << "-------------------------------------------------" << endl;
+	//cout << "-------------------------------------------------" << endl;
 	//cout << "장애물\t(" << obstacle.pos.x + obstacle.size.x << ", " << obstacle.pos.y + obstacle.size.y << ")\t(" << obstacle.pos.x - obstacle.size.x << ", " << obstacle.pos.y - obstacle.size.y << ")" << endl;
 	//cout << endl;
 
@@ -1173,7 +1173,7 @@ std::vector <glm::vec3>  InputVertexIndex(std::vector <glm::vec3>& vertex) {
 		objpos.emplace_back(vertex[5]);
 	}
 	else if (vertex.size()) {
-		cout << "버그입니다~ ㅎ" << endl;
+		cout << vertex.size() << endl;
 	}
 
 	return objpos;
@@ -1236,7 +1236,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 	}
 
 	// 원점 포함 조각
-	cout << "------------------------------------원점 포함 조각------------------------------------" << endl;
+	//cout << "------------------------------------원점 포함 조각------------------------------------" << endl;
 	for (int j = 0; j < angle.size(); j++) {
 		vertex.clear();
 		vertex_temp.clear();
@@ -1771,9 +1771,8 @@ void TimerFunction(int value)
 				for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Obstacle[o_cnt], cube_i) && !CheckCollision(temp, Obstacle[o_cnt], cube_i)) {
 						CrashObstacle(Ball[i], Obstacle[o_cnt]);
-
 						Ball[i].pos -= Ball[i].velocity;
-						Ball[i].velocity *= CheckCollisionDir(Obstacle[o_cnt], Ball[i], cube_i) / 4.f;
+						Ball[i].velocity /= 4.f;
 
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
