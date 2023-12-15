@@ -67,6 +67,7 @@ GLObj obj_list[5], deco_list[6];
 bool Lbt = false;
 glm::vec3 click_mouse{};
 int ball_num = 1; // 한번에 쏘는 공 개수
+int ball_gauge = 0;
 int GameState = title_s;
 GLfloat volumeSize = 1.f, Speed = 0.03f;
 int Whatdeco = non_deco;
@@ -351,68 +352,6 @@ glm::vec3 CalNormalVector(const glm::vec3& A, const glm::vec3& B, const glm::vec
 	normal = NormalizeVector(normal);
 
 	return normal;
-}
-glm::mat4 CalInverseMatrix(glm::mat4 matrix) {
-	using Matrix = std::vector<std::vector<float>>;
-	Matrix input = {
-		{matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3]},
-		{matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3]},
-		{matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3]},
-		{matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]}
-	};
-
-	int n = input.size();
-
-	// 확장된 행렬 생성 (원래 행렬과 단위 행렬을 합침)
-	Matrix augmented(2 * n, std::vector<float>(2 * n, 0.0f));
-
-	// 원래 행렬 복사
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j) {
-			augmented[i][j] = input[i][j];
-		}
-	}
-
-	// 단위 행렬 추가
-	for (int i = 0; i < n; ++i) {
-		augmented[i][i + n] = 1.0f;
-	}
-
-	// 가우스 소거법 수행
-	for (int i = 0; i < n; ++i) {
-		// 대각원소를 1로 만들기
-		float pivot = augmented[i][i];
-		for (int j = 0; j < 2 * n; ++j) {
-			augmented[i][j] /= pivot;
-		}
-
-		// 다른 행들의 대각원소를 0으로 만들기
-		for (int k = 0; k < n; ++k) {
-			if (k != i) {
-				float factor = augmented[k][i];
-				for (int j = 0; j < 2 * n; ++j) {
-					augmented[k][j] -= factor * augmented[i][j];
-				}
-			}
-		}
-	}
-
-	// 역행렬 부분 추출
-	Matrix result(n, std::vector<float>(n, 0.0f));
-	for (int i = 0; i < n; ++i) {
-		for (int j = 0; j < n; ++j) {
-			result[i][j] = augmented[i][j + n];
-		}
-	}
-
-	glm::mat4 result_matrix = {
-	{result[0][0], result[0][1], result[0][2], result[0][3]},
-	{result[1][0], result[1][1], result[1][2], result[1][3]},
-	{result[2][0], result[2][1], result[2][2], result[2][3]},
-	{result[3][0], result[3][1], result[3][2], result[3][3]}
-	};
-
-	return result_matrix;
 }
 
 void WindowConversion(GLObj& obj, int w, int h) {
@@ -1773,6 +1712,8 @@ void TimerFunction(int value)
 						Ball[i].pos -= Ball[i].velocity;
 						Ball[i].velocity *= CheckCollisionDir(Crystal[c_cnt], Ball[i], crystal_i) / 4.f;
 						Ball[i].velocity.y = glm::abs(Ball[i].velocity.y);
+						ball_gauge++;
+						ball_num = ball_gauge / 10 + 1;
 
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
@@ -1798,38 +1739,6 @@ void TimerFunction(int value)
 						break;
 					}
 				}
-
-				//// 장애물 조각
-				//for (int f_cnt = 0; f_cnt < CrashedObstacle.size(); f_cnt++) {
-				//	if (CrashedObstacle[f_cnt].velocity == glm::vec3(0.f) && CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], CrashedObstacle[f_cnt], cube_i) && !CheckCollision(temp, CrashedObstacle[f_cnt], cube_i)) {
-				//		if (CrashedObstacle[i].vertex.size() == 3 &&
-				//			isPointInsideTriangle(Ball[i].pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos)) {
-				//			CrashedObstacle[f_cnt].velocity = CalVector(Ball[i].pos, glm::vec3(CrashedObstacle[f_cnt].pos.x + CrashedObstacle[f_cnt].midpos.x, CrashedObstacle[f_cnt].pos.y + CrashedObstacle[f_cnt].midpos.y, Ball[i].pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
-				//			CrashedObstacle[f_cnt].velocity = NormalizeVector(CrashedObstacle[f_cnt].velocity); // 벡터 정규화
-				//			CrashedObstacle[f_cnt].velocity *= CalVectorMagnitude(Ball[i].velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
-				//		}
-				//		else if (CrashedObstacle[i].vertex.size() == 4 &&
-				//			isPointInsideQuadrangle(Ball[i].pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[3] + CrashedObstacle[i].pos)) {
-				//			CrashedObstacle[f_cnt].velocity = CalVector(Ball[i].pos, glm::vec3(CrashedObstacle[f_cnt].pos.x + CrashedObstacle[f_cnt].midpos.x, CrashedObstacle[f_cnt].pos.y + CrashedObstacle[f_cnt].midpos.y, Ball[i].pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
-				//			CrashedObstacle[f_cnt].velocity = NormalizeVector(CrashedObstacle[f_cnt].velocity); // 벡터 정규화
-				//			CrashedObstacle[f_cnt].velocity *= CalVectorMagnitude(Ball[i].velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
-				//		}
-				//		else if (CrashedObstacle[i].vertex.size() == 5 &&
-				//			isPointInsidePentagon(Ball[i].pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[3] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[4] + CrashedObstacle[i].pos)) {
-				//			CrashedObstacle[f_cnt].velocity = CalVector(Ball[i].pos, glm::vec3(CrashedObstacle[f_cnt].pos.x + CrashedObstacle[f_cnt].midpos.x, CrashedObstacle[f_cnt].pos.y + CrashedObstacle[f_cnt].midpos.y, Ball[i].pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
-				//			CrashedObstacle[f_cnt].velocity = NormalizeVector(CrashedObstacle[f_cnt].velocity); // 벡터 정규화
-				//			CrashedObstacle[f_cnt].velocity *= CalVectorMagnitude(Ball[i].velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
-				//		}
-
-				//		if (!crash_f) {
-				//			Ball[i].pos -= Ball[i].velocity;
-				//			Ball[i].velocity /= 4.f;
-				//			if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
-				//				Ball[i].velocity = glm::vec3(0.f);
-				//		}
-				//		crash_f = true;
-				//	}
-				//}
 
 				// 장애물
 				for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
