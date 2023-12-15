@@ -68,6 +68,7 @@ bool Lbt = false;
 glm::vec3 click_mouse{};
 int ball_num = 1; // 한번에 쏘는 공 개수
 int ball_gauge = 0;
+int total_ball = 25;
 int GameState = title_s;
 GLfloat volumeSize = 1.f, Speed = 0.03f;
 int Whatdeco = non_deco;
@@ -1687,6 +1688,7 @@ void TimerFunction(int value)
 		std::uniform_real_distribution<float> rand_magnitude(0.5f, 0.8f);
 		std::uniform_int_distribution<int> rand_sound(0, 2);
 
+		// 공과 충돌처리
 		for (int i = 0; i < Ball.size(); ++i) {
 			temp.pos = Ball[i].pos;
 
@@ -1721,11 +1723,13 @@ void TimerFunction(int value)
 
 						if (GameState == title_s) {
 							GameState = play_s;
+							total_ball++;
+							ball_gauge--;
 							glutTimerFunc(2000, TimerFunction, 2);
 
 							//vector <GLObj> Ball, Crystal, Background, CrashedCrystal, Obstacle, CrashedObstacle;
 							for (int i = 0; i < Ball.size(); ++i)
-								Ball[i].velocity.z += Speed;
+								Ball[i].pos.z += Speed;
 							for (int i = 0; i < Crystal.size(); ++i)
 								Crystal[i].velocity.z += Speed;
 							for (int i = 0; i < Background.size(); ++i)
@@ -1886,6 +1890,10 @@ GLvoid Mouse(int button, int state, int x, int y)
 
 	if (state == GLUT_DOWN) {
 		if (button == GLUT_LEFT_BUTTON) {
+			total_ball--;
+			if (!total_ball) {
+				GameState = end_s;
+			}
 			Lbt = true;
 			click_mouse = m;
 			bool skip = false;
