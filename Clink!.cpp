@@ -312,7 +312,7 @@ bool isPointInsideTriangle(glm::vec2 p, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3
 	float area3 = TriangleArea(p, p1, p3);
 	float total = TriangleArea(p1, p2, p3);
 
-	return abs(total - (area1 + area2 + area3)) < 0.01f;
+	return abs(total - (area1 + area2 + area3)) < 0.0001f;
 }
 bool isPointInsideQuadrangle(glm::vec2 p, glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, glm::vec2 p4) {
 	return isPointInsideTriangle(p, p1, p2, p3) || isPointInsideTriangle(p, p1, p3, p4);
@@ -1347,6 +1347,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 			for (int i = 0; i < size; i++) {
 				CrashedObstacle.back().vertex.emplace_back(vertex[i]);
 			}
+			obstacle.fragment.emplace_back(&CrashedObstacle.back());
 		}
 	}
 
@@ -1461,9 +1462,11 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 				for (int i = 0; i < size; i++) {
 					CrashedObstacle.back().vertex.emplace_back(vertex[i]);
 				}
+				obstacle.fragment.emplace_back(&CrashedObstacle.back());
 			}
 		}
 	}
+
 	std::uniform_int_distribution<int> rand_sound(0, 2);
 	ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
 	channel[crash_cn]->setVolume(0.35 * volumeSize);
@@ -1743,6 +1746,8 @@ void TimerFunction(int value)
 		}
 
 		GLObj temp;
+		bool crash_f = false;
+		std::uniform_real_distribution<float> rand_magnitude(0.5f, 0.8f);
 
 		for (int i = 0; i < Ball.size(); ++i) {
 			temp.pos = Ball[i].pos;
@@ -1792,24 +1797,70 @@ void TimerFunction(int value)
 						break;
 					}
 				}
+
+				//// 장애물 조각
+				//for (int f_cnt = 0; f_cnt < CrashedObstacle.size(); f_cnt++) {
+				//	if (CrashedObstacle[f_cnt].velocity == glm::vec3(0.f) && CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], CrashedObstacle[f_cnt], cube_i) && !CheckCollision(temp, CrashedObstacle[f_cnt], cube_i)) {
+				//		if (CrashedObstacle[i].vertex.size() == 3 &&
+				//			isPointInsideTriangle(Ball[i].pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos)) {
+				//			CrashedObstacle[f_cnt].velocity = CalVector(Ball[i].pos, glm::vec3(CrashedObstacle[f_cnt].pos.x + CrashedObstacle[f_cnt].midpos.x, CrashedObstacle[f_cnt].pos.y + CrashedObstacle[f_cnt].midpos.y, Ball[i].pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
+				//			CrashedObstacle[f_cnt].velocity = NormalizeVector(CrashedObstacle[f_cnt].velocity); // 벡터 정규화
+				//			CrashedObstacle[f_cnt].velocity *= CalVectorMagnitude(Ball[i].velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+				//		}
+				//		else if (CrashedObstacle[i].vertex.size() == 4 &&
+				//			isPointInsideQuadrangle(Ball[i].pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[3] + CrashedObstacle[i].pos)) {
+				//			CrashedObstacle[f_cnt].velocity = CalVector(Ball[i].pos, glm::vec3(CrashedObstacle[f_cnt].pos.x + CrashedObstacle[f_cnt].midpos.x, CrashedObstacle[f_cnt].pos.y + CrashedObstacle[f_cnt].midpos.y, Ball[i].pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
+				//			CrashedObstacle[f_cnt].velocity = NormalizeVector(CrashedObstacle[f_cnt].velocity); // 벡터 정규화
+				//			CrashedObstacle[f_cnt].velocity *= CalVectorMagnitude(Ball[i].velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+				//		}
+				//		else if (CrashedObstacle[i].vertex.size() == 5 &&
+				//			isPointInsidePentagon(Ball[i].pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[3] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[4] + CrashedObstacle[i].pos)) {
+				//			CrashedObstacle[f_cnt].velocity = CalVector(Ball[i].pos, glm::vec3(CrashedObstacle[f_cnt].pos.x + CrashedObstacle[f_cnt].midpos.x, CrashedObstacle[f_cnt].pos.y + CrashedObstacle[f_cnt].midpos.y, Ball[i].pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
+				//			CrashedObstacle[f_cnt].velocity = NormalizeVector(CrashedObstacle[f_cnt].velocity); // 벡터 정규화
+				//			CrashedObstacle[f_cnt].velocity *= CalVectorMagnitude(Ball[i].velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+				//		}
+
+				//		if (!crash_f) {
+				//			Ball[i].pos -= Ball[i].velocity;
+				//			Ball[i].velocity /= 4.f;
+				//			if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
+				//				Ball[i].velocity = glm::vec3(0.f);
+				//		}
+				//		crash_f = true;
+				//	}
+				//}
+
 				// 장애물
+				crash_f = false;
 				for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Obstacle[o_cnt], cube_i) && !CheckCollision(temp, Obstacle[o_cnt], cube_i)) {
-						CrashObstacle(Ball[i], Obstacle[o_cnt]);
-						Ball[i].pos -= Ball[i].velocity;
-						Ball[i].velocity /= 4.f;
-
-						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
-							Ball[i].velocity = glm::vec3(0.f);
-						Obstacle.erase(Obstacle.begin() + o_cnt);
+						if (Obstacle[o_cnt].scale == glm::vec3(0.f)) {
+							for (int f_cnt = 0; f_cnt < Obstacle[o_cnt].fragment.size(); f_cnt++) {
+								if (Obstacle[o_cnt].fragment[f_cnt]->velocity == glm::vec3(0.f)) {
+									Obstacle[o_cnt].fragment[f_cnt]->velocity = CalFragmentVelocity(Ball[i], *Obstacle[o_cnt].fragment[f_cnt], 'o');
+								}
+							}
+						}
+						else {
+							CrashObstacle(Ball[i], Obstacle[o_cnt]);
+							Obstacle[o_cnt].scale = glm::vec3(0.f);
+						}
+						crash_f = true;
 						break;
 					}
+				}
+				if (crash_f) {
+					Ball[i].pos -= Ball[i].velocity;
+					Ball[i].velocity /= 4.f;
+					if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
+						Ball[i].velocity = glm::vec3(0.f);
+					cout << "으악" << endl;
 				}
 			}
 		}
 
 		for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
-			if (CheckCollision(Camera, Obstacle[o_cnt])) {
+			if (Obstacle[o_cnt].scale != glm::vec3(0.f) && CheckCollision(Camera, Obstacle[o_cnt])) {
 				GameState = end_s;
 			}
 		}
@@ -1817,17 +1868,17 @@ void TimerFunction(int value)
 		for (int i = 0; i < CrashedObstacle.size(); i++) {
 			if (CheckCollision(Camera, CrashedObstacle[i])) {
 				if (CrashedObstacle[i].vertex.size() == 3 &&
-					isPointInsideTriangle(Camera.pos, CrashedObstacle[i].vertex[0], CrashedObstacle[i].vertex[1], CrashedObstacle[i].vertex[2])) {
+					isPointInsideTriangle(Camera.pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos)) {
 					GameState = end_s;
 					break;
 				}
-				if (CrashedObstacle[i].vertex.size() == 4 &&
-					isPointInsideQuadrangle(Camera.pos, CrashedObstacle[i].vertex[0], CrashedObstacle[i].vertex[1], CrashedObstacle[i].vertex[2], CrashedObstacle[i].vertex[3])) {
+				else if (CrashedObstacle[i].vertex.size() == 4 &&
+					isPointInsideQuadrangle(Camera.pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[3] + CrashedObstacle[i].pos)) {
 					GameState = end_s;
 					break;
 				}
-				if (CrashedObstacle[i].vertex.size() == 5 &&
-					isPointInsidePentagon(Camera.pos, CrashedObstacle[i].vertex[0], CrashedObstacle[i].vertex[1], CrashedObstacle[i].vertex[2], CrashedObstacle[i].vertex[3], CrashedObstacle[i].vertex[4])) {
+				else if (CrashedObstacle[i].vertex.size() == 5 &&
+					isPointInsidePentagon(Camera.pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[3] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[4] + CrashedObstacle[i].pos)) {
 					GameState = end_s;
 					break;
 				}
