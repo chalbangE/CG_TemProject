@@ -1347,7 +1347,6 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 			for (int i = 0; i < size; i++) {
 				CrashedObstacle.back().vertex.emplace_back(vertex[i]);
 			}
-			obstacle.fragment.emplace_back(&CrashedObstacle.back());
 		}
 	}
 
@@ -1462,10 +1461,12 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 				for (int i = 0; i < size; i++) {
 					CrashedObstacle.back().vertex.emplace_back(vertex[i]);
 				}
-				obstacle.fragment.emplace_back(&CrashedObstacle.back());
 			}
 		}
 	}
+
+	for (int i = 0; i < CrashedObstacle.size(); ++i)
+		obstacle.fragment.emplace_back(&CrashedObstacle[i]);
 
 	std::uniform_int_distribution<int> rand_sound(0, 2);
 	ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
@@ -1836,6 +1837,7 @@ void TimerFunction(int value)
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Obstacle[o_cnt], cube_i) && !CheckCollision(temp, Obstacle[o_cnt], cube_i)) {
 						if (Obstacle[o_cnt].scale == glm::vec3(0.f)) {
 							for (int f_cnt = 0; f_cnt < Obstacle[o_cnt].fragment.size(); f_cnt++) {
+								cout << f_cnt << endl;
 								if (Obstacle[o_cnt].fragment[f_cnt]->velocity == glm::vec3(0.f)) {
 									Obstacle[o_cnt].fragment[f_cnt]->velocity = CalFragmentVelocity(Ball[i], *Obstacle[o_cnt].fragment[f_cnt], 'o');
 								}
