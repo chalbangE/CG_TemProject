@@ -60,7 +60,7 @@ enum GameStateList {
 	title_s, option_s, custom_s, play_s, stop_s, end_s
 };
 
-vector <GLObj> Ball, BallDeco, Crystal, Background, MakeCrashedCrystal, CrashedCrystal, Obstacle, CrashedObstacle;
+vector <GLObj> Ball, BallDeco, Crystal, Background, MakeCrashedCrystal, CrashedCrystal, Obstacle, CrashedObstacle, LosedBall;
 vector <GLUi> Ui[6];
 vector <GLUi> Gauge;
 vector <GLUi> Number;
@@ -71,7 +71,7 @@ glm::vec3 click_mouse{};
 int ball_num = 1; // 한번에 쏘는 공 개수
 int ball_gauge = 0;
 int total_ball = 25;
-int GameState = end_s;
+int GameState = title_s;
 GLfloat volumeSize = 1.f, Speed = 0.03f;
 int Whatdeco = non_deco;
 
@@ -978,7 +978,7 @@ std::vector <glm::vec3> ClampCrashVertex(std::vector <glm::vec3>& vertex, GLObj&
 
 	return result;
 }
-std::vector <glm::vec3>  InputVertexIndex(std::vector <glm::vec3>& vertex) {
+std::vector <glm::vec3> InputVertexIndex(std::vector <glm::vec3>& vertex) {
 	std::vector <glm::vec3> objpos;
 
 	if (vertex.size() == 6) {
@@ -1414,7 +1414,35 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 GLUi SetImageSize(int sizex, int sizey) {
 	return GLUi(-(float)sizex / 1000.f / 2.f, -(float)sizey / 1000.f / 2.f, (float)sizex / 1000.f / 2.f, (float)sizey / 1000.f / 2.f);
 }
+void LoseBall() {
+	GLRay temp;
+	std::uniform_int_distribution<int> rand_coord_x(0, winSizex);
+	std::uniform_int_distribution<int> rand_coord_y(winSizey / 2, winSizey);
 
+	for (int i = 0; i < 10; i++) {
+		temp.ScreenToWorld(rand_coord_x(gen), rand_coord_y(gen), Camera.Camera_Mat, Projection_Mat, winSizex, winSizey);
+
+		LosedBall.emplace_back(obj_list[ball_i]);
+		LosedBall.back().pos = temp.origin;
+		LosedBall.back().pos.z -= 0.2f;
+		LosedBall.back().velocity = temp.direction / 15.f;
+		//LosedBall.back().velocity.z = -0.03;
+
+		if (Whatdeco != non_deco) {
+			BallDeco.emplace_back(deco_list[Whatdeco]);
+			BallDeco.back().pos = LosedBall.back().pos + BallDeco.back().velocity;
+		}
+	}
+	
+	ball_gauge = 0;
+	ball_num = ball_gauge / 10 + 1;
+	total_ball -= 10;
+	if (total_ball <= 0) {
+		total_ball = 0;
+		GameState = end_s;
+		return;
+	}
+}
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 {
@@ -1518,6 +1546,18 @@ GLvoid drawScene()
 		Ball[i].draw_prepare(TexorColorLocation, "Texture_bool");
 		glUniform1f(DistanceLocation, distance(Light.pos, Ball[i].pos));
 		Ball[i].draw("solid");
+	}
+
+	for (int i = 0; i < LosedBall.size(); ++i) {
+		LosedBall[i].Update();
+		LosedBall[i].draw_prepare(PosLocation, "Pos");
+		LosedBall[i].draw_prepare(WorldTransLocation, "World");
+		LosedBall[i].draw_prepare(NormalLocation, "Normal");
+		LosedBall[i].draw_prepare(UvLocation, "UV");
+		LosedBall[i].draw_prepare(false, "Texture");
+		LosedBall[i].draw_prepare(TexorColorLocation, "Texture_bool");
+		glUniform1f(DistanceLocation, distance(Light.pos, LosedBall[i].pos));
+		LosedBall[i].draw("solid");
 	}
 
 	for (int i = 0; i < BallDeco.size(); ++i) {
@@ -1679,6 +1719,15 @@ void TimerFunction(int value)
 					--i;
 				}
 			}
+			for (int i = 0; i < LosedBall.size(); ++i) {
+				LosedBall[i].pos.z += Speed;
+				if (LosedBall[i].pos.z > Camera.pos.z + 1.f) {
+					if (Whatdeco != non_deco)
+						BallDeco.erase(BallDeco.begin() + i);
+					LosedBall.erase(LosedBall.begin() + i);
+					--i;
+				}
+			}
 			for (int i = 4; i < Background.size(); ++i) {
 				Background[i].pos += Background[i].velocity;
 				if (Background[i].pos.z > Camera.pos.z + 1.f) {
@@ -1818,9 +1867,18 @@ void TimerFunction(int value)
 			}
 		}
 
+		for (int i = 0; i < LosedBall.size(); ++i) {
+			temp.pos = LosedBall[i].pos;
+			
+			if (CalVectorMagnitude(LosedBall[i].velocity) != 0.f) {
+				LosedBall[i].pos += LosedBall[i].velocity;
+				LosedBall[i].velocity.y -= g;
+			}
+		}
+
 		for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
 			if (Obstacle[o_cnt].scale != glm::vec3(0.f) && CheckCollision(Camera, Obstacle[o_cnt])) {
-				GameState = end_s;
+				LoseBall();
 			}
 		}
 
@@ -1828,17 +1886,17 @@ void TimerFunction(int value)
 			if (CheckCollision(Camera, CrashedObstacle[i])) {
 				if (CrashedObstacle[i].vertex.size() == 3 &&
 					isPointInsideTriangle(Camera.pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos)) {
-					GameState = end_s;
+					LoseBall();
 					break;
 				}
 				else if (CrashedObstacle[i].vertex.size() == 4 &&
 					isPointInsideQuadrangle(Camera.pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[3] + CrashedObstacle[i].pos)) {
-					GameState = end_s;
+					LoseBall();
 					break;
 				}
 				else if (CrashedObstacle[i].vertex.size() == 5 &&
 					isPointInsidePentagon(Camera.pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[3] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[4] + CrashedObstacle[i].pos)) {
-					GameState = end_s;
+					LoseBall();
 					break;
 				}
 			}
