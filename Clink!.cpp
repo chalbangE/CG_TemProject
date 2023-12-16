@@ -1666,17 +1666,6 @@ GLvoid drawScene()
 	if (GameState == play_s) {
 		std::string number = std::to_string(total_ball);
 
-		for (int i = 0; i < number.size(); i++) {
-			Number[number[i] - '0'].pos = glm::vec3(0.286f * (0.2f * (float)i) + (0.005f * (float)i), 1.f - 0.175f, 0.f);
-			Number[number[i] - '0'].Update();
-			Number[number[i] - '0'].draw_prepare(PosLocation, "Pos");
-			Number[number[i] - '0'].draw_prepare(WorldTransLocation, "World");
-			Number[number[i] - '0'].draw_prepare(UvLocation, "UV");
-			Number[number[i] - '0'].draw_prepare(Number[number[i] - '0'].now_img, "Texture");
-			Number[number[i] - '0'].draw_prepare(UiboolLocation, "UI_bool");
-			Number[number[i] - '0'].draw("solid");
-		}
-
 		Gauge[ball_gauge].Update();
 		Gauge[ball_gauge].draw_prepare(PosLocation, "Pos");
 		Gauge[ball_gauge].draw_prepare(WorldTransLocation, "World");
@@ -1684,6 +1673,28 @@ GLvoid drawScene()
 		Gauge[ball_gauge].draw_prepare(Gauge[ball_gauge].now_img, "Texture");
 		Gauge[ball_gauge].draw_prepare(UiboolLocation, "UI_bool");
 		Gauge[ball_gauge].draw("solid");
+
+		if (GameMode == clasic_m) {
+			for (int i = 0; i < number.size(); i++) {
+				Number[number[i] - '0'].pos = glm::vec3(0.286f * (0.2f * (float)i) + (0.005f * (float)i), 1.f - 0.175f, 0.f);
+				Number[number[i] - '0'].Update();
+				Number[number[i] - '0'].draw_prepare(PosLocation, "Pos");
+				Number[number[i] - '0'].draw_prepare(WorldTransLocation, "World");
+				Number[number[i] - '0'].draw_prepare(UvLocation, "UV");
+				Number[number[i] - '0'].draw_prepare(Number[number[i] - '0'].now_img, "Texture");
+				Number[number[i] - '0'].draw_prepare(UiboolLocation, "UI_bool");
+				Number[number[i] - '0'].draw("solid");
+			}
+		}
+		else {
+			Gauge.back().Update();
+			Gauge.back().draw_prepare(PosLocation, "Pos");
+			Gauge.back().draw_prepare(WorldTransLocation, "World");
+			Gauge.back().draw_prepare(UvLocation, "UV");
+			Gauge.back().draw_prepare(Gauge.back().now_img, "Texture");
+			Gauge.back().draw_prepare(UiboolLocation, "UI_bool");
+			Gauge.back().draw("solid");
+		}
 
 		if (GameMode == clasic_m) {
 			number = std::to_string(Distance);
@@ -1857,13 +1868,14 @@ void TimerFunction(int value)
 						Ball[i].pos -= Ball[i].velocity;
 						Ball[i].velocity *= CheckCollisionDir(Crystal[c_cnt], Ball[i], crystal_i) / 4.f;
 						Ball[i].velocity.y = glm::abs(Ball[i].velocity.y);
-						ball_gauge++;
-						if (ball_gauge > 40)
-							ball_gauge = 40;
-						ball_num = ball_gauge / 10 + 1;
-						total_ball += 3;
-						if (total_ball > 999)
-							total_ball = 999;
+
+						if (GameMode == clasic_m) {
+							ball_gauge++;
+							if (ball_gauge > 40)
+								ball_gauge = 40;
+							ball_num = ball_gauge / 10 + 1;
+							total_ball += 3;
+						}
 
 						if (CalVectorMagnitude(Ball[i].velocity) < 0.001f)
 							Ball[i].velocity = glm::vec3(0.f);
@@ -2080,9 +2092,11 @@ GLvoid Mouse(int button, int state, int x, int y)
 			}
 
 			if ((GameState == title_s || GameState == play_s) && !skip) {
-				total_ball--;
-				if (!total_ball) {
-					GameState = end_s;
+				if (GameMode == clasic_m) {
+					total_ball--;
+					if (!total_ball) {
+						GameState = end_s;
+					}
 				}
 				Msray.ScreenToWorld(x, y, Camera.Camera_Mat, Projection_Mat, winSizex, winSizey);
 				ShootBall(Msray);
@@ -2096,7 +2110,6 @@ GLvoid Mouse(int button, int state, int x, int y)
 		}
 	}
 }
-
 GLvoid Motion(int x, int y)
 {
 	if (Lbt) {
@@ -2579,6 +2592,10 @@ void Init()
 		Gauge.back().imgLoad("./IMG/gauge40.png");
 		Gauge.back().scale = glm::vec3(0.3f);
 		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
+		Gauge.emplace_back(SetImageSize(314, 419));
+		Gauge.back().imgLoad("./IMG/infinity.png");
+		Gauge.back().scale = glm::vec3(0.3f);
+		Gauge.back().pos = glm::vec3(0.01f, 1.f - 0.175f, 0.f);
 
 
 		Ui[stop_s].emplace_back(GLUi(-1.f, -1.f, 1.f, 1.f, 0.1f));
