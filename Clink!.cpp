@@ -136,7 +136,7 @@ void UiClick(int what)
 				BallDeco[0].emplace_back(deco_list[Whatdeco]);
 
 			Camera.pos = glm::vec3{ 0.f, 0.f, 0.3f };
-			Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 2.f };
+			Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 4.f };
 		}
 		break;
 	}
@@ -182,7 +182,7 @@ void UiClick(int what)
 			BallDecoClear();
 
 			Camera.pos = glm::vec3{ 0.f, 0.f, 3.f };
-			Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 2.f };
+			Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 4.f };
 			GameState = title_s;
 		}
 		break;
@@ -1537,11 +1537,11 @@ GLvoid drawScene()
 		for (int i = 0; i < Background.size(); ++i) {
 			Background[i].Update();
 			Background[i].draw_prepare(PosLocation, "Pos");
-			Background[i].draw_prepare(ColorLocation, "Color");
-			Background[i].draw_prepare(TexorColorLocation, "Color_bool");
 			Background[i].draw_prepare(WorldTransLocation, "World");
 			Background[i].draw_prepare(NormalLocation, "Normal");
 			Background[i].draw_prepare(UvLocation, "UV");
+			Background[i].draw_prepare(false, "Texture");
+			Background[i].draw_prepare(TexorColorLocation, "Texture_bool");
 			if (i < 4)
 				glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos) / 3.f);
 			else
@@ -2049,11 +2049,13 @@ void Special_Keyboard(int key, int x, int y)
 	case GLUT_KEY_UP: {
 		if (Light.L_color.x < 2.f)
 			Light.L_color += glm::vec3{ 0.1f, 0.1f, 0.1f };
+		cout << Light.L_color.r << endl;
 		break;
 	}
 	case GLUT_KEY_DOWN: {
 		if (Light.L_color.x > 0.3f)
 			Light.L_color -= glm::vec3{ 0.1f, 0.1f, 0.1f };
+		cout << Light.L_color.r << endl;
 		break;
 	}
 	case GLUT_KEY_F11: {
@@ -2163,7 +2165,7 @@ void Init()
 		else
 			std::cerr << "Failed to obj file" << std::endl;
 
-		Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 2.f };
+		Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 4.f };
 		Light.scale = glm::vec3(0.f);
 
 		std::vector<glm::vec3> color;
@@ -2171,7 +2173,7 @@ void Init()
 		for (int i = 0; i < Light.face_cnt * 3; ++i) {
 			color.emplace_back(a);
 		}
-		Light.L_color = glm::vec3{ 1.f, 1.f, 1.f };
+		Light.L_color = glm::vec3(2.f);
 
 		glGenBuffers(1, &Light.v_color);
 		glBindBuffer(GL_ARRAY_BUFFER, Light.v_color);
@@ -2188,7 +2190,7 @@ void Init()
 			std::cerr << "Failed to obj file" << std::endl;
 
 		obj_list[ball_i].pos = glm::vec3{ 0.f, 0.f, 0.f };
-		obj_list[ball_i].scale = glm::vec3{ 0.03f, 0.03f, 0.03f };
+		obj_list[ball_i].scale = glm::vec3(0.04f);
 		obj_list[ball_i].velocity = glm::vec3{ 0.f, -0.001f, 0.f };
 
 		obj_list[ball_i].imgLoad("./IMG/iron.png");
@@ -2219,7 +2221,7 @@ void Init()
 		obj_list[crystal_i].pos = glm::vec3{ 0.5f, -0.5f, 0.f };
 		obj_list[crystal_i].midpos = glm::vec3{ 0.f, 0.f, 0.f };
 
-		obj_list[crystal_i].imgLoad("./IMG/유리.png");
+		obj_list[crystal_i].imgLoad("./IMG/crystal.png");
 	}
 
 	//  Background
@@ -2232,28 +2234,22 @@ void Init()
 			else
 				std::cerr << "Failed to obj file" << std::endl;
 
-			obj_list[cube_i].scale = glm::vec3{ 4.f, 4.f, 30.f };
-
-			std::vector<glm::vec3> color;
-			glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
-			//                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
-			for (int i = 0; i < obj_list[cube_i].face_cnt * 3; ++i) {
-				color.emplace_back(a);
-			}
-
-			glGenBuffers(1, &obj_list[cube_i].v_color);
-			glBindBuffer(GL_ARRAY_BUFFER, obj_list[cube_i].v_color);
-			glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
+			obj_list[cube_i].imgLoad("./IMG/wall.png");
 		}
 
 		Background.emplace_back(obj_list[cube_i]);
-		Background.back().pos += glm::vec3{ -2.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
+		Background.back().scale = glm::vec3{ 12.f, 20.f, 30.f };
+		Background.back().pos += glm::vec3{ -6.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
 		Background.emplace_back(obj_list[cube_i]);
-		Background.back().pos += glm::vec3{ 2.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
+		Background.back().scale = glm::vec3{ 12.f, 20.f, 30.f };
+		Background.back().pos += glm::vec3{ 6.f, 0.f, -0.25 * Background.back().scale.z } + Camera.pos;
 		Background.emplace_back(obj_list[cube_i]);
+		Background.back().scale = glm::vec3{ 12.f, 4.f, 30.f };
 		Background.back().pos += glm::vec3{ 0.f, -2.f, -0.25 * Background.back().scale.z } + Camera.pos;
 		Background.emplace_back(obj_list[cube_i]);
-		Background.back().pos += glm::vec3{ 0.f, 2.f, -0.25 * Background.back().scale.z } + Camera.pos;
+		Background.back().scale = glm::vec3{ 12.f, 12.f, 30.f };
+		Background.back().pos += glm::vec3{ 0.f, 2.f, -0.75f * Background.back().scale.z } + Camera.pos;
+		Background.back().imgLoad("./IMG/background.png");
 	}
 
 	// 바닥에 붙어있는 cube
@@ -2268,16 +2264,7 @@ void Init()
 		obj_list[fcube_i].scale = glm::vec3{ 1.f, 1.f, 1.f };
 		obj_list[fcube_i].pos = glm::vec3{ 0.f, -1.f, 0.f };
 
-		std::vector<glm::vec3> color;
-		glm::vec3 a{ 242 / 255.f, 255 / 255.f, 237 / 255.f };
-		//                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 요기
-		for (int i = 0; i < obj_list[fcube_i].face_cnt * 3; ++i) {
-			color.emplace_back(a);
-		}
-
-		glGenBuffers(1, &obj_list[fcube_i].v_color);
-		glBindBuffer(GL_ARRAY_BUFFER, obj_list[fcube_i].v_color);
-		glBufferData(GL_ARRAY_BUFFER, color.size() * sizeof(glm::vec3), color.data(), GL_STATIC_DRAW);
+		obj_list[fcube_i].imgLoad("./IMG/wall.png");
 	}
 
 	MakeCrystal(glm::vec3{ -0.3, -0.7, 0.f }, glm::vec3{ 0.5, 0.2, 0.5 });
