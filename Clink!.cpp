@@ -81,6 +81,15 @@ static FMOD::Channel* channel[3] = { 0, 0, 0 };
 static FMOD_RESULT result;
 static void* extradriverdata = 0;
 
+void WindowConversion(GLObj& obj, int w, int h) {
+	if (winSizex && winSizey) {
+		obj.scale.y /= winSizex / winSizey;
+		obj.pos.y /= winSizex / winSizey;
+	}
+	obj.scale.y *= (float)w / (float)h;
+	obj.pos.y *= (float)w / (float)h;
+	obj.size = glm::vec3{ abs((obj.max - obj.min) / 2.f) * obj.scale };
+}
 void BallDecoClear() {
 	BallDeco[0].clear();
 	BallDeco[1].clear();
@@ -171,7 +180,7 @@ void UiClick(int what)
 			GameState = title_s;
 
 			Ball.clear();
-			BallDeco[0].clear();
+			BallDecoClear();
 			Crystal.clear();
 			MakeCrashedCrystal.clear();
 			Obstacle.clear();
@@ -188,8 +197,13 @@ void UiClick(int what)
 
 			Clink.pos = glm::vec3{ 0.f, 0.2f, 0.f };
 
-			MakeCrystal(glm::vec3{ -0.3, -0.7, 0.f }, glm::vec3{ 0.5, 0.2, 0.5 });
-			MakeCrystal(glm::vec3{ 0.3, -0.7, 0.f }, glm::vec3{ 0.5, 0.2, 0.5 });
+			MakeCrystal(glm::vec3{ -0.3, -1.1f, 0.f }, glm::vec3{ 0.5, 0.2, 0.5 });
+			MakeCrystal(glm::vec3{ 0.3, -1.1f, 0.f }, glm::vec3{ 0.5, 0.2, 0.5 });
+
+			for (int i = 0; i < Crystal.size(); i++) 
+				WindowConversion(Crystal[i], winSizex, winSizey);
+			for (int i = 0; i < Background.size(); i++) 
+				WindowConversion(Background[i], winSizex, winSizey);
 		}
 		break;
 	}
@@ -358,15 +372,6 @@ glm::vec3 CalNormalVector(const glm::vec3& A, const glm::vec3& B, const glm::vec
 	return normal;
 }
 
-void WindowConversion(GLObj& obj, int w, int h) {
-	if (winSizex && winSizey) {
-		obj.scale.y /= winSizex / winSizey;
-		obj.pos.y /= winSizex / winSizey;
-	}
-	obj.scale.y *= (float)w / (float)h;
-	obj.pos.y *= (float)w / (float)h;
-	obj.size = glm::vec3{ abs((obj.max - obj.min) / 2.f) * obj.scale };
-}
 void DeleteObject(GLObj& obj) {
 	if (obj.v_pos)
 		glDeleteBuffers(1, &obj.v_pos);
@@ -1916,12 +1921,13 @@ void TimerFunction(int value)
 		break;
 	}
 	case 2: {
-		static std::uniform_int_distribution<int> LoadMapRd(1, 6);
+		if (GameState == play_s) {
+			static std::uniform_int_distribution<int> LoadMapRd(1, 6);
 
-		LoadMap(LoadMapRd(rd));
+			LoadMap(LoadMapRd(rd));
 
-		if (GameState == play_s)
 			glutTimerFunc(2000, TimerFunction, 2);
+		}
 		break;
 	}
 	default:
