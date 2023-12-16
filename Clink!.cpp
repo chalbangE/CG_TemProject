@@ -71,7 +71,7 @@ glm::vec3 click_mouse{};
 int ball_num = 1; // 한번에 쏘는 공 개수
 int ball_gauge = 0;
 int total_ball = 25;
-int GameState = title_s;
+int GameState = end_s;
 GLfloat volumeSize = 1.f, Speed = 0.03f;
 int Whatdeco = non_deco;
 
@@ -1946,8 +1946,10 @@ GLvoid Mouse(int button, int state, int x, int y)
 
 			// 현재 출력중인 ui와의 상호작용 확인
 			for (int i = 0; i < Ui[GameState].size(); ++i) {
-				if (m.x >= Ui[GameState][i].leftbottom.x && m.y >= Ui[GameState][i].leftbottom.y
-					&& m.x <= Ui[GameState][i].righttop.x && m.y <= Ui[GameState][i].righttop.y) {
+				if (m.x >= Ui[GameState][i].leftbottom.x * Ui[GameState][i].scale.x + Ui[GameState][i].pos.x &&
+					m.y >= Ui[GameState][i].leftbottom.y * Ui[GameState][i].scale.y + Ui[GameState][i].pos.y &&
+					m.x <= Ui[GameState][i].righttop.x * Ui[GameState][i].scale.x + Ui[GameState][i].pos.x &&
+					m.y <= Ui[GameState][i].righttop.y * Ui[GameState][i].scale.y + Ui[GameState][i].pos.y) {
 					UiClick(i);
 					skip = true;
 					if (GameState != Now_state || (GameState != option_s && GameState != end_s && GameState != stop_s) || i != 0)
@@ -2176,38 +2178,81 @@ void Init()
 
 	// Ui
 	{
-		Ui[title_s].emplace_back(GLUi(-0.8f - 0.15f, -0.8f - 0.15f, -0.363f - 0.15f, -0.5f - 0.15f));
+		Ui[title_s].emplace_back(SetImageSize(763, 300));
 		Ui[title_s].back().imgLoad("./IMG/Option_ui.png");
-		Ui[title_s].emplace_back(GLUi(0.363f + 0.15f, -0.8f - 0.15f, 0.8 + 0.15f, -0.5f - 0.15f));
+		Ui[title_s].back().scale = glm::vec3(0.5f);
+		Ui[title_s].back().pos = glm::vec3(-1.f + 0.763f * 0.25 + 0.05f, -1.f + 0.3f * 0.25f + 0.1f, 0.f);
+		
+		Ui[title_s].emplace_back(SetImageSize(763, 300));
 		Ui[title_s].back().imgLoad("./IMG/Customizing_ui.png");
+		Ui[title_s].back().scale = glm::vec3(0.5f);
+		Ui[title_s].back().pos = glm::vec3(1.f - 0.763f * 0.25 - 0.05f, -1.f + 0.3f * 0.25f + 0.1f, 0.f);
+
 
 		Ui[option_s].emplace_back(GLUi(-1.f, -1.f, 1.f, 1.f, 0.1f));
 		Ui[option_s].back().imgLoad("./IMG/gray_background.png");
-		Ui[option_s].emplace_back(GLUi(-0.97, 0.7, -0.8, 0.95));
-		Ui[option_s].back().imgLoad("./IMG/return.png");
-		Ui[option_s].emplace_back(GLUi(0.35f, 0.1f, 0.55f, 0.3f));
-		Ui[option_s].back().imgLoad("./IMG/sound_up.png");
-		Ui[option_s].emplace_back(GLUi(0.35f, -0.15, 0.55f, 0.05));
-		Ui[option_s].back().imgLoad("./IMG/sound_down.png");
-		Ui[option_s].emplace_back(GLUi(-0.5f, -0.1, -0.2, 0.25f));
-		Ui[option_s].back().imgLoad("./IMG/volume_on.png", "./IMG/volume_off.png");
 
-		Ui[custom_s].emplace_back(GLUi(0.7f, 0.75f, 0.95f, 0.9f));
+		Ui[option_s].emplace_back(SetImageSize(750, 600));
+		Ui[option_s].back().imgLoad("./IMG/return.png");
+		Ui[option_s].back().scale = glm::vec3(0.2f);
+		Ui[option_s].back().pos = glm::vec3(-1.f + 0.75f * 0.1f + 0.05f, 1.f - 0.2f, 0.f);
+
+		Ui[option_s].emplace_back(SetImageSize(750, 600));
+		Ui[option_s].back().imgLoad("./IMG/sound_up.png");
+		Ui[option_s].back().scale = glm::vec3(0.25f);
+		Ui[option_s].back().pos = glm::vec3(0.25f, 0.6 * 0.25, 0.f);
+
+		Ui[option_s].emplace_back(SetImageSize(750, 600));
+		Ui[option_s].back().imgLoad("./IMG/sound_down.png");
+		Ui[option_s].back().scale = glm::vec3(0.25f);
+		Ui[option_s].back().pos = glm::vec3(0.25f, -0.6 * 0.25, 0.f);
+
+		Ui[option_s].emplace_back(SetImageSize(750, 600));
+		Ui[option_s].back().imgLoad("./IMG/volume_on.png", "./IMG/volume_off.png");
+		Ui[option_s].back().scale = glm::vec3(0.3f);
+		Ui[option_s].back().pos = glm::vec3(-0.25f, 0.f, 0.f);
+
+
+		Ui[custom_s].emplace_back(SetImageSize(580, 220));
 		Ui[custom_s].back().imgLoad("./IMG/Sunglass1.png");
-		Ui[custom_s].emplace_back(GLUi(0.7f, 0.55f, 0.95f, 0.7f));
+		Ui[custom_s].back().scale = glm::vec3(0.6f);
+		Ui[custom_s].back().pos = glm::vec3(1.f - 0.58f * 0.3f - 0.05f, 1.f - 0.22f * 0.3f - 0.1f, 0.f);
+
+		Ui[custom_s].emplace_back(SetImageSize(580, 220));
 		Ui[custom_s].back().imgLoad("./IMG/Sunglass2.png");
-		Ui[custom_s].emplace_back(GLUi(0.7f, 0.35f, 0.95f, 0.5f));
+		Ui[custom_s].back().scale = glm::vec3(0.6f);
+		Ui[custom_s].back().pos = glm::vec3(1.f - 0.58f * 0.3f - 0.05f, 1.f - 0.22f * 0.3f - (0.1f) * 2.f - (0.22f * 0.6f) * 1.f, 0.f);
+
+		Ui[custom_s].emplace_back(SetImageSize(580, 220));
 		Ui[custom_s].back().imgLoad("./IMG/Sunglass3.png");
-		Ui[custom_s].emplace_back(GLUi(0.7f, 0.15f, 0.95f, 0.3f));
+		Ui[custom_s].back().scale = glm::vec3(0.6f);
+		Ui[custom_s].back().pos = glm::vec3(1.f - 0.58f * 0.3f - 0.05f, 1.f - 0.22f * 0.3f - (0.1f) * 3.f - (0.22f * 0.6f) * 2.f, 0.f);
+
+		Ui[custom_s].emplace_back(SetImageSize(580, 220));
 		Ui[custom_s].back().imgLoad("./IMG/Hat1.png");
-		Ui[custom_s].emplace_back(GLUi(0.7f, -0.05f, 0.95f, 0.1f));
+		Ui[custom_s].back().scale = glm::vec3(0.6f);
+		Ui[custom_s].back().pos = glm::vec3(1.f - 0.58f * 0.3f - 0.05f, 1.f - 0.22f * 0.3f - (0.1f) * 4.f - (0.22f * 0.6f) * 3.f, 0.f);
+
+		Ui[custom_s].emplace_back(SetImageSize(580, 220));
 		Ui[custom_s].back().imgLoad("./IMG/Hat2.png");
-		Ui[custom_s].emplace_back(GLUi(0.7f, -0.25f, 0.95f, -0.1f));
+		Ui[custom_s].back().scale = glm::vec3(0.6f);
+		Ui[custom_s].back().pos = glm::vec3(1.f - 0.58f * 0.3f - 0.05f, 1.f - 0.22f * 0.3f - (0.1f) * 5.f - (0.22f * 0.6f) * 4.f, 0.f);
+
+		Ui[custom_s].emplace_back(SetImageSize(580, 220));
 		Ui[custom_s].back().imgLoad("./IMG/Hat3.png");
-		Ui[custom_s].emplace_back(GLUi(0.7f, -0.45f, 0.95f, -0.3f));
+		Ui[custom_s].back().scale = glm::vec3(0.6f);
+		Ui[custom_s].back().pos = glm::vec3(1.f - 0.58f * 0.3f - 0.05f, 1.f - 0.22f * 0.3f - (0.1f) * 6.f - (0.22f * 0.6f) * 5.f, 0.f);
+
+		Ui[custom_s].emplace_back(SetImageSize(580, 220));
 		Ui[custom_s].back().imgLoad("./IMG/초기화.png");
-		Ui[custom_s].emplace_back(GLUi(0.7f, -0.9f, 0.95f, -0.75f));
+		Ui[custom_s].back().scale = glm::vec3(0.6f);
+		Ui[custom_s].back().pos = glm::vec3(1.f - 0.58f * 0.3f - 0.05f, 1.f - 0.22f * 0.3f - (0.1f) * 7.f - (0.22f * 0.6f) * 6.f, 0.f);
+
+		Ui[custom_s].emplace_back(SetImageSize(580, 220));
 		Ui[custom_s].back().imgLoad("./IMG/완료.png");
+		Ui[custom_s].back().scale = glm::vec3(0.6f);
+		Ui[custom_s].back().pos = glm::vec3(1.f - 0.58f * 0.3f - 0.05f, 1.f - 0.22f * 0.3f - (0.1f) * 8.f - (0.22f * 0.6f) * 7.f, 0.f);
+
 
 		Number.emplace_back(SetImageSize(286, 419));
 		Number.back().imgLoad("./IMG/0.png");
@@ -2405,18 +2450,29 @@ void Init()
 		Gauge.back().scale = glm::vec3(0.3f);
 		Gauge.back().pos = glm::vec3(-0.15f, 1.f - 0.175f, 0.f);
 
+
 		Ui[stop_s].emplace_back(GLUi(-1.f, -1.f, 1.f, 1.f, 0.1f));
 		Ui[stop_s].back().imgLoad("./IMG/gray_background.png");
-		Ui[stop_s].emplace_back(GLUi(-0.97, 0.7, -0.8, 0.95));
+
+		Ui[stop_s].emplace_back(SetImageSize(750, 600));
 		Ui[stop_s].back().imgLoad("./IMG/return.png");
-		Ui[stop_s].emplace_back(GLUi(-0.8f - 0.15f, -0.8f - 0.15f, -0.363f - 0.15f, -0.5f - 0.15f));
+		Ui[stop_s].back().scale = glm::vec3(0.2f);
+		Ui[stop_s].back().pos = glm::vec3(-1.f + 0.75f * 0.1f + 0.05f, 1.f - 0.2f, 0.f);
+
+		Ui[stop_s].emplace_back(SetImageSize(763, 300));
 		Ui[stop_s].back().imgLoad("./IMG/Option_ui.png");
+		Ui[stop_s].back().scale = glm::vec3(0.5f);
+		Ui[stop_s].back().pos = glm::vec3(-1.f + 0.763f * 0.25 + 0.05f, -1.f + 0.3f * 0.25f + 0.1f, 0.f);
+
 
 		Ui[end_s].emplace_back(GLUi(-1.f, -1.f, 1.f, 1.f, 0.1f));
 		Ui[end_s].back().imgLoad("./IMG/gray_background.png");
-		Ui[end_s].emplace_back(GLUi(-0.4, -0.7, 0.4, -0.4));
+
+		Ui[end_s].emplace_back(SetImageSize(800, 220));
 		Ui[end_s].back().imgLoad("./IMG/title_go.png");
-	}
+		Ui[stop_s].back().scale = glm::vec3(0.5f);
+		Ui[stop_s].back().pos = glm::vec3(0.f, 0.f, 0.f);
+}
 
 	//  Deco
 	{
