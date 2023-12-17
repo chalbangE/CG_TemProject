@@ -496,7 +496,6 @@ glm::vec3 CalFragmentVelocity(GLObj& ball, GLObj& fragment, const char mode) {
 void LoadCrashedCrystal(GLObj& ball, const int& index) {
 	std::uniform_real_distribution<float> rand_dir(-0.005f, 0.005f);
 	std::uniform_int_distribution<int> rand_bool(0, 1);
-	std::uniform_int_distribution<int> rand_sound(0, 2);
 
 	{
 		std::ifstream inputFile("./OBJ/c1.obj");
@@ -1524,7 +1523,8 @@ void LoseBall() {
 
 	ball_gauge = 0;
 	ball_num = ball_gauge / 10 + 1;
-	total_ball -= 10;
+	if (GameMode == clasic_m)
+		total_ball -= 10;
 	if (total_ball <= 0) {
 		total_ball = 0;
 		GameState = end_s;
