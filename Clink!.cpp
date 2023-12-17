@@ -1275,6 +1275,15 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 	std::vector<glm::vec3> objnor;
 	std::vector <glm::vec3> objpos;
 	std::vector<glm::vec2> objtex;
+	if (ball.pos.y < obstacle.pos.y - obstacle.size.y)
+		ball.pos.y = obstacle.pos.y - obstacle.size.y + 0.05f;
+	else if (ball.pos.y > obstacle.pos.y + obstacle.size.y)
+		ball.pos.y = obstacle.pos.y + obstacle.size.y - 0.05f;
+	if (ball.pos.x < obstacle.pos.x - obstacle.size.x)
+		ball.pos.x = obstacle.pos.x - obstacle.size.x + 0.05f;
+	else if (ball.pos.x > obstacle.pos.x + obstacle.size.x)
+		ball.pos.x = obstacle.pos.x + obstacle.size.x - 0.05f;
+
 	float range[6] = { 0.03125f, 0.0625f, 0.125f, 0.25f, 0.5f, 1.f };
 	float essential_angle[4] = {
 		atan2((obstacle.pos.y + obstacle.size.y - ball.pos.y) / (winSizex / winSizey), obstacle.pos.x + obstacle.size.x - ball.pos.x),
@@ -1292,7 +1301,7 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 
 	// 깨질 각도 생성
 	for (int i = 0; i < 4; i++) {
-		angle.emplace_back(essential_angle[i] - 0.001f);
+		angle.emplace_back(essential_angle[i] - 0.0001f);
 	}
 
 	angle.emplace_back(rand_angle_cnt(gen));
