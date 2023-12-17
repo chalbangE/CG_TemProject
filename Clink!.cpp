@@ -1620,7 +1620,7 @@ void LoseBall() {
 	}
 
 	ssystem->playSound(Collision_Sound, 0, false, &channel[crash_cn]);
-	channel[crash_cn]->setVolume(0.35 * volumeSize);
+	channel[crash_cn]->setVolume(0.2 * volumeSize);
 }
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
@@ -2979,7 +2979,7 @@ void Init()
 		ssystem->createSound("WAV/BallShoot.wav", FMOD_LOOP_OFF, 0, &BallShoot_Sound); //--- 공 쏘는 소리
 		ssystem->createSound("WAV/Bgm.mp3", FMOD_LOOP_NORMAL, 0, &Bgm_Sound); //--- BGM
 		ssystem->createSound("WAV/Dead.mp3", FMOD_LOOP_OFF, 0, &Dead_Sound); //--- 공 쏘는 소리
-		ssystem->createSound("WAV/Collision.wav", FMOD_LOOP_NORMAL, 0, &Collision_Sound); //--- BGM
+		ssystem->createSound("WAV/Collision.wav", FMOD_LOOP_OFF, 0, &Collision_Sound); //--- BGM
 	}
 	ssystem->playSound(Bgm_Sound, 0, false, &channel[bgm_cn]);
 	channel[bgm_cn]->setVolume(0.08 * volumeSize);
