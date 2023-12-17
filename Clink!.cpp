@@ -1265,7 +1265,7 @@ std::vector <glm::vec3> InputVertexIndex(std::vector <glm::vec3>& vertex) {
 
 	return objpos;
 }
-void CrashObstacle(GLObj& ball, GLObj& obstacle) {
+void CrashObstacle(GLObj ball, GLObj& obstacle) {
 	uniform_real_distribution<float> rand_range[6];
 	std::uniform_real_distribution<float> rand_angle_cnt(glm::radians(15.f), glm::radians(60.f));
 	std::vector <float> angle;
@@ -1546,6 +1546,35 @@ void CrashObstacle(GLObj& ball, GLObj& obstacle) {
 
 	for (int i = 0; i < CrashedObstacle.size(); ++i)
 		obstacle.fragment.emplace_back(&CrashedObstacle[i]);
+}
+bool isFragmentCrashed(GLObj& ball, GLObj& obstacle) {
+	int f_cnt = 0;
+	std::uniform_real_distribution<float> rand_magnitude(0.5f, 0.8f);
+
+	for (f_cnt = 0; f_cnt < obstacle.fragment.size(); f_cnt++) {
+		if (obstacle.fragment[f_cnt]->vertex.size() == 3 &&
+			isPointInsideTriangle(ball.pos, obstacle.fragment[f_cnt]->vertex[0] + obstacle.fragment[f_cnt]->pos, obstacle.fragment[f_cnt]->vertex[1] + obstacle.fragment[f_cnt]->pos, obstacle.fragment[f_cnt]->vertex[2] + obstacle.fragment[f_cnt]->pos)) {
+			obstacle.fragment[f_cnt]->velocity = CalVector(ball.pos, glm::vec3(obstacle.fragment[f_cnt]->pos.x + obstacle.fragment[f_cnt]->midpos.x, obstacle.fragment[f_cnt]->pos.y + obstacle.fragment[f_cnt]->midpos.y, ball.pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
+			obstacle.fragment[f_cnt]->velocity = NormalizeVector(obstacle.fragment[f_cnt]->velocity); // 벡터 정규화
+			obstacle.fragment[f_cnt]->velocity *= CalVectorMagnitude(ball.velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+			break;
+		}
+		else if (obstacle.fragment[f_cnt]->vertex.size() == 4 &&
+			isPointInsideQuadrangle(ball.pos, obstacle.fragment[f_cnt]->vertex[0] + obstacle.fragment[f_cnt]->pos, obstacle.fragment[f_cnt]->vertex[1] + obstacle.fragment[f_cnt]->pos, obstacle.fragment[f_cnt]->vertex[2] + obstacle.fragment[f_cnt]->pos, obstacle.fragment[f_cnt]->vertex[3] + obstacle.fragment[f_cnt]->pos)) {
+			obstacle.fragment[f_cnt]->velocity = CalVector(ball.pos, glm::vec3(obstacle.fragment[f_cnt]->pos.x + obstacle.fragment[f_cnt]->midpos.x, obstacle.fragment[f_cnt]->pos.y + obstacle.fragment[f_cnt]->midpos.y, ball.pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
+			obstacle.fragment[f_cnt]->velocity = NormalizeVector(obstacle.fragment[f_cnt]->velocity); // 벡터 정규화
+			obstacle.fragment[f_cnt]->velocity *= CalVectorMagnitude(ball.velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+			break;
+		}
+		else if (obstacle.fragment[f_cnt]->vertex.size() == 5 &&
+			isPointInsidePentagon(ball.pos, obstacle.fragment[f_cnt]->vertex[0] + obstacle.fragment[f_cnt]->pos, obstacle.fragment[f_cnt]->vertex[1] + obstacle.fragment[f_cnt]->pos, obstacle.fragment[f_cnt]->vertex[2] + obstacle.fragment[f_cnt]->pos, obstacle.fragment[f_cnt]->vertex[3] + obstacle.fragment[f_cnt]->pos, obstacle.fragment[f_cnt]->vertex[4] + obstacle.fragment[f_cnt]->pos)) {
+			obstacle.fragment[f_cnt]->velocity = CalVector(ball.pos, glm::vec3(obstacle.fragment[f_cnt]->pos.x + obstacle.fragment[f_cnt]->midpos.x, obstacle.fragment[f_cnt]->pos.y + obstacle.fragment[f_cnt]->midpos.y, ball.pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
+			obstacle.fragment[f_cnt]->velocity = NormalizeVector(obstacle.fragment[f_cnt]->velocity); // 벡터 정규화
+			obstacle.fragment[f_cnt]->velocity *= CalVectorMagnitude(ball.velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+			break;
+		}
+	}
+	return f_cnt != obstacle.fragment.size();
 }
 GLUi SetImageSize(int sizex, int sizey) {
 	return GLUi(-(float)sizex / 1000.f / 2.f, -(float)sizey / 1000.f / 2.f, (float)sizex / 1000.f / 2.f, (float)sizey / 1000.f / 2.f);
@@ -2057,14 +2086,14 @@ void TimerFunction(int value)
 				// 장애물
 				for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Obstacle[o_cnt], cube_i) && !CheckCollision(temp, Obstacle[o_cnt], cube_i)) {
-						if (Obstacle[o_cnt].scale == glm::vec3(0.f)) {
+						if (Obstacle[o_cnt].scale == glm::vec3(0.f) && isFragmentCrashed(Ball[i], Obstacle[o_cnt])) {
 							for (int f_cnt = 0; f_cnt < Obstacle[o_cnt].fragment.size(); f_cnt++) {
 								if (Obstacle[o_cnt].fragment[f_cnt]->velocity == glm::vec3(0.f)) {
 									Obstacle[o_cnt].fragment[f_cnt]->velocity = CalFragmentVelocity(Ball[i], *Obstacle[o_cnt].fragment[f_cnt], 'o');
 								}
 							}
 						}
-						else {
+						else if (Obstacle[o_cnt].scale != glm::vec3(0.f)){
 							CrashObstacle(Ball[i], Obstacle[o_cnt]);
 							Obstacle[o_cnt].scale = glm::vec3(0.f);
 						}
