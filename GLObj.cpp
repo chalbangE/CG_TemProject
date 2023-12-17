@@ -316,6 +316,13 @@ void GLObj::draw_prepare(int Location, std::string Location_str) {
 	}
 }
 
+void GLObj::draw_prepare(int Location, std::string Location_str, int ImgWhat)
+{
+	if ("Texture" == Location_str) {
+		glBindTexture(GL_TEXTURE_2D, imgs[ImgWhat]);
+	}
+}
+
 void GLObj::Update()
 {
 	World_mat = glm::mat4(1.0);
@@ -362,6 +369,23 @@ void GLObj::imgLoad(std::string map)
 
 	glGenTextures(1, &img);
 	glBindTexture(GL_TEXTURE_2D, img);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	stbi_set_flip_vertically_on_load(true);
+	unsigned char* data = stbi_load(map.c_str(), &img_W, &img_H, &numberOfChannel, 0);
+	// std::cout << name << " : widthImage - " << widthImage << " , heightImage - " << heightImage << std::endl;
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img_W, img_H, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	stbi_image_free(data);
+}
+
+void GLObj::imgLoad(std::string map, int imgWhat)
+{
+	int img_W, img_H, numberOfChannel; // 가로, 세로, 채널 수
+
+	glGenTextures(1, &imgs[imgWhat]);
+	glBindTexture(GL_TEXTURE_2D, imgs[imgWhat]);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
