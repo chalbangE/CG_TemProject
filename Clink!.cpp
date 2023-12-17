@@ -92,7 +92,7 @@ GLfloat volumeSize = 1.f, Speed = 0.02f, Distance = 0.f;
 
 // 효과음
 static FMOD::System* ssystem;
-static FMOD::Sound* Crach_Sound[3], * BallShoot_Sound, * Bgm_Sound;
+static FMOD::Sound* Crach_Sound[3], * BallShoot_Sound, * Bgm_Sound, *Collision_Sound, *Dead_Sound;
 static FMOD::Channel* channel[3] = { 0, 0, 0 };
 static FMOD_RESULT result;
 static void* extradriverdata = 0;
@@ -1614,8 +1614,13 @@ void LoseBall() {
 		total_ball = 0;
 		GameState = end_s;
 		EraseObject();
+		ssystem->playSound(Dead_Sound, 0, false, &channel[crash_cn]);
+		channel[crash_cn]->setVolume(0.35 * volumeSize);
 		return;
 	}
+
+	ssystem->playSound(Collision_Sound, 0, false, &channel[crash_cn]);
+	channel[crash_cn]->setVolume(0.35 * volumeSize);
 }
 
 int main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
@@ -2126,8 +2131,10 @@ void TimerFunction(int value)
 		for (int o_cnt = 0; o_cnt < Obstacle.size(); ++o_cnt) {
 			if (Obstacle[o_cnt].scale != glm::vec3(0.f) && CheckCollision(Camera, Obstacle[o_cnt])) {
 				LoseBall();
+				if (GameState == end_s)
+					break;
 				Obstacle.erase(Obstacle.begin() + o_cnt);
-				break;
+
 			}
 		}
 
@@ -2137,6 +2144,8 @@ void TimerFunction(int value)
 				if (CrashedObstacle[i].vertex.size() == 3 &&
 					isPointInsideTriangle(Camera.pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos)) {
 					LoseBall();
+					if (GameState == end_s)
+						break;
 					DeleteObject(CrashedObstacle[i]);
 					CrashedObstacle.erase(CrashedObstacle.begin() + i);
 					break;
@@ -2144,6 +2153,8 @@ void TimerFunction(int value)
 				else if (CrashedObstacle[i].vertex.size() == 4 &&
 					isPointInsideQuadrangle(Camera.pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[3] + CrashedObstacle[i].pos)) {
 					LoseBall();
+					if (GameState == end_s)
+						break;
 					DeleteObject(CrashedObstacle[i]);
 					CrashedObstacle.erase(CrashedObstacle.begin() + i);
 					break;
@@ -2151,6 +2162,8 @@ void TimerFunction(int value)
 				else if (CrashedObstacle[i].vertex.size() == 5 &&
 					isPointInsidePentagon(Camera.pos, CrashedObstacle[i].vertex[0] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[1] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[2] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[3] + CrashedObstacle[i].pos, CrashedObstacle[i].vertex[4] + CrashedObstacle[i].pos)) {
 					LoseBall();
+					if (GameState == end_s)
+						break;
 					DeleteObject(CrashedObstacle[i]);
 					CrashedObstacle.erase(CrashedObstacle.begin() + i);
 					break;
@@ -2281,6 +2294,9 @@ GLvoid Mouse(int button, int state, int x, int y)
 					if (total_ball < 0) {
 						GameState = end_s;
 						EraseObject();
+
+						ssystem->playSound(Dead_Sound, 0, false, &channel[crash_cn]);
+						channel[crash_cn]->setVolume(0.35 * volumeSize);
 					}
 				}
 				Msray.ScreenToWorld(x, y, Camera.Camera_Mat, Projection_Mat, winSizex, winSizey);
@@ -2962,6 +2978,8 @@ void Init()
 		ssystem->createSound("WAV/GlassCrash3.wav", FMOD_LOOP_OFF, 0, &Crach_Sound[2]); //--- 유리 깨지는 소리 3
 		ssystem->createSound("WAV/BallShoot.wav", FMOD_LOOP_OFF, 0, &BallShoot_Sound); //--- 공 쏘는 소리
 		ssystem->createSound("WAV/Bgm.mp3", FMOD_LOOP_NORMAL, 0, &Bgm_Sound); //--- BGM
+		ssystem->createSound("WAV/Dead.mp3", FMOD_LOOP_OFF, 0, &Dead_Sound); //--- 공 쏘는 소리
+		ssystem->createSound("WAV/Collision.wav", FMOD_LOOP_NORMAL, 0, &Collision_Sound); //--- BGM
 	}
 	ssystem->playSound(Bgm_Sound, 0, false, &channel[bgm_cn]);
 	channel[bgm_cn]->setVolume(0.08 * volumeSize);
