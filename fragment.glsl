@@ -18,6 +18,7 @@ uniform sampler2D out_Tex; //--- 텍스처 샘플러
 
 uniform bool Tex_or_Color; // 텍스쳐로 출력할지 == True /  컬러로 출력할지 == False
 uniform bool Ui_bool; // ui == True
+uniform bool Bg_bool; // ui == True
 
 void main ()
 {
@@ -48,6 +49,6 @@ void main ()
 	else
 		Frag_Color = vec4(result / (Distance * 0.5), 1.0);
 
-	if (Ui_bool)
+	if (Ui_bool || Bg_bool)
 		Frag_Color = texture(out_Tex, out_Uv);
 }

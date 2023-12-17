@@ -34,7 +34,7 @@ void Mapping();
 
 unsigned int PosLocation, ColorLocation, NormalLocation, UvLocation;
 unsigned int WorldTransLocation, CameraLocation, ProjectionLocation, TexSamplerLocation, TexorColorLocation, UiboolLocation;
-unsigned int LightPosLocation, LightColorLocation, ViewPosLocation, DistanceLocation;
+unsigned int LightPosLocation, LightColorLocation, ViewPosLocation, DistanceLocation, BgboolLocation;
 glm::mat4 Projection_Mat = glm::mat4(1.0f);
 float winSizex = 0, winSizey = 0;
 const float g = 0.0006f;
@@ -135,7 +135,7 @@ void UiClick(int what)
 			if (Whatdeco != non_deco)
 				BallDeco[0].emplace_back(deco_list[Whatdeco]);
 
-			Camera.pos = glm::vec3{ 0.f, 0.f, 0.3f };
+			Camera.pos = glm::vec3{ 0.f, 0.f, 0.4f };
 			Light.pos = Camera.pos + glm::vec3{ 0.f, 0.f, 4.f };
 		}
 		break;
@@ -1542,10 +1542,17 @@ GLvoid drawScene()
 			Background[i].draw_prepare(UvLocation, "UV");
 			Background[i].draw_prepare(false, "Texture");
 			Background[i].draw_prepare(TexorColorLocation, "Texture_bool");
+
 			if (i < 4)
 				glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos) / 3.f);
 			else
 				glUniform1f(DistanceLocation, distance(Light.pos, Background[i].pos));
+
+			if (i == 3)
+				glUniform1f(BgboolLocation, true);
+			else
+				glUniform1f(BgboolLocation, false);
+				
 			Background[i].draw("solid");
 		}
 	}
@@ -1911,7 +1918,6 @@ void TimerFunction(int value)
 					if (CalVectorMagnitude(Ball[i].velocity) && CheckCollision(Ball[i], Obstacle[o_cnt], cube_i) && !CheckCollision(temp, Obstacle[o_cnt], cube_i)) {
 						if (Obstacle[o_cnt].scale == glm::vec3(0.f)) {
 							for (int f_cnt = 0; f_cnt < Obstacle[o_cnt].fragment.size(); f_cnt++) {
-								cout << f_cnt << endl;
 								if (Obstacle[o_cnt].fragment[f_cnt]->velocity == glm::vec3(0.f)) {
 									Obstacle[o_cnt].fragment[f_cnt]->velocity = CalFragmentVelocity(Ball[i], *Obstacle[o_cnt].fragment[f_cnt], 'o');
 								}
@@ -2618,8 +2624,8 @@ void Init()
 			else
 				std::cerr << "Failed to obj file" << std::endl;
 
-			deco_list[sunglass1].velocity = glm::vec3{ 0.f, 0.01f, 0.03f };
-			deco_list[sunglass1].scale = glm::vec3{ 0.024f, 0.024f, 0.024f };
+			deco_list[sunglass1].velocity = glm::vec3{ 0.f, 0.02f, 0.04f };
+			deco_list[sunglass1].scale = glm::vec3{ 0.032f, 0.032f, 0.032f };
 			deco_list[sunglass1].pos = glm::vec3{ 0.f, 0.f, 0.f };
 
 			deco_list[sunglass1].imgLoad("./OBJ/Sunglass1/Environment_Tropical.png");
@@ -2632,8 +2638,8 @@ void Init()
 			else
 				std::cerr << "Failed to obj file" << std::endl;
 
-			deco_list[sunglass2].velocity = glm::vec3{ 0.f, 0.008f, 0.03f };
-			deco_list[sunglass2].scale = glm::vec3{ 0.022f, 0.022f, 0.022f };
+			deco_list[sunglass2].velocity = glm::vec3{ 0.f, 0.008f, 0.037f };
+			deco_list[sunglass2].scale = glm::vec3{ 0.03f, 0.03f, 0.03f };
 			deco_list[sunglass2].pos = glm::vec3{ 0.f, 0.f, 0.f };
 
 			deco_list[sunglass2].imgLoad("./OBJ/Sunglass2/Environment_Tropical.png");
@@ -2646,8 +2652,8 @@ void Init()
 			else
 				std::cerr << "Failed to obj file" << std::endl;
 
-			deco_list[sunglass3].velocity = glm::vec3{ 0.f, 0.008f, 0.03f };
-			deco_list[sunglass3].scale = glm::vec3{ 0.022f, 0.022f, 0.022f };
+			deco_list[sunglass3].velocity = glm::vec3{ 0.f, 0.008f, 0.037f };
+			deco_list[sunglass3].scale = glm::vec3{ 0.03f, 0.03f, 0.03f };
 			deco_list[sunglass3].pos = glm::vec3{ 0.f, 0.f, 0.f };
 
 			deco_list[sunglass3].imgLoad("./OBJ/sunglass3/Environment_Tropical.png");
@@ -2660,8 +2666,8 @@ void Init()
 			else
 				std::cerr << "Failed to obj file" << std::endl;
 
-			deco_list[hat1].velocity = glm::vec3{ 0.f, 0.06f, -0.04f };
-			deco_list[hat1].scale = glm::vec3{ 0.035f, 0.035f, 0.035f };
+			deco_list[hat1].velocity = glm::vec3{ 0.f, 0.07f, -0.054f };
+			deco_list[hat1].scale = glm::vec3{ 0.048f, 0.048f, 0.048f };
 			deco_list[hat1].pos = glm::vec3{ 0.f, 0.f, 0.f };
 
 			deco_list[hat1].imgLoad("./OBJ/Hat1/mat_SharkHat01_Albedo.png");
@@ -2674,8 +2680,8 @@ void Init()
 			else
 				std::cerr << "Failed to obj file" << std::endl;
 
-			deco_list[hat2].velocity = glm::vec3{ 0.f, 0.04f, -0.015f };
-			deco_list[hat2].scale = glm::vec3{ 0.035f, 0.035f, 0.035f };
+			deco_list[hat2].velocity = glm::vec3{ 0.f, 0.04f, -0.016f };
+			deco_list[hat2].scale = glm::vec3{ 0.048f, 0.05f, 0.048f };
 			deco_list[hat2].pos = glm::vec3{ 0.f, 0.f, 0.f };
 
 			deco_list[hat2].imgLoad("./OBJ/Hat2/Colores.png");
@@ -2688,8 +2694,8 @@ void Init()
 			else
 				std::cerr << "Failed to obj file" << std::endl;
 
-			deco_list[hat3].velocity = glm::vec3{ 0.f, 0.035f, 0.01f };
-			deco_list[hat3].scale = glm::vec3{ 0.0011f, 0.0011f, 0.0011f };
+			deco_list[hat3].velocity = glm::vec3{ 0.f, 0.035f, 0.014f };
+			deco_list[hat3].scale = glm::vec3{ 0.0014f, 0.0017f, 0.0013f };
 			deco_list[hat3].pos = glm::vec3{ 0.f, 0.f, 0.f };
 
 			deco_list[hat3].imgLoad("./OBJ/Hat3/hat_elephant_color.png");
@@ -2737,6 +2743,7 @@ void Mapping() {
 	TexSamplerLocation = glGetUniformLocation(shaderProgramID, "out_Tex");
 	TexorColorLocation = glGetUniformLocation(shaderProgramID, "Tex_or_Color");
 	UiboolLocation = glGetUniformLocation(shaderProgramID, "Ui_bool");
+	BgboolLocation = glGetUniformLocation(shaderProgramID, "Bg_bool");
 
 	LightPosLocation = glGetUniformLocation(shaderProgramID, "Light_Pos");
 	LightColorLocation = glGetUniformLocation(shaderProgramID, "Light_Color");
