@@ -1550,6 +1550,7 @@ void CrashObstacle(GLObj ball, GLObj& obstacle) {
 bool isFragmentCrashed(GLObj& ball, GLObj& obstacle) {
 	int f_cnt = 0;
 	std::uniform_real_distribution<float> rand_magnitude(0.5f, 0.8f);
+	std::uniform_int_distribution<int> rand_sound(0, 2);
 
 	for (f_cnt = 0; f_cnt < obstacle.fragment.size(); f_cnt++) {
 		if (obstacle.fragment[f_cnt]->vertex.size() == 3 &&
@@ -1557,6 +1558,8 @@ bool isFragmentCrashed(GLObj& ball, GLObj& obstacle) {
 			obstacle.fragment[f_cnt]->velocity = CalVector(ball.pos, glm::vec3(obstacle.fragment[f_cnt]->pos.x + obstacle.fragment[f_cnt]->midpos.x, obstacle.fragment[f_cnt]->pos.y + obstacle.fragment[f_cnt]->midpos.y, ball.pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
 			obstacle.fragment[f_cnt]->velocity = NormalizeVector(obstacle.fragment[f_cnt]->velocity); // 벡터 정규화
 			obstacle.fragment[f_cnt]->velocity *= CalVectorMagnitude(ball.velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+			ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
+			channel[crash_cn]->setVolume(0.35 * volumeSize);
 			break;
 		}
 		else if (obstacle.fragment[f_cnt]->vertex.size() == 4 &&
@@ -1564,6 +1567,8 @@ bool isFragmentCrashed(GLObj& ball, GLObj& obstacle) {
 			obstacle.fragment[f_cnt]->velocity = CalVector(ball.pos, glm::vec3(obstacle.fragment[f_cnt]->pos.x + obstacle.fragment[f_cnt]->midpos.x, obstacle.fragment[f_cnt]->pos.y + obstacle.fragment[f_cnt]->midpos.y, ball.pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
 			obstacle.fragment[f_cnt]->velocity = NormalizeVector(obstacle.fragment[f_cnt]->velocity); // 벡터 정규화
 			obstacle.fragment[f_cnt]->velocity *= CalVectorMagnitude(ball.velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+			ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
+			channel[crash_cn]->setVolume(0.35 * volumeSize);
 			break;
 		}
 		else if (obstacle.fragment[f_cnt]->vertex.size() == 5 &&
@@ -1571,6 +1576,8 @@ bool isFragmentCrashed(GLObj& ball, GLObj& obstacle) {
 			obstacle.fragment[f_cnt]->velocity = CalVector(ball.pos, glm::vec3(obstacle.fragment[f_cnt]->pos.x + obstacle.fragment[f_cnt]->midpos.x, obstacle.fragment[f_cnt]->pos.y + obstacle.fragment[f_cnt]->midpos.y, ball.pos.z - 0.5f)); // 공에서 조각으로의 벡터 구하기
 			obstacle.fragment[f_cnt]->velocity = NormalizeVector(obstacle.fragment[f_cnt]->velocity); // 벡터 정규화
 			obstacle.fragment[f_cnt]->velocity *= CalVectorMagnitude(ball.velocity) / 20.f * rand_magnitude(gen); // 벡터에 속력 곱하기
+			ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
+			channel[crash_cn]->setVolume(0.35 * volumeSize);
 			break;
 		}
 	}
@@ -2092,16 +2099,15 @@ void TimerFunction(int value)
 									Obstacle[o_cnt].fragment[f_cnt]->velocity = CalFragmentVelocity(Ball[i], *Obstacle[o_cnt].fragment[f_cnt], 'o');
 								}
 							}
+							Ball[i].velocity.z = -0.05f;
 						}
 						else if (Obstacle[o_cnt].scale != glm::vec3(0.f)){
 							CrashObstacle(Ball[i], Obstacle[o_cnt]);
 							Obstacle[o_cnt].scale = glm::vec3(0.f);
+							ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
+							channel[crash_cn]->setVolume(0.35 * volumeSize);
+							Ball[i].velocity.z = -0.05f;
 						}
-						//Ball[i].velocity.z = -0.05f;
-
-						std::uniform_int_distribution<int> rand_sound(0, 2);
-						ssystem->playSound(Crach_Sound[rand_sound(rd)], 0, false, &channel[crash_cn]);
-						channel[crash_cn]->setVolume(0.35 * volumeSize);
 					}
 				}
 			}
